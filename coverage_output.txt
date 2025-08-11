@@ -1,0 +1,115 @@
+
+> fbo-lambda-template@1.0.0 test:cov
+> vitest run --coverage
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/Proyectos/Yummy/fbo-lambda-template[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstdout[2m | tests/clients/http.client.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒôí auto-backup env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/clients/postgres.client.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒôí observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/clients/mongo.client.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/utils/helpers.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+
+[90mstdout[2m | tests/clients/s3.client.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+
+[90mstdout[2m | tests/utils/logger.util.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+
+[90mstdout[2m | tests/services/finance.service.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒôí observe env with Radar: https://dotenvx.com/radar
+
+[90mstdout[2m | tests/interfaces/validation.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+
+[90mstdout[2m | tests/index.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒøá´©Å  run anywhere with `dotenvx run -- yourcommand`
+
+[90mstdout[2m | tests/interfaces/exceptions.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+
+[90mstdout[2m | tests/interfaces/base.test.ts
+[22m[39m[dotenv@17.2.1] injecting env (0) from .env.test -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+ [32mÔ£ô[39m tests/interfaces/exceptions.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32mÔ£ô[39m tests/interfaces/base.test.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32mÔ£ô[39m tests/utils/logger.util.test.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [32mÔ£ô[39m tests/clients/s3.client.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+stderr | tests/index.test.ts
+{"timestamp":"2025-08-11T22:11:19.310Z","level":"info","service":"S3Client","message":"S3 Client initialized"}
+
+ [32mÔ£ô[39m tests/services/finance.service.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32mÔ£ô[39m tests/clients/postgres.client.test.ts [2m([22m[2m40 tests[22m[2m)[22m[90m 56[2mms[22m[39m
+stderr | tests/index.test.ts
+{"timestamp":"2025-08-11T22:11:19.344Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+
+ [32mÔ£ô[39m tests/interfaces/validation.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 21[2mms[22m[39m
+ [32mÔ£ô[39m tests/clients/mongo.client.test.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 104[2mms[22m[39m
+ [32mÔ£ô[39m tests/clients/http.client.test.ts [2m([22m[2m43 tests[22m[2m)[22m[90m 66[2mms[22m[39m
+ [32mÔ£ô[39m tests/utils/helpers.test.ts [2m([22m[2m43 tests[22m[2m)[22m[90m 247[2mms[22m[39m
+stderr | tests/index.test.ts > Lambda Handler > S3 Event Processing > should process S3 event successfully
+{"timestamp":"2025-08-11T22:11:19.628Z","level":"info","service":"LambdaHandler","message":"Lambda function invoked","requestId":"test-request-id","eventType":"s3","functionName":"test-function","functionVersion":"$LATEST","remainingTimeInMillis":30000}
+{"timestamp":"2025-08-11T22:11:19.629Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+{"timestamp":"2025-08-11T22:11:19.629Z","level":"info","service":"LambdaHandler","message":"Processing event","requestId":"test-request-id","eventType":"s3"}
+{"timestamp":"2025-08-11T22:11:19.629Z","level":"info","service":"LambdaHandler","message":"Processing S3 event","requestId":"test-request-id","recordCount":1}
+{"timestamp":"2025-08-11T22:11:19.629Z","level":"info","service":"LambdaHandler","message":"Processing S3 object","requestId":"test-request-id","bucketName":"test-bucket","objectKey":"requests/test-file.csv"}
+{"timestamp":"2025-08-11T22:11:19.629Z","level":"info","service":"LambdaHandler","message":"Lambda function completed successfully","requestId":"test-request-id","result":{"message":"S3 event processed successfully","processedItems":1}}
+
+stderr | tests/index.test.ts > Lambda Handler > Custom Event Processing > should process download_bank_files action successfully
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"LambdaHandler","message":"Lambda function invoked","requestId":"test-request-id","eventType":"custom","functionName":"test-function","functionVersion":"$LATEST","remainingTimeInMillis":30000}
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"LambdaHandler","message":"Processing event","requestId":"test-request-id","eventType":"custom"}
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"LambdaHandler","message":"Processing custom event","requestId":"test-request-id","action":"download_bank_files"}
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"LambdaHandler","message":"Lambda function completed successfully","requestId":"test-request-id","result":{"message":"download_bank_files action completed successfully"}}
+
+stderr | tests/index.test.ts > Lambda Handler > Custom Event Processing > should process process_specific_file action successfully
+{"timestamp":"2025-08-11T22:11:19.631Z","level":"info","service":"LambdaHandler","message":"Lambda function invoked","requestId":"test-request-id","eventType":"custom","functionName":"test-function","functionVersion":"$LATEST","remainingTimeInMillis":30000}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Processing event","requestId":"test-request-id","eventType":"custom"}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Processing custom event","requestId":"test-request-id","action":"process_specific_file"}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Lambda function completed successfully","requestId":"test-request-id","result":{"message":"process_specific_file action completed successfully"}}
+
+stderr | tests/index.test.ts > Lambda Handler > Custom Event Processing > should handle unknown action with error
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Lambda function invoked","requestId":"test-request-id","eventType":"custom","functionName":"test-function","functionVersion":"$LATEST","remainingTimeInMillis":30000}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Processing event","requestId":"test-request-id","eventType":"custom"}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"info","service":"LambdaHandler","message":"Processing custom event","requestId":"test-request-id","action":"unknown_action"}
+{"timestamp":"2025-08-11T22:11:19.632Z","level":"error","service":"LambdaHandler","message":"Lambda function failed","requestId":"test-request-id","errorMessage":"Unsupported custom action: unknown_action","error":{"name":"Error","message":"Unsupported custom action: unknown_action","stack":"Error: Unsupported custom action: unknown_action\n    at processCustomEvent (D:\\Proyectos\\Yummy\\fbo-lambda-template\\src\\index.ts:152:13)\n    at processEvent (D:\\Proyectos\\Yummy\\fbo-lambda-template\\src\\index.ts:91:20)\n    at Module.handler (D:\\Proyectos\\Yummy\\fbo-lambda-template\\src\\index.ts:55:26)\n    at D:\\Proyectos\\Yummy\\fbo-lambda-template\\tests\\index.test.ts:134:28\n    at file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:146:14\n    at file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:533:11\n    at runWithTimeout (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:39:7)\n    at runTest (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:1056:17)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at runSuite (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:1205:15)"}}
+
+stderr | tests/index.test.ts > Lambda Handler > Error Handling > should handle unknown event type
+{"timestamp":"2025-08-11T22:11:19.638Z","level":"info","service":"LambdaHandler","message":"Lambda function invoked","requestId":"test-request-id","eventType":"unknown","functionName":"test-function","functionVersion":"$LATEST","remainingTimeInMillis":30000}
+{"timestamp":"2025-08-11T22:11:19.638Z","level":"info","service":"HttpClient","message":"HTTP Client initialized","retries":3}
+{"timestamp":"2025-08-11T22:11:19.638Z","level":"info","service":"LambdaHandler","message":"Processing event","requestId":"test-request-id","eventType":"unknown"}
+{"timestamp":"2025-08-11T22:11:19.638Z","level":"error","service":"LambdaHandler","message":"Lambda function failed","requestId":"test-request-id","errorMessage":"Unsupported event type: unknown","error":{"name":"Error","message":"Unsupported event type: unknown","stack":"Error: Unsupported event type: unknown\n    at processEvent (D:\\Proyectos\\Yummy\\fbo-lambda-template\\src\\index.ts:94:13)\n    at Module.handler (D:\\Proyectos\\Yummy\\fbo-lambda-template\\src\\index.ts:55:26)\n    at D:\\Proyectos\\Yummy\\fbo-lambda-template\\tests\\index.test.ts:147:28\n    at file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:146:14\n    at file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:533:11\n    at runWithTimeout (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:39:7)\n    at runTest (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:1056:17)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at runSuite (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:1205:15)\n    at runSuite (file:///D:/Proyectos/Yummy/fbo-lambda-template/node_modules/@vitest/runner/dist/index.js:1205:15)"}}
+
+ [32mÔ£ô[39m tests/index.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m276 passed[39m[22m[90m (276)[39m
+[2m   Start at [22m 17:11:18
+[2m   Duration [22m 1.41s[2m (transform 1.94s, setup 875ms, collect 3.57s, tests 598ms, environment 4ms, prepare 2.05s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    99.9 |    99.28 |     100 |    99.9 |                   
+ clients           |     100 |    99.53 |     100 |     100 |                   
+  http.client.ts   |     100 |      100 |     100 |     100 |                   
+  mongo.client.ts  |     100 |      100 |     100 |     100 |                   
+  ...res.client.ts |     100 |    98.24 |     100 |     100 | 167               
+  s3.client.ts     |     100 |      100 |     100 |     100 |                   
+ services          |     100 |      100 |     100 |     100 |                   
+  ...ce.service.ts |     100 |      100 |     100 |     100 |                   
+ utils             |   99.41 |    98.07 |     100 |   99.41 |                   
+  helpers.util.ts  |   99.17 |     97.5 |     100 |   99.17 | 105               
+  logger.util.ts   |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------

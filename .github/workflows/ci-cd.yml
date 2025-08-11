@@ -3,6 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
 
 env:
   NODE_VERSION: '20.x'
@@ -34,15 +36,104 @@ jobs:
     - name: Run tests
       run: npm run test:cov
 
-    - name: Upload coverage reports
+    - name: Generate coverage report
       if: success()
-      uses: codecov/codecov-action@v4
+      run: |
+        # Run tests with coverage and capture output
+        npm run test:cov > coverage_output.txt 2>&1 || true
+        
+        # Extract test summary
+        TEST_FILES=$(grep "Test Files" coverage_output.txt | tail -1 || echo "Test Files: Not found")
+        TESTS_COUNT=$(grep "Tests" coverage_output.txt | grep "passed" | tail -1 || echo "Tests: Not found")
+        DURATION=$(grep "Duration" coverage_output.txt | tail -1 || echo "Duration: Not found")
+        
+        # Extract coverage table
+        COVERAGE_TABLE=$(awk '/% Coverage report from v8/,/^$/' coverage_output.txt | grep -v "^$" || echo "Coverage table not found")
+        
+        # Extract overall coverage percentage
+        OVERALL_COVERAGE=$(echo "$COVERAGE_TABLE" | grep "All files" | awk '{print $2}' || echo "N/A")
+        
+        # Create coverage report
+        cat > coverage_report.md << EOF
+        ## 📊 Test Coverage Report
+        
+        ### 🎯 Overall Coverage: ${OVERALL_COVERAGE}%
+        
+        ### 📈 Test Results
+        - ✅ **Type Check**: Passed
+        - ✅ **Linting**: Passed  
+        - ✅ **${TESTS_COUNT}**: All passed
+        - ✅ **${TEST_FILES}**: All passed
+        - ⏱️ **${DURATION}**
+        
+        ### 📋 Detailed Coverage Report
+        \`\`\`
+        ${COVERAGE_TABLE}
+        \`\`\`
+        
+        ### 🔧 Build Information
+        - **Node.js**: ${{ env.NODE_VERSION }}
+        - **Commit**: \`${{ github.sha }}\`
+        - **Branch**: \`${{ github.ref_name }}\`
+        - **Workflow**: ${{ github.workflow }}
+        - **Run**: #${{ github.run_number }}
+        
+        ---
+        *Generated automatically by GitHub Actions* 🤖
+        EOF
+        
+        echo "Coverage report generated successfully"
+        echo "Overall coverage: ${OVERALL_COVERAGE}%"
+
+    - name: Comment coverage on PR
+      if: success() && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
       with:
-        file: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-        verbose: true
+        script: |
+          const fs = require('fs');
+          const coverageReport = fs.readFileSync('coverage_report.md', 'utf8');
+          
+          // Look for existing coverage comment
+          const comments = await github.rest.issues.listComments({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          
+          const botComment = comments.data.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('📊 Test Coverage Report')
+          );
+          
+          if (botComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              comment_id: botComment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: coverageReport
+            });
+            console.log('Updated existing coverage comment');
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: coverageReport
+            });
+            console.log('Created new coverage comment');
+          }
+
+    - name: Upload coverage artifacts
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: |
+          coverage/
+          coverage_report.md
+        retention-days: 30
 
   build:
     name: Build

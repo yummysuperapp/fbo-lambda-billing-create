@@ -155,9 +155,6 @@ AWS_REGION
 LAMBDA_FUNCTION_NAME_DEV
 LAMBDA_FUNCTION_NAME_PROD
 
-# Codecov
-CODECOV_TOKEN
-
 # Environment Variables
 FINANCE_API_BASE_URL_DEV/PROD
 FINANCE_API_KEY_DEV/PROD
@@ -236,9 +233,10 @@ El proyecto incluye un pipeline completo de CI/CD con **GitHub Actions**:
 - ✅ **Tests automáticos** con Vitest
 - ✅ **Linting** con ESLint v9
 - ✅ **Type checking** con TypeScript
-- ✅ **Reporte de cobertura** a Codecov
+- ✅ **Comentarios de cobertura** automáticos en PRs
 - ✅ **Build automático** para deployment
 - ✅ **Deploy automático** a desarrollo y producción
+- ✅ **Artifacts de cobertura** con retención de 30 días
 
 ### Preparación del Paquete
 
@@ -272,9 +270,6 @@ AWS_REGION
 # Lambda Functions
 LAMBDA_FUNCTION_NAME_DEV
 LAMBDA_FUNCTION_NAME_PROD
-
-# Codecov
-CODECOV_TOKEN
 
 # Environment Variables
 FINANCE_API_BASE_URL_DEV/PROD
@@ -313,7 +308,7 @@ S3_BUCKET_NAME_DEV/PROD
 ### CI/CD Mejorado
 
 - ✅ **GitHub Actions**: Pipeline completo de CI/CD
-- ✅ **Codecov Integration**: Reporte automático de cobertura
+- ✅ **Comentarios automáticos**: Reportes de cobertura en PRs
 - ✅ **Deploy automático**: Deployment a múltiples ambientes
 - ✅ **Quality Gates**: Validación automática de calidad
 
