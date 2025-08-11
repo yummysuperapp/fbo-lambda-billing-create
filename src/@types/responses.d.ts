@@ -6,7 +6,7 @@
 export interface LambdaResponse {
   statusCode: number;
   headers?: FBOLambda.StringRecord;
-  body: string | Record<string, unknown>;
+  body: string;
   isBase64Encoded?: boolean;
 }
 
