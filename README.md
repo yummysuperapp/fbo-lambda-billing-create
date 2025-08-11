@@ -228,15 +228,24 @@ tests/
 
 ### CI/CD Pipeline
 
-El proyecto incluye un pipeline completo de CI/CD con **GitHub Actions**:
+El proyecto incluye un pipeline completo de CI/CD con **GitHub Actions** dividido en dos workflows especializados:
 
-- ✅ **Tests automáticos** con Vitest
+#### 🧪 Test & Quality Assurance (`.github/workflows/test.yml`)
+- ✅ **Tests automáticos** con Vitest (276 tests, 99.9% cobertura)
 - ✅ **Linting** con ESLint v9
 - ✅ **Type checking** con TypeScript
 - ✅ **Comentarios de cobertura** automáticos en PRs
+- ✅ **Quality Gates** que validan la calidad del código
+- ✅ **Artifacts de cobertura** con retención de 30 días
+- 🔄 **Triggers**: Push a `master`/`develop`, PRs, y releases
+
+#### 🚀 Deploy (`.github/workflows/deploy.yml`)
 - ✅ **Build automático** para deployment
 - ✅ **Deploy automático** a desarrollo y producción
-- ✅ **Artifacts de cobertura** con retención de 30 días
+- ✅ **Versionado automático** y releases en GitHub
+- ✅ **Artifacts de construcción** con retención de 30 días
+- 🔄 **Triggers**: Solo después de que el workflow de testing sea exitoso
+- 🎯 **Conditional**: Solo se ejecuta en `master` o `develop`
 
 ### Preparación del Paquete
 
