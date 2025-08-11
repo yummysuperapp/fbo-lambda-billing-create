@@ -34,14 +34,18 @@ jobs:
       run: npm run lint
 
     - name: Run tests
-      run: npm run test:coverage
+      run: npm run test:cov
 
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      if: success()
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        verbose: true
 
   build:
     name: Build
