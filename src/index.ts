@@ -46,8 +46,8 @@ export const handler = async (
     clients: {
       http: createHttpClient(),
       s3: createS3Client(),
-      postgres: createPostgresClient(),
-      mongo: createMongoClient(),
+      postgres: createPostgresClient(config.postgres, logger),
+      mongo: createMongoClient(config.mongo, logger),
     },
   };
 
