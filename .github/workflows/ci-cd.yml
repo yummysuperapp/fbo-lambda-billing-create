@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '20.x'
 
 jobs:
   test:
@@ -43,7 +43,6 @@ jobs:
         file: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
-        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
         verbose: true
 
