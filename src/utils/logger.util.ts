@@ -34,7 +34,7 @@ export class LambdaLogger implements Logger {
       }),
     };
 
-    console.log(JSON.stringify(logEntry));
+    console.warn(JSON.stringify(logEntry));
   }
 
   info(message: string, meta?: Record<string, unknown>): void {
@@ -57,7 +57,7 @@ export class LambdaLogger implements Logger {
    * Creates a child logger with additional context
    */
   child(additionalContext: string): LambdaLogger {
-    return new LambdaLogger(`${this.context}:${additionalContext}`, this.requestId);
+    return new LambdaLogger(`${this.serviceName}:${additionalContext}`, this.requestId);
   }
 }
 

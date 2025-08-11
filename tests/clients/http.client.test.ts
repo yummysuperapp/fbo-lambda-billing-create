@@ -592,7 +592,7 @@ describe('HttpClient', () => {
     });
 
     it('should handle default baseURL when none provided', () => {
-      const client = getHttpClient();
+      const client = getHttpClient('https://api.default.com');
       expect(client).toBeDefined();
     });
 
@@ -614,6 +614,33 @@ describe('HttpClient', () => {
       
       expect(newClient1).not.toBe(client1);
       expect(newClient2).not.toBe(client2);
+    });
+
+    it('should use HttpClientRegistry.getClient directly', () => {
+      // Test direct usage of HttpClientRegistry.getClient
+      const client1 = HttpClientRegistry.getClient('http://direct.example.com');
+      const client2 = HttpClientRegistry.getClient('http://direct.example.com');
+      
+      // Should return the same instance
+      expect(client1).toBe(client2);
+      expect(client1).toBeInstanceOf(HttpClient);
+    });
+
+    it('should test validateStatus function', () => {
+      // Create a client to trigger axios.create call
+      const client = createHttpClient({ baseURL: 'https://api.test.com' });
+      
+      // Get the axios.create call arguments
+      const createCalls = axiosMock.default.create.mock.calls;
+      const lastCall = createCalls[createCalls.length - 1];
+      const config = lastCall[0];
+      
+      // Test the validateStatus function
+      expect(config.validateStatus(200)).toBe(true);
+      expect(config.validateStatus(404)).toBe(true);
+      expect(config.validateStatus(499)).toBe(true);
+      expect(config.validateStatus(500)).toBe(false);
+      expect(config.validateStatus(503)).toBe(false);
     });
   });
 

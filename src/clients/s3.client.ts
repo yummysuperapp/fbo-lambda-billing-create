@@ -80,7 +80,7 @@ class S3ClientSingleton implements S3ClientInterface {
       ContentType?: string;
       Metadata?: Record<string, string>;
       CacheControl?: string;
-      [key: string]: any;
+      [key: string]: unknown;
     }
   ): Promise<void> {
     try {

@@ -13,6 +13,12 @@ import {
   getErrorMessage 
 } from '@/utils';
 import { config, IS_DEVELOPMENT as isDevelopment, NODE_ENV } from '@/config';
+import { 
+  createHttpClient, 
+  createS3Client, 
+  createPostgresClient, 
+  createMongoClient 
+} from '@/clients';
 
 /**
  * Main Lambda handler function
@@ -38,10 +44,10 @@ export const handler = async (
     startTime: Date.now(),
     logger,
     clients: {
-      http: {} as any, // TODO: Initialize HTTP client
-      s3: {} as any,   // TODO: Initialize S3 client
-      postgres: {} as any, // TODO: Initialize Postgres client
-      mongo: {} as any,    // TODO: Initialize Mongo client
+      http: createHttpClient(),
+      s3: createS3Client(),
+      postgres: createPostgresClient(),
+      mongo: createMongoClient(),
     },
   };
 
@@ -172,7 +178,7 @@ function getEventType(event: LambdaEvent): 's3' | 'custom' | 'unknown' {
  */
 async function main(): Promise<void> {
   if (!isDevelopment) {
-    console.log('Main function is only available in development mode');
+    console.warn('Main function is only available in development mode');
     return;
   }
 

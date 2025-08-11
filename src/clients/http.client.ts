@@ -45,7 +45,7 @@ export class HttpClient implements HttpClientInterface {
     this.client = axios.create({
       ...(config.baseURL && { baseURL: config.baseURL }),
       timeout: config.timeout ?? 30000,
-      httpsAgent: httpsAgent as any,
+      httpsAgent,
       headers: {
         'User-Agent': 'Yummy-FBO-Lambda/1.0',
         'Accept': 'application/json',

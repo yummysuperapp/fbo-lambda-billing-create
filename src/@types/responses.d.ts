@@ -3,7 +3,7 @@
  */
 
 // Lambda Response Types
-export interface LambdaResponse<T = unknown> {
+export interface LambdaResponse {
   statusCode: number;
   headers?: FBOLambda.StringRecord;
   body: string;

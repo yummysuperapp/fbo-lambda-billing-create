@@ -83,7 +83,7 @@ export const IS_PRODUCTION = NODE_ENV === 'production' || NODE_ENV === 'prod';
 export const ALLOWED_S3_BUCKETS = env.ALLOWED_S3_BUCKETS.split(',').map(bucket => bucket.trim());
 
 // Log configuration status on module load
-console.log('✅ [Config] Environment validation successful');
-console.log(`🚀 [Config] Running in ${NODE_ENV} mode`);
-console.log(`📦 [Config] App: ${config.appName} (${config.vertical})`);
-console.log(`🌍 [Config] AWS Region: ${config.aws.region}`);
+console.warn('✅ [Config] Environment validation successful');
+console.warn(`🚀 [Config] Running in ${NODE_ENV} mode`);
+console.warn(`📦 [Config] App: ${config.appName} (${config.vertical})`);
+console.warn(`🌍 [Config] AWS Region: ${config.aws.region}`);

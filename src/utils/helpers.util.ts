@@ -84,7 +84,7 @@ export async function retryWithBackoff<T>(
   baseDelay: number = 1000,
   maxDelay: number = 10000
 ): Promise<T> {
-  let lastError: Error;
+  let lastError: Error | undefined;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -101,7 +101,8 @@ export async function retryWithBackoff<T>(
     }
   }
 
-  throw lastError!;
+  // This should never be reached, but TypeScript requires it for exhaustiveness
+  throw lastError || new Error('Unexpected error in retryWithBackoff');
 }
 
 /**
@@ -155,7 +156,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`;
 }
 
 /**
@@ -175,7 +176,7 @@ export function isValidUrl(string: string): boolean {
  */
 export function truncateString(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
-  return str.slice(0, maxLength - 3) + '...';
+  return `${str.slice(0, maxLength - 3)  }...`;
 }
 
 /**

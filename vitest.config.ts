@@ -32,7 +32,8 @@ export default defineConfig({
         'src/**/*.config.ts',
         '**/*.d.ts',
         'vitest.config.ts',
-        'jest.config.js'
+        'jest.config.js',
+        'eslint.config.js'
       ],
       thresholds: {
         global: {

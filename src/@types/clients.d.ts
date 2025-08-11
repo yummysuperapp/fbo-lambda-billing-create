@@ -47,7 +47,7 @@ export interface S3ClientInterface {
       ContentType?: string;
       Metadata?: Record<string, string>;
       CacheControl?: string;
-      [key: string]: any;
+      [key: string]: unknown;
     }
   ): Promise<void>;
   getFile(bucketName: string, key: string): Promise<Buffer>;

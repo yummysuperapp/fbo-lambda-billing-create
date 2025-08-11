@@ -5,7 +5,7 @@ describe('Logger Utils', () => {
   let consoleSpy: any;
 
   beforeEach(() => {
-    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
