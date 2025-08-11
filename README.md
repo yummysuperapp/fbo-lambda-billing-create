@@ -1,7 +1,7 @@
 # FBO Lambda Template
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org/)
 [![Vitest](https://img.shields.io/badge/Vitest-2.1+-yellow.svg)](https://vitest.dev/)
 [![ESLint](https://img.shields.io/badge/ESLint-9.17+-purple.svg)](https://eslint.org/)
 [![Coverage](https://img.shields.io/badge/Coverage-99.9%25-brightgreen.svg)](https://vitest.dev/)
@@ -12,7 +12,7 @@ Un template robusto y escalable para aplicaciones Lambda con TypeScript, diseña
 ## 🚀 Características Principales
 
 - **TypeScript 5.7+**: Tipado estático completo con configuración estricta y tipos globales
-- **Node.js 20.x**: Runtime moderno con soporte para las últimas características
+- **Node.js 22.x**: Runtime moderno con soporte para las últimas características
 - **Arquitectura Modular**: Separación clara de responsabilidades (Clients, Services, Utils)
 - **Testing Integral**: Suite completa de tests con Vitest 2.1+ y cobertura del 99.9%
 - **ESLint 9.17+**: Configuración moderna con flat config y reglas estrictas
@@ -262,7 +262,7 @@ npm run deploy:prod
 
 ### Configuración de Lambda
 
-- **Runtime**: Node.js 20.x
+- **Runtime**: Node.js 22.x
 - **Handler**: `dist/index.handler`
 - **Memory**: 512 MB (recomendado)
 - **Timeout**: 5 minutos
@@ -305,7 +305,7 @@ S3_BUCKET_NAME_DEV/PROD
 - ✅ **ESLint v9**: Migración completa a flat config con reglas estrictas
 - ✅ **Vitest 2.1+**: Reemplazo de Jest por Vitest para mejor rendimiento
 - ✅ **TypeScript 5.7+**: Actualización a la versión más reciente
-- ✅ **Node.js 20.x**: Runtime moderno con mejor rendimiento
+- ✅ **Node.js 22.x**: Runtime moderno con mejor rendimiento
 
 ### Calidad de Código
 
