@@ -97,7 +97,7 @@ jobs:
     if: |
       needs.check-tests.outputs.target-env == 'development' && 
       needs.build.outputs.build-success == 'true'
-    environment: development
+    environment: Dev
     
     steps:
     - name: 📥 Download build artifacts
@@ -116,14 +116,14 @@ jobs:
       run: |
         echo "🚀 Deploying to Development Lambda..."
         aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_DEV }} \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://lambda-deployment.zip
 
     - name: ⚙️ Update function configuration
       run: |
         echo "⚙️ Updating Development Lambda configuration..."
         aws lambda update-function-configuration \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_DEV }} \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
           --environment Variables="{
             \"NODE_ENV\":\"development\",
             \"FINANCE_API_BASE_URL\":\"${{ secrets.FINANCE_API_BASE_URL_DEV }}\",
@@ -138,7 +138,7 @@ jobs:
     - name: ✅ Development deployment complete
       run: |
         echo "✅ Development deployment completed successfully"
-        echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME_DEV }}"
+        echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
         echo "🌍 Region: ${{ secrets.AWS_REGION }}"
 
   deploy-prod:
@@ -148,7 +148,7 @@ jobs:
     if: |
       needs.check-tests.outputs.target-env == 'production' && 
       needs.build.outputs.build-success == 'true'
-    environment: production
+    environment: Prod
     
     steps:
     - name: 📥 Download build artifacts
@@ -167,14 +167,14 @@ jobs:
       run: |
         echo "🚀 Deploying to Production Lambda..."
         aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_PROD }} \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
           --zip-file fileb://lambda-deployment.zip
 
     - name: ⚙️ Update function configuration
       run: |
         echo "⚙️ Updating Production Lambda configuration..."
         aws lambda update-function-configuration \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_PROD }} \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
           --environment Variables="{
             \"NODE_ENV\":\"production\",
             \"FINANCE_API_BASE_URL\":\"${{ secrets.FINANCE_API_BASE_URL_PROD }}\",
@@ -207,7 +207,7 @@ jobs:
         body: |
           ## 🚀 Production Deployment
           
-          **Deployed to Production Lambda**: `${{ secrets.LAMBDA_FUNCTION_NAME_PROD }}`
+          **Deployed to Production Lambda**: `${{ secrets.LAMBDA_FUNCTION_NAME }}`
           
           ### 📊 Build Information
           - **Commit**: ${{ github.event.workflow_run.head_sha }}
@@ -226,7 +226,7 @@ jobs:
     - name: ✅ Production deployment complete
       run: |
         echo "✅ Production deployment completed successfully"
-        echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME_PROD }}"
+        echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
         echo "🌍 Region: ${{ secrets.AWS_REGION }}"
         echo "🏷️ Release: v${{ github.run_number }}"
 
