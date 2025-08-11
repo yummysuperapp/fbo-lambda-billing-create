@@ -122,6 +122,19 @@ describe('PostgresClient', () => {
       expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM users WHERE id = $1', [1]);
     });
 
+    it('should execute query successfully without params', async () => {
+      const mockResult = { rows: [{ id: 1, name: 'test' }], rowCount: 1 };
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      mockPool.connect.mockResolvedValue(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 }); // For SELECT 1 test
+      mockPool.query.mockResolvedValue(mockResult);
+
+      const result = await client.query('SELECT * FROM users');
+
+      expect(result).toEqual([{ id: 1, name: 'test' }]);
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM users', undefined);
+    });
+
     it('should throw PostgresError on query failure', async () => {
       const error = new Error('Query failed');
       const mockClient = { query: vi.fn(), release: vi.fn() };
@@ -130,6 +143,16 @@ describe('PostgresClient', () => {
       mockPool.query.mockRejectedValue(error);
 
       await expect(client.query('SELECT * FROM users', [])).rejects.toThrow(PostgresError);
+    });
+
+    it('should handle query failure with undefined params', async () => {
+      const error = new Error('Query failed');
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      mockPool.connect.mockResolvedValue(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 }); // For SELECT 1 test
+      mockPool.query.mockRejectedValue(error);
+
+      await expect(client.query('SELECT * FROM invalid_table', undefined)).rejects.toThrow(PostgresError);
     });
   });
 
@@ -156,6 +179,30 @@ describe('PostgresClient', () => {
       const result = await client.queryOne('SELECT * FROM users WHERE id = $1', [999]);
 
       expect(result).toBeNull();
+    });
+
+    it('should return null when first row is undefined', async () => {
+      const mockResult = { rows: [undefined], rowCount: 1 };
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      mockPool.connect.mockResolvedValue(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 }); // For SELECT 1 test
+      mockPool.query.mockResolvedValue(mockResult);
+
+      const result = await client.queryOne('SELECT * FROM users WHERE id = $1', [1]);
+
+      expect(result).toBeNull();
+    });
+
+    it('should execute queryOne without params', async () => {
+      const mockResult = { rows: [{ id: 1, name: 'test' }], rowCount: 1 };
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      mockPool.connect.mockResolvedValue(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 }); // For SELECT 1 test
+      mockPool.query.mockResolvedValue(mockResult);
+
+      const result = await client.queryOne('SELECT * FROM users');
+
+      expect(result).toEqual({ id: 1, name: 'test' });
     });
   });
 
@@ -503,6 +550,39 @@ describe('PostgresClient', () => {
         idleTimeoutMillis: customConfig.idleTimeoutMillis,
       });
     });
+
+    it('should use default values when config properties are undefined', async () => {
+      const minimalConfig = {
+        host: 'localhost',
+        port: 5432,
+        database: 'test_db',
+        user: 'test_user',
+        password: 'test_password',
+        // ssl, maxConnections, connectionTimeoutMillis, idleTimeoutMillis are undefined
+      };
+
+      const minimalClient = createPostgresClient(minimalConfig, mockLogger);
+      
+      // Mock the connection test
+      const mockClient = { query: vi.fn(), release: vi.fn() };
+      mockPool.connect.mockResolvedValue(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Connect to trigger pool creation
+      await minimalClient.connect();
+
+      expect(Pool).toHaveBeenCalledWith({
+        host: minimalConfig.host,
+        port: minimalConfig.port,
+        database: minimalConfig.database,
+        user: minimalConfig.user,
+        password: minimalConfig.password,
+        ssl: false, // default value
+        max: 10, // default value
+        connectionTimeoutMillis: 30000, // default value
+        idleTimeoutMillis: 30000, // default value
+      });
+    });
   });
 
   describe('transaction client wrapper', () => {
@@ -559,6 +639,53 @@ describe('PostgresClient', () => {
 
       await client.transaction(async (txClient) => {
         const result = await txClient.queryOne('SELECT * FROM users WHERE id = $1', [999]);
+        expect(result).toBeNull();
+      });
+    });
+
+    it('should handle transaction query without params', async () => {
+      const mockClient = {
+        query: vi.fn(),
+        release: vi.fn(),
+      };
+      const mockConnectClient = { query: vi.fn(), release: vi.fn() };
+      
+      // Mock for ensureConnection (connect test)
+      mockPool.connect.mockResolvedValueOnce(mockConnectClient);
+      mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Mock for transaction
+      mockPool.connect.mockResolvedValueOnce(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [{ id: 1 }], rowCount: 1 });
+
+      await client.transaction(async (txClient) => {
+        const result = await txClient.query('SELECT * FROM users');
+        expect(result).toEqual([{ id: 1 }]);
+      });
+    });
+
+    it('should handle transaction queryOne with undefined first row', async () => {
+      const mockClient = {
+        query: vi.fn(),
+        release: vi.fn(),
+      };
+      const mockConnectClient = { query: vi.fn(), release: vi.fn() };
+      
+      // Mock for ensureConnection (connect test)
+      mockPool.connect.mockResolvedValueOnce(mockConnectClient);
+      mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Mock for transaction
+      mockPool.connect.mockResolvedValueOnce(mockClient);
+      mockClient.query.mockImplementation((sql: string) => {
+        if (sql.includes('SELECT')) {
+          return Promise.resolve({ rows: [undefined], rowCount: 1 });
+        }
+        return Promise.resolve({ rows: [], rowCount: 0 });
+      });
+
+      await client.transaction(async (txClient) => {
+        const result = await txClient.queryOne('SELECT * FROM users WHERE id = $1', [1]);
         expect(result).toBeNull();
       });
     });
@@ -648,6 +775,68 @@ describe('PostgresClient', () => {
           await txClient.query('SELECT * FROM invalid_table');
         })
       ).rejects.toThrow(PostgresError);
+    });
+
+    it('should handle client release failure in finally block during successful transaction', async () => {
+      const releaseError = new Error('Release failed in finally');
+      
+      const mockClient = {
+        query: vi.fn(),
+        release: vi.fn(),
+      };
+      const mockConnectClient = { query: vi.fn(), release: vi.fn() };
+      
+      // Mock for ensureConnection (connect test)
+      mockPool.connect.mockResolvedValueOnce(mockConnectClient);
+      mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Mock for transaction
+      mockPool.connect.mockResolvedValueOnce(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Mock client.release to throw an error (this will be called in the finally block)
+      mockClient.release.mockImplementation(() => {
+        throw releaseError;
+      });
+      
+      const result = await client.transaction(async (txClient) => {
+        await txClient.query('INSERT INTO users (name) VALUES ($1)', ['test']);
+        return 'success';
+      });
+
+      expect(result).toBe('success');
+      expect(mockClient.query).toHaveBeenCalledWith('BEGIN');
+      expect(mockClient.query).toHaveBeenCalledWith('INSERT INTO users (name) VALUES ($1)', ['test']);
+      expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
+      expect(mockClient.release).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to release PostgreSQL client',
+        releaseError
+      );
+    });
+
+    it('should execute finally block in successful transaction', async () => {
+      const mockClient = {
+        query: vi.fn(),
+        release: vi.fn(),
+      };
+      const mockConnectClient = { query: vi.fn(), release: vi.fn() };
+      
+      // Mock for ensureConnection (connect test)
+      mockPool.connect.mockResolvedValueOnce(mockConnectClient);
+      mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+      
+      // Mock for transaction
+      mockPool.connect.mockResolvedValueOnce(mockClient);
+      mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
+
+      const result = await client.transaction(async (txClient) => {
+        await txClient.query('INSERT INTO users (name) VALUES ($1)', ['test']);
+        return 'success';
+      });
+
+      expect(result).toBe('success');
+      expect(mockClient.release).toHaveBeenCalled();
     });
   });
 });

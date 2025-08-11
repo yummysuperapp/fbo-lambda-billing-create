@@ -629,4 +629,37 @@ describe('MongoClient', () => {
       await expect(disconnectedClient.deleteMany('users', {})).rejects.toThrow(MongoError);
     });
   });
+
+  describe('configuration defaults', () => {
+    it('should use default values when config properties are undefined', async () => {
+      const configWithUndefinedValues = {
+        uri: 'mongodb://localhost:27017',
+        database: 'test_db',
+        maxPoolSize: undefined,
+        minPoolSize: undefined,
+        maxIdleTimeMS: undefined,
+        serverSelectionTimeoutMS: undefined,
+      };
+
+      const clientWithDefaults = createMongoClient(configWithUndefinedValues, mockLogger);
+      await clientWithDefaults.connect();
+
+      expect(MongoDBClient).toHaveBeenCalledWith(configWithUndefinedValues.uri, {
+        maxPoolSize: 10, // default value
+        minPoolSize: 1,  // default value
+        maxIdleTimeMS: 30000, // default value
+        serverSelectionTimeoutMS: 30000, // default value
+      });
+    });
+
+    it('should handle disconnect when client is null', async () => {
+      const disconnectedClient = createMongoClient(mockConfig, mockLogger);
+      
+      // Call disconnect without connecting first (client should be null)
+      await expect(disconnectedClient.disconnect()).resolves.not.toThrow();
+      
+      // Verify that no close method was called since client is null
+      expect(mockMongoClient.close).not.toHaveBeenCalled();
+    });
+  });
 });

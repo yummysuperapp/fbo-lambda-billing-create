@@ -187,6 +187,112 @@ describe('HttpClient', () => {
       expect(typeof callArgs[1]).toBe('function'); // onRejected
     });
 
+    it('should execute request interceptor onFulfilled callback', () => {
+      const client = new HttpClient();
+      
+      // Get the request interceptor callbacks
+      const requestInterceptorCalls = axiosMock.default.create().interceptors.request.use.mock.calls;
+      const onFulfilled = requestInterceptorCalls[requestInterceptorCalls.length - 1][0];
+      
+      // Mock config object
+      const mockConfig = {
+        method: 'get',
+        url: '/test',
+        headers: { 'Content-Type': 'application/json' }
+      };
+      
+      // Execute the onFulfilled callback
+      const result = onFulfilled(mockConfig);
+      
+      // Verify it returns the config
+      expect(result).toBe(mockConfig);
+    });
+
+    it('should execute request interceptor onRejected callback', async () => {
+      const client = new HttpClient();
+      
+      // Get the request interceptor callbacks
+      const requestInterceptorCalls = axiosMock.default.create().interceptors.request.use.mock.calls;
+      const onRejected = requestInterceptorCalls[requestInterceptorCalls.length - 1][1];
+      
+      // Mock error object
+      const mockError = new Error('Request error');
+      
+      // Execute the onRejected callback and expect it to reject
+      await expect(onRejected(mockError)).rejects.toThrow('Request error');
+    });
+
+    it('should execute response interceptor onFulfilled callback', () => {
+      const client = new HttpClient();
+      
+      // Get the response interceptor callbacks
+      const responseInterceptorCalls = axiosMock.default.create().interceptors.response.use.mock.calls;
+      const onFulfilled = responseInterceptorCalls[responseInterceptorCalls.length - 1][0];
+      
+      // Mock response object
+      const mockResponse = {
+        status: 200,
+        statusText: 'OK',
+        config: {
+          url: '/test',
+          metadata: { startTime: Date.now() - 100 }
+        },
+        data: { success: true }
+      };
+      
+      // Execute the onFulfilled callback
+      const result = onFulfilled(mockResponse);
+      
+      // Verify it returns the response
+      expect(result).toBe(mockResponse);
+    });
+
+    it('should execute response interceptor onRejected callback', async () => {
+      const client = new HttpClient();
+      
+      // Get the response interceptor callbacks
+      const responseInterceptorCalls = axiosMock.default.create().interceptors.response.use.mock.calls;
+      const onRejected = responseInterceptorCalls[responseInterceptorCalls.length - 1][1];
+      
+      // Mock error object with response
+      const mockError = {
+        response: {
+          status: 500,
+          statusText: 'Internal Server Error',
+          config: {
+            url: '/test',
+            metadata: { startTime: Date.now() - 100 }
+          }
+        },
+        config: {
+          url: '/test',
+          metadata: { startTime: Date.now() - 100 }
+        }
+      };
+      
+      // Execute the onRejected callback and expect it to reject
+      await expect(onRejected(mockError)).rejects.toEqual(mockError);
+    });
+
+    it('should execute response interceptor onRejected callback without response', async () => {
+      const client = new HttpClient();
+      
+      // Get the response interceptor callbacks
+      const responseInterceptorCalls = axiosMock.default.create().interceptors.response.use.mock.calls;
+      const onRejected = responseInterceptorCalls[responseInterceptorCalls.length - 1][1];
+      
+      // Mock error object without response
+      const mockError = {
+        config: {
+          url: '/test',
+          metadata: { startTime: Date.now() - 100 }
+        }
+      };
+      
+      // Execute the onRejected callback and expect it to reject
+      await expect(onRejected(mockError)).rejects.toEqual(mockError);
+    });
+
     it('should handle request interceptor errors', async () => {
       const requestError = new Error('Request interceptor error');
       
