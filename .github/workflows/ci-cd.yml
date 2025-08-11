@@ -1,0 +1,172 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run type checking
+      run: npm run type-check
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run tests
+      run: npm run test:coverage
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Create deployment package
+      run: npm run package
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lambda-deployment-package
+        path: lambda-deployment.zip
+        retention-days: 30
+
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: lambda-deployment-package
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_DEV }} \
+          --zip-file fileb://lambda-deployment.zip
+
+    - name: Update function configuration
+      run: |
+        aws lambda update-function-configuration \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_DEV }} \
+          --environment Variables="{
+            NODE_ENV=development,
+            FINANCE_API_BASE_URL=${{ secrets.FINANCE_API_BASE_URL_DEV }},
+            FINANCE_API_KEY=${{ secrets.FINANCE_API_KEY_DEV }},
+            SFTP_HOST=${{ secrets.SFTP_HOST_DEV }},
+            SFTP_USERNAME=${{ secrets.SFTP_USERNAME_DEV }},
+            SFTP_PASSWORD=${{ secrets.SFTP_PASSWORD_DEV }},
+            S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME_DEV }},
+            AWS_REGION=${{ secrets.AWS_REGION }}
+          }"
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: lambda-deployment-package
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_PROD }} \
+          --zip-file fileb://lambda-deployment.zip
+
+    - name: Update function configuration
+      run: |
+        aws lambda update-function-configuration \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME_PROD }} \
+          --environment Variables="{
+            NODE_ENV=production,
+            FINANCE_API_BASE_URL=${{ secrets.FINANCE_API_BASE_URL_PROD }},
+            FINANCE_API_KEY=${{ secrets.FINANCE_API_KEY_PROD }},
+            SFTP_HOST=${{ secrets.SFTP_HOST_PROD }},
+            SFTP_USERNAME=${{ secrets.SFTP_USERNAME_PROD }},
+            SFTP_PASSWORD=${{ secrets.SFTP_PASSWORD_PROD }},
+            S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME_PROD }},
+            AWS_REGION=${{ secrets.AWS_REGION }}
+          }"
+
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          Automated release from main branch
+          
+          Changes in this release:
+          ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
