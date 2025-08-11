@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handler } from '../src/index';
+import { handler } from '../src/index.funcions';
 import type { S3Event, CustomEvent } from '../src/@types';
 import type { Context } from 'aws-lambda';
 
