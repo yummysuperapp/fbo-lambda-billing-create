@@ -164,9 +164,11 @@ jobs:
     - name: 📤 Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: lambda-deployment-package-${{ github.run_number }}
+        name: lambda-deployment-package-${{ github.event.workflow_run.run_number }}
         path: lambda-deployment.zip
-        retention-days: 30
+        retention-days: 10
+        if-no-files-found: error
+        compression-level: 6
 
     - name: ✅ Set build result
       id: build-result
@@ -194,7 +196,9 @@ jobs:
     - name: 📥 Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: lambda-deployment-package-${{ github.run_number }}
+        name: lambda-deployment-package-${{ github.event.workflow_run.run_number }}
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🔐 Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -244,7 +248,9 @@ jobs:
     - name: 📥 Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: lambda-deployment-package-${{ github.run_number }}
+        name: lambda-deployment-package-${{ github.event.workflow_run.run_number }}
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🔐 Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
