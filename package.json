@@ -2,41 +2,72 @@
   "name": "fbo-lambda-template",
   "version": "1.0.0",
   "description": "Private Lambda function template for FBO operations - Yummy Inc",
-  "main": "dist/index.js",
+  "main": "index.mjs",
   "type": "module",
+  "homepage": "https://github.com/yummysuperapp/fbo-lambda-template",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yummysuperapp/fbo-lambda-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yummysuperapp/fbo-lambda-template/issues"
+  },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "node dist/index.js",
-    "start:dev": "tsx src/index.ts",
-    "start:local": "NODE_ENV=local tsx src/index.ts",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
+    "package": "npm run build",
+    "start": "node index.mjs",
+    "start:dev": "tsx src/index.ts",
+    "start:local": "NODE_ENV=local tsx src/index.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "package": "npm run build && zip -r lambda-deployment.zip dist/ node_modules/ package.json",
     "deploy": "node scripts/deploy.mjs",
     "deploy:dev": "npm run deploy dev",
-    "deploy:prod": "npm run deploy prod"
+    "deploy:testing": "npm run deploy testing",
+    "deploy:prod": "npm run deploy prod",
+    "check-all": "npm run type-check && npm run lint && npm run test",
+    "prepare-deploy": "npm run check-all && npm run build"
   },
   "keywords": [
     "fbo",
+    "financial-backoffice",
     "finance",
+    "fintech",
     "lambda",
+    "serverless",
+    "aws-lambda",
     "yummy",
     "typescript",
     "aws",
     "postgresql",
-    "mongodb"
+    "mongodb",
+    "bigquery",
+    "microservice",
+    "template",
+    "open-banking"
   ],
-  "author": "Yummy Inc",
+  "author": {
+    "name": "Yummy Inc",
+    "email": "jose.carrillo@yummysuperapp.com",
+    "url": "https://yummysuperapp.com"
+  },
+  "contributors": [
+    {
+      "name": "José Carrillo",
+      "email": "jose.carrillo@yummysuperapp.com",
+      "role": "Tech Lead - Financial Backoffice"
+    }
+  ],
   "license": "UNLICENSED",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.738.0",
+    "@google-cloud/bigquery": "^8.1.1",
     "axios": "^1.11.0",
     "dotenv": "^17.2.1",
     "mongodb": "^6.10.0",
@@ -59,7 +90,20 @@
     "vitest": "^2.1.8"
   },
   "engines": {
-    "node": "22.x"
+    "node": "22.x",
+    "npm": ">=10.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "funding": {
+    "type": "private",
+    "url": "https://yummysuperapp.com"
   },
   "private": true
 }

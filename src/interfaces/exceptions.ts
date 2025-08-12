@@ -77,3 +77,16 @@ export class MongoError extends DatabaseError {
     });
   }
 }
+
+export class BigQueryError extends DatabaseError {
+  constructor(message: string, details: Record<string, unknown> = {}) {
+    super(message, { ...details });
+    // Override the errorCode after calling super
+    Object.defineProperty(this, 'errorCode', {
+      value: 'BIGQUERY_ERROR',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
+  }
+}

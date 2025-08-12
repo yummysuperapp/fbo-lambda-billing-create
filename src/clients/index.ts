@@ -15,3 +15,4 @@ export * from './s3.client';
 export * from './http.client';
 export * from './postgres.client';
 export * from './mongo.client';
+export * from './bigquery.client';

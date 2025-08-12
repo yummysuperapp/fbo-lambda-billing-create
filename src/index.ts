@@ -3,13 +3,16 @@ import type {
   LambdaResponse
 } from '@/types';
 
-export const handler = async (event: LambdaEvent) => {
+export const handler = async (event: LambdaEvent): Promise<LambdaResponse> => {
   const response: LambdaResponse = {
     statusCode: 200,
-    body: {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
       message: 'Hello from Lambda!',
       event,
-    },
+    }),
   };
   return response;
 };

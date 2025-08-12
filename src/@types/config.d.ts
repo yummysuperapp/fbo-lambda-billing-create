@@ -46,6 +46,21 @@ export interface N8nConfig {
   apiKey: string;
 }
 
+// BigQuery Configuration
+export interface BigQueryConfig {
+  projectId: string;
+  datasetId: string;
+  location?: string;
+  keyFilename?: string;
+  credentials?: {
+    client_email: string;
+    private_key: string;
+    project_id: string;
+  };
+  maxRetries?: number;
+  autoRetry?: boolean;
+}
+
 // Application Configuration
 export interface AppConfig {
   appName: string;
@@ -56,4 +71,5 @@ export interface AppConfig {
   postgres: PostgresConfig;
   mongo: MongoConfig;
   n8n: N8nConfig;
+  bigquery: BigQueryConfig;
 }
