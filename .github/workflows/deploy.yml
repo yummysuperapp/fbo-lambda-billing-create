@@ -212,14 +212,46 @@ jobs:
       id: deploy-version
       if: success()
       run: |
-        echo ">>> Region: ${{ secrets.AWS_REGION }}"
-        echo ">>> Lambda: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
-        echo "🚀 Deploying to Development Lambda..."
+        # Determine environment name for display
+        case "${{ needs.check-tests.outputs.target-env }}" in
+          "production")
+            ENV_NAME="Production"
+            ;;
+          "development")
+            ENV_NAME="Development"
+            ;;
+          "testing")
+            ENV_NAME="Testing"
+            ;;
+          *)
+            echo "❌ Unknown environment: ${{ needs.check-tests.outputs.target-env }}"
+            exit 1
+            ;;
+        esac
+        
+        echo "🚀 Deploying to $ENV_NAME Lambda..."
+        
         aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
           --zip-file fileb://${{ github.sha }}.zip
+        
+        # Store function name for later steps
+        echo "function-name=${{ secrets.LAMBDA_FUNCTION_NAME }}" >> $GITHUB_OUTPUT
 
-    - name: Remove Temporary Deployment Package
+    - name: ⚙️ Update function configuration
+      run: |
+        echo "⚙️ Updating Development Lambda configuration..."
+        aws lambda update-function-configuration \
+          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}"" \
+          --environment Variables="{
+            \"FINANCE_API_BASE_URL\":\"${{ secrets.FINANCE_API_BASE_URL_DEV }}\",
+            \"FINANCE_API_KEY\":\"${{ secrets.FINANCE_API_KEY_DEV }}\",
+            \"BIGQUERY_PROJECT_ID\":\"${{ secrets.BIGQUERY_PROJECT_ID }}\",
+            \"BIGQUERY_PRIVATE_KEY\":\"${{ secrets.BIGQUERY_PRIVATE_KEY }}\",
+            \"BIGQUERY_CLIENT_EMAIL\":\"${{ secrets.BIGQUERY_CLIENT_EMAIL }}\",
+            \"X_API_KEY\":\"${{ secrets.X_API_KEY }}\"
+
+    - name: 🧹 Remove Temporary Deployment Package
       run: rm -f ${{ github.sha }}.zip
 
     - name: ✅ Set build result
@@ -228,15 +260,11 @@ jobs:
       run: |
         if [ "${{ job.status }}" == "success" ]; then
           echo "success=true" >> $GITHUB_OUTPUT
-          echo "✅ Development deployment completed successfully"
-          echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
-          echo "🌍 Region: ${{ secrets.AWS_REGION }}"
+          echo "✅ ${{ needs.check-tests.outputs.target-env }} deployment completed successfully"
           echo "✅ Build completed successfully"
         else
           echo "success=false" >> $GITHUB_OUTPUT
-          echo "❌ Development deployment failed"
-          echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
-          echo "🌍 Region: ${{ secrets.AWS_REGION }}"
+          echo "❌ ${{ needs.check-tests.outputs.target-env }} deployment failed"
           echo "❌ Build failed"
           exit 1
         fi
