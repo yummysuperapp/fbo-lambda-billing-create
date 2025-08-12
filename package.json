@@ -4,36 +4,66 @@
   "description": "Private Lambda function template for FBO operations - Yummy Inc",
   "main": "index.mjs",
   "type": "module",
+  "homepage": "https://github.com/yummysuperapp/fbo-lambda-template",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yummysuperapp/fbo-lambda-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yummysuperapp/fbo-lambda-template/issues"
+  },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "package": "npm run build",
     "start": "node index.mjs",
     "start:dev": "tsx src/index.ts",
     "start:local": "NODE_ENV=local tsx src/index.ts",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "package": "npm run build",
     "deploy": "node scripts/deploy.mjs",
     "deploy:dev": "npm run deploy dev",
-    "deploy:prod": "npm run deploy prod"
+    "deploy:testing": "npm run deploy testing",
+    "deploy:prod": "npm run deploy prod",
+    "check-all": "npm run type-check && npm run lint && npm run test",
+    "prepare-deploy": "npm run check-all && npm run build"
   },
   "keywords": [
     "fbo",
+    "financial-backoffice",
     "finance",
+    "fintech",
     "lambda",
+    "serverless",
+    "aws-lambda",
     "yummy",
     "typescript",
     "aws",
     "postgresql",
-    "mongodb"
+    "mongodb",
+    "bigquery",
+    "microservice",
+    "template",
+    "open-banking"
   ],
-  "author": "Yummy Inc",
+  "author": {
+    "name": "Yummy Inc",
+    "email": "jose.carrillo@yummysuperapp.com",
+    "url": "https://yummysuperapp.com"
+  },
+  "contributors": [
+    {
+      "name": "José Carrillo",
+      "email": "jose.carrillo@yummysuperapp.com",
+      "role": "Tech Lead - Financial Backoffice"
+    }
+  ],
   "license": "UNLICENSED",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.738.0",
@@ -60,7 +90,20 @@
     "vitest": "^2.1.8"
   },
   "engines": {
-    "node": "22.x"
+    "node": "22.x",
+    "npm": ">=10.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "funding": {
+    "type": "private",
+    "url": "https://yummysuperapp.com"
   },
   "private": true
 }
