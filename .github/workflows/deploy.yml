@@ -10,79 +10,9 @@ env:
   NODE_VERSION: '22.x'
 
 jobs:
-  check-tests:
-    name: "🔍 Verify Tests & Environment"
-    runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
-    
-    outputs:
-      deploy-ready: ${{ steps.check.outputs.ready }}
-      target-env: ${{ steps.env.outputs.environment }}
-      workflow-info: ${{ steps.info.outputs.workflow-data }}
-    
-    steps:
-    - name: "📋 Gather workflow information"
-      id: info
-      run: |
-        echo "## 📊 Workflow Information" >> $GITHUB_STEP_SUMMARY
-        echo "- **Triggered by**: ${{ github.event.workflow_run.name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Source Branch**: ${{ github.event.workflow_run.head_branch }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit SHA**: ${{ github.event.workflow_run.head_sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Run Number**: ${{ github.event.workflow_run.run_number }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Conclusion**: ${{ github.event.workflow_run.conclusion }}" >> $GITHUB_STEP_SUMMARY
-        
-        # Store workflow data for other jobs
-        echo "workflow-data={\"branch\":\"${{ github.event.workflow_run.head_branch }}\",\"sha\":\"${{ github.event.workflow_run.head_sha }}\",\"run_number\":\"${{ github.event.workflow_run.run_number }}\"}" >> $GITHUB_OUTPUT
-
-    - name: "✅ Validate test results"
-      id: check
-      run: |
-        if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-          echo "✅ Tests passed successfully in workflow: ${{ github.event.workflow_run.name }}"
-          echo "ready=true" >> $GITHUB_OUTPUT
-        else
-          echo "❌ Tests failed or workflow was not successful"
-          echo "ready=false" >> $GITHUB_OUTPUT
-          exit 1
-        fi
-
-    - name: "🎯 Determine deployment environment"
-      id: env
-      run: |
-        BRANCH="${{ github.event.workflow_run.head_branch }}"
-        
-        case "$BRANCH" in
-          "master")
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "🏭 Target environment: **Production**"
-            echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
-            echo "- **Deployment Type**: Full release" >> $GITHUB_STEP_SUMMARY
-            ;;
-          "develop")
-            echo "environment=development" >> $GITHUB_OUTPUT
-            echo "🧪 Target environment: **Development**"
-            echo "- **Environment**: Development" >> $GITHUB_STEP_SUMMARY
-            echo "- **Deployment Type**: Development build" >> $GITHUB_STEP_SUMMARY
-            ;;
-          "testing")
-            echo "environment=testing" >> $GITHUB_OUTPUT
-            echo "🔬 Target environment: **Testing**"
-            echo "- **Environment**: Testing" >> $GITHUB_STEP_SUMMARY
-            echo "- **Deployment Type**: Testing build" >> $GITHUB_STEP_SUMMARY
-            ;;
-          *)
-            echo "environment=none" >> $GITHUB_OUTPUT
-            echo "❌ No deployment configured for branch: **$BRANCH**"
-            echo "- **Environment**: None (branch not configured for deployment)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Supported branches**: master (production), develop (development), testing (testing)" >> $GITHUB_STEP_SUMMARY
-            ;;
-        esac
-
   build:
-    name: 🏗️ Build Application
+    name: 🏗️ Build & Deploy Application
     runs-on: ubuntu-latest
-    needs: check-tests
-    if: needs.check-tests.outputs.deploy-ready == 'true' && needs.check-tests.outputs.target-env != 'none'
     environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master'  && 'Prod' }}
 
     outputs:
@@ -212,24 +142,7 @@ jobs:
       id: deploy-version
       if: success()
       run: |
-        # Determine environment name for display
-        case "${{ needs.check-tests.outputs.target-env }}" in
-          "production")
-            ENV_NAME="Production"
-            ;;
-          "development")
-            ENV_NAME="Development"
-            ;;
-          "testing")
-            ENV_NAME="Testing"
-            ;;
-          *)
-            echo "❌ Unknown environment: ${{ needs.check-tests.outputs.target-env }}"
-            exit 1
-            ;;
-        esac
-        
-        echo "🚀 Deploying to $ENV_NAME Lambda..."
+        echo "🚀 Deploying to Lambda..."
         
         aws lambda update-function-code \
           --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
@@ -261,11 +174,11 @@ jobs:
       run: |
         if [ "${{ job.status }}" == "success" ]; then
           echo "success=true" >> $GITHUB_OUTPUT
-          echo "✅ ${{ needs.check-tests.outputs.target-env }} deployment completed successfully"
+          echo "✅ Lambda deployment completed successfully"
           echo "✅ Build completed successfully"
         else
           echo "success=false" >> $GITHUB_OUTPUT
-          echo "❌ ${{ needs.check-tests.outputs.target-env }} deployment failed"
+          echo "❌ Lambda deployment failed"
           echo "❌ Build failed"
           exit 1
         fi
@@ -273,9 +186,9 @@ jobs:
   deployment-summary:
     name: 📊 Deployment Summary
     runs-on: ubuntu-latest
-    needs: [check-tests, build]
-    if: always() && needs.check-tests.outputs.deploy-ready == 'true'
-    environment: ${{ needs.check-tests.outputs.target-env == 'development' && 'Dev' || needs.check-tests.outputs.target-env == 'production' && 'Prod' || 'None' }}
+    needs: [build]
+    if: always()
+    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master'  && 'Prod' }}
     
     steps:
     - name: 📊 Generate deployment summary
@@ -283,7 +196,7 @@ jobs:
         echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📋 Build Information" >> $GITHUB_STEP_SUMMARY
-        echo "- **Environment**: ${{ needs.check-tests.outputs.target-env == 'development' && '🧪 Development' || needs.check-tests.outputs.target-env == 'production' && '🏭 Production' || '❌ None' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ github.ref == 'refs/heads/develop' && 'Dev' && '🧪 Development' || github.ref == 'refs/heads/master'  && 'Prod' && '🏭 Production' || github.ref == 'refs/heads/testing' && '🧪 Testing' || '❌ Other' }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Build Status**: ${{ needs.build.outputs.build-success == 'true' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Deploy Status**: ${{ needs.build.outputs.build-success == 'true' && '✅ Deployed' || '❌ Not Deployed' }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -291,12 +204,6 @@ jobs:
         echo "- **Branch**: \`${{ github.event.workflow_run.head_branch }}\`" >> $GITHUB_STEP_SUMMARY
         echo "- **Commit**: \`${{ github.event.workflow_run.head_sha }}\`" >> $GITHUB_STEP_SUMMARY
         echo "- **Workflow Run**: \`${{ github.event.workflow_run.run_number }}\`" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ needs.check-tests.outputs.target-env }}" == "production" ]; then
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🏷️ Release Information" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Tag**: \`v${{ github.event.workflow_run.run_number }}\`" >> $GITHUB_STEP_SUMMARY
-        fi
         
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### ⏰ Execution Details" >> $GITHUB_STEP_SUMMARY
