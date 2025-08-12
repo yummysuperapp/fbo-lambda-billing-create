@@ -67,6 +67,21 @@ function createConfig(envVars: EnvVars): AppConfig {
       host: envVars.N8N_HOST,
       apiKey: envVars.N8N_API_KEY,
     },
+    bigquery: {
+      projectId: envVars.BIGQUERY_PROJECT_ID,
+      datasetId: envVars.BIGQUERY_DATASET_ID,
+      location: envVars.BIGQUERY_LOCATION,
+      keyFilename: envVars.BIGQUERY_KEY_FILENAME,
+      ...(envVars.BIGQUERY_CLIENT_EMAIL && envVars.BIGQUERY_PRIVATE_KEY && {
+        credentials: {
+          client_email: envVars.BIGQUERY_CLIENT_EMAIL,
+          private_key: envVars.BIGQUERY_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          project_id: envVars.BIGQUERY_PROJECT_ID,
+        },
+      }),
+      maxRetries: envVars.BIGQUERY_MAX_RETRIES,
+      autoRetry: envVars.BIGQUERY_AUTO_RETRY,
+    },
   };
 }
 

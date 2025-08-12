@@ -28,7 +28,7 @@ dotenv.config();
 // Environment Variables Schema
 const EnvSchema = z.object({
   // Application Environment
-  NODE_ENV: z.enum(['development', 'production', 'local', 'dev', 'prod']).default('development'),
+  NODE_ENV: z.enum(['development', 'production', 'local', 'dev', 'prod', 'test']).default('development'),
   VERTICAL: z.string().min(1, 'VERTICAL is required'),
   
   // Finance API Configuration
@@ -69,6 +69,16 @@ const EnvSchema = z.object({
   // N8N Configuration
   N8N_HOST: z.string().url('N8N_HOST must be a valid URL'),
   N8N_API_KEY: z.string().min(1, 'N8N_API_KEY is required'),
+  
+  // BigQuery Configuration
+  BIGQUERY_PROJECT_ID: z.string().min(1, 'BIGQUERY_PROJECT_ID is required'),
+  BIGQUERY_DATASET_ID: z.string().min(1, 'BIGQUERY_DATASET_ID is required'),
+  BIGQUERY_LOCATION: z.string().default('US'),
+  BIGQUERY_KEY_FILENAME: z.string().optional(),
+  BIGQUERY_CLIENT_EMAIL: z.string().optional(),
+  BIGQUERY_PRIVATE_KEY: z.string().optional(),
+  BIGQUERY_MAX_RETRIES: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1)).default('3'),
+  BIGQUERY_AUTO_RETRY: z.string().transform(val => val !== 'false').pipe(z.boolean()).default('true'),
 });
 
 export type EnvVars = z.infer<typeof EnvSchema>;
