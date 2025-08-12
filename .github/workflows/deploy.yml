@@ -240,9 +240,9 @@ jobs:
 
     - name: ⚙️ Update function configuration
       run: |
-        echo "⚙️ Updating Development Lambda configuration..."
+        echo "⚙️ Updating Lambda configuration..."
         aws lambda update-function-configuration \
-          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}"" \
+          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
           --environment Variables="{
             \"FINANCE_API_BASE_URL\":\"${{ secrets.FINANCE_API_BASE_URL_DEV }}\",
             \"FINANCE_API_KEY\":\"${{ secrets.FINANCE_API_KEY_DEV }}\",
@@ -250,6 +250,7 @@ jobs:
             \"BIGQUERY_PRIVATE_KEY\":\"${{ secrets.BIGQUERY_PRIVATE_KEY }}\",
             \"BIGQUERY_CLIENT_EMAIL\":\"${{ secrets.BIGQUERY_CLIENT_EMAIL }}\",
             \"X_API_KEY\":\"${{ secrets.X_API_KEY }}\"
+          }"
 
     - name: 🧹 Remove Temporary Deployment Package
       run: rm -f ${{ github.sha }}.zip
