@@ -603,7 +603,3 @@ X_API_KEY
 - ✅ **Validación de tipos** en tiempo de ejecución
 - ✅ **Tipado estricto** sin uso de `any`
 - ✅ **Secrets management** en CI/CD
-
-## 📄 Licencia
-
-Este proyecto es privado y confidencial.
