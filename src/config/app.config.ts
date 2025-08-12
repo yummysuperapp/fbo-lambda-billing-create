@@ -71,7 +71,7 @@ function createConfig(envVars: EnvVars): AppConfig {
       projectId: envVars.BIGQUERY_PROJECT_ID,
       datasetId: envVars.BIGQUERY_DATASET_ID,
       location: envVars.BIGQUERY_LOCATION,
-      keyFilename: envVars.BIGQUERY_KEY_FILENAME,
+      ...(envVars.BIGQUERY_KEY_FILENAME && { keyFilename: envVars.BIGQUERY_KEY_FILENAME }),
       ...(envVars.BIGQUERY_CLIENT_EMAIL && envVars.BIGQUERY_PRIVATE_KEY && {
         credentials: {
           client_email: envVars.BIGQUERY_CLIENT_EMAIL,

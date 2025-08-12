@@ -1,4 +1,4 @@
-import { BigQuery, Dataset, Table, Job } from '@google-cloud/bigquery';
+import { BigQuery } from '@google-cloud/bigquery';
 import type { 
   BigQueryClientInterface,
   BigQueryConfig,
@@ -20,7 +20,7 @@ export class BigQueryClient implements BigQueryClientInterface {
   private readonly config: BigQueryConfig;
   private readonly logger: Logger;
   private isConnected: boolean = false;
-  private static instance: BigQueryClient | null = null;
+  public static instance: BigQueryClient | null = null;
 
   constructor(bigqueryConfig?: BigQueryConfig, logger?: Logger) {
     this.config = bigqueryConfig || config.bigquery;
@@ -37,7 +37,7 @@ export class BigQueryClient implements BigQueryClientInterface {
     }
 
     try {
-      const clientConfig: any = {
+      const clientConfig: Record<string, unknown> = {
         projectId: this.config.projectId,
         location: this.config.location || 'US',
         maxRetries: this.config.maxRetries || 3,
@@ -64,9 +64,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'Failed to connect to BigQuery',
-        { error, projectId: this.config.projectId }
+        { error: error as Error, projectId: this.config.projectId }
       );
-      this.logger.error('Failed to connect to BigQuery:', error);
+      this.logger.error('Failed to connect to BigQuery:', error as Error);
       throw bigqueryError;
     }
   }
@@ -86,7 +86,7 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'Failed to disconnect from BigQuery',
-        { error }
+        { error: error as Error }
       );
       this.logger.error('BigQuery disconnect failed', bigqueryError);
       throw bigqueryError;
@@ -114,7 +114,7 @@ export class BigQueryClient implements BigQueryClientInterface {
     try {
       const start = Date.now();
       
-      const queryOptions: any = {
+      const queryOptions: Record<string, unknown> = {
         query: sql,
         location: options.location || this.config.location || 'US',
         useLegacySql: options.useLegacySql || false,
@@ -149,9 +149,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery query execution failed',
-        { error, query: sql, options }
+        { error: error as Error, query: sql, options }
       );
-      this.logger.error('Query execution failed:', error);
+      this.logger.error('Query execution failed:', error as Error);
       throw bigqueryError;
     }
   }
@@ -171,7 +171,7 @@ export class BigQueryClient implements BigQueryClientInterface {
       const dataset = this.client!.dataset(datasetId);
       const table = dataset.table(tableId);
       
-      const insertOptions: any = {
+      const insertOptions: Record<string, unknown> = {
         ignoreUnknownValues: options.ignoreUnknownValues || false,
         skipInvalidRows: options.skipInvalidRows || false,
         templateSuffix: options.templateSuffix,
@@ -195,9 +195,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery insert operation failed',
-        { error, datasetId, tableId, rowCount: rows.length }
+        { error: error as Error, datasetId, tableId, rowCount: rows.length }
       );
-      this.logger.error(`Data insertion failed for table ${tableId}:`, error);
+      this.logger.error(`Data insertion failed for table ${tableId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -216,7 +216,7 @@ export class BigQueryClient implements BigQueryClientInterface {
     try {
       const dataset = this.client!.dataset(datasetId);
       
-      const tableOptions: any = {
+      const tableOptions: Record<string, unknown> = {
         schema: schema.fields,
         description: options.description,
       };
@@ -231,9 +231,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery table creation failed',
-        { error, datasetId, tableId, schema }
+        { error: error as Error, datasetId, tableId, schema }
       );
-      this.logger.error(`Table creation failed for ${tableId}:`, error);
+      this.logger.error(`Table creation failed for ${tableId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -257,9 +257,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery table deletion failed',
-        { error, datasetId, tableId }
+        { error: error as Error, datasetId, tableId }
       );
-      this.logger.error(`Table deletion failed for ${tableId}:`, error);
+      this.logger.error(`Table deletion failed for ${tableId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -286,9 +286,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery table existence check failed',
-        { error, datasetId, tableId }
+        { error: error as Error, datasetId, tableId }
       );
-      this.logger.error(`Failed to check table existence for ${tableId}:`, error);
+      this.logger.error(`Failed to check table existence for ${tableId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -319,9 +319,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery table metadata retrieval failed',
-        { error, datasetId, tableId }
+        { error: error as Error, datasetId, tableId }
       );
-      this.logger.error(`Failed to get table metadata for ${tableId}:`, error);
+      this.logger.error(`Failed to get table metadata for ${tableId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -336,7 +336,7 @@ export class BigQueryClient implements BigQueryClientInterface {
     await this.ensureConnection();
     
     try {
-      const datasetOptions: any = {
+      const datasetOptions: Record<string, unknown> = {
         location: options.location || this.config.location || 'US',
         description: options.description,
       };
@@ -350,9 +350,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery dataset creation failed',
-        { error, datasetId, options }
+        { error: error as Error, datasetId, options }
       );
-      this.logger.error(`Dataset creation failed for ${datasetId}:`, error);
+      this.logger.error(`Dataset creation failed for ${datasetId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -378,9 +378,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery dataset deletion failed',
-        { error, datasetId, options }
+        { error: error as Error, datasetId, options }
       );
-      this.logger.error(`Dataset deletion failed for ${datasetId}:`, error);
+      this.logger.error(`Dataset deletion failed for ${datasetId}:`, error as Error);
       throw bigqueryError;
     }
   }
@@ -404,9 +404,9 @@ export class BigQueryClient implements BigQueryClientInterface {
     } catch (error) {
       const bigqueryError = new BigQueryError(
         'BigQuery dataset existence check failed',
-        { error, datasetId }
+        { error: error as Error, datasetId }
       );
-      this.logger.error(`Failed to check dataset existence for ${datasetId}:`, error);
+      this.logger.error(`Failed to check dataset existence for ${datasetId}:`, error as Error);
       throw bigqueryError;
     }
   }
