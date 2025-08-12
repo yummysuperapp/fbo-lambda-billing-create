@@ -6,10 +6,10 @@ import type {
 export const handler = async (event: LambdaEvent) => {
   const response: LambdaResponse = {
     statusCode: 200,
-    body: JSON.stringify({
+    body: {
       message: 'Hello from Lambda!',
       event,
-    }),
+    },
   };
   return response;
 };
