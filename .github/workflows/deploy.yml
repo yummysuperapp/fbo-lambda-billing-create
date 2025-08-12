@@ -4,38 +4,103 @@ on:
   workflow_run:
     workflows: ["🧪 Test & Quality Assurance"]
     types: [completed]
-    branches: [ master, develop ]
+    branches: [ master, develop, testing ]
+  push:
+    branches:
+      - develop
+      - testing
+      - master
 
 env:
   NODE_VERSION: '22.x'
 
 jobs:
-  build:
-    name: 🏗️ Build & Deploy Application
+  deploy:
+    name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master'  && 'Prod' }}
-
-    outputs:
-      build-success: ${{ steps.build-result.outputs.success }}
-      package-size: ${{ steps.size-check.outputs.size }}
+    
+    environment: ${{ 
+      github.ref == 'refs/heads/develop' && 'Dev' ||
+      github.ref == 'refs/heads/testing' && 'Test' ||
+      github.ref == 'refs/heads/master' && 'Prod'
+    }}
+    
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+      NODE_ENV: ${{ 
+        github.ref == 'refs/heads/master' && 'production' ||
+        github.ref == 'refs/heads/testing' && 'testing' ||
+        'development'
+      }}
+      LOG_LEVEL: ${{ 
+        github.ref == 'refs/heads/master' && 'warn' ||
+        'debug'
+      }}
+      ENVIRONMENT: ${{ 
+        github.ref == 'refs/heads/master' && 'Prod' ||
+        github.ref == 'refs/heads/testing' && 'Test' ||
+        'Dev'
+      }}
+      FINANCE_BASE_URL: ${{ secrets.FINANCE_BASE_URL }}
+      FINANCE_API_KEY: ${{ secrets.FINANCE_API_KEY }}
+      FINANCE_DISPERSION_ENDPOINT: ${{ secrets.FINANCE_DISPERSION_ENDPOINT }}
+      VERTICAL: ${{ secrets.VERTICAL }}
+      AWS_APP_NAME: ${{ secrets.AWS_APP_NAME }}
+      EXPIRATION_HOURS: ${{ secrets.EXPIRATION_HOURS }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      ALLOWED_S3_BUCKETS: ${{ secrets.ALLOWED_S3_BUCKETS }}
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      PG_DATABASE: ${{ secrets.PG_DATABASE }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_SSL: ${{ secrets.PG_SSL }}
+      PG_MAX_CONNECTIONS: ${{ secrets.PG_MAX_CONNECTIONS }}
+      PG_CONNECTION_TIMEOUT: ${{ secrets.PG_CONNECTION_TIMEOUT }}
+      PG_IDLE_TIMEOUT: ${{ secrets.PG_IDLE_TIMEOUT }}
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
+      MONGO_MAX_POOL_SIZE: ${{ secrets.MONGO_MAX_POOL_SIZE }}
+      MONGO_MIN_POOL_SIZE: ${{ secrets.MONGO_MIN_POOL_SIZE }}
+      MONGO_MAX_IDLE_TIME: ${{ secrets.MONGO_MAX_IDLE_TIME }}
+      MONGO_SERVER_SELECTION_TIMEOUT: ${{ secrets.MONGO_SERVER_SELECTION_TIMEOUT }}
+      N8N_HOST: ${{ secrets.N8N_HOST }}
+      N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
+      BIGQUERY_DATASET_ID: ${{ secrets.BIGQUERY_DATASET_ID }}
+      BIGQUERY_LOCATION: ${{ secrets.BIGQUERY_LOCATION }}
+      BIGQUERY_KEY_FILENAME: ${{ secrets.BIGQUERY_KEY_FILENAME }}
+      BIGQUERY_MAX_RETRIES: ${{ secrets.BIGQUERY_MAX_RETRIES }}
+      BIGQUERY_AUTO_RETRY: ${{ secrets.BIGQUERY_AUTO_RETRY }}
+      BIGQUERY_PROJECT_ID: ${{ secrets.BIGQUERY_PROJECT_ID }}
+      BIGQUERY_PRIVATE_KEY: ${{ secrets.BIGQUERY_PRIVATE_KEY }}
+      BIGQUERY_CLIENT_EMAIL: ${{ secrets.BIGQUERY_CLIENT_EMAIL }}
+      X_API_KEY: ${{ secrets.X_API_KEY }}
 
     steps:
-    - name: 📥 Checkout code
+    - name: 📥 Checkout Source Code
       uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.workflow_run.head_sha }}
 
-    - name: 🟢 Setup Node.js
+    - name: 🟢 Initialize Node.js Environment
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+        cache: npm
 
-    - name: 📦 Install dependencies
+    - name: 📦 Install Dependencies
       run: npm ci
 
-    - name: 🏗️ Build project
+    - name: 🏗️ Build Project
       run: npm run build
+
+    - name: 🔐 Set AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: 🧹 Clean node_modules for production
       run: rm -rf node_modules
@@ -105,7 +170,7 @@ jobs:
         
         # Create the zip package
         cd "$TEMP_DIR"
-        zip -r ../${{ github.sha }}.zip .
+        zip -r "/tmp/${{ github.sha }}.zip" .
         cd ..
         
         # Clean up temp directory
@@ -114,98 +179,51 @@ jobs:
     - name: 📊 Validate package size
       id: package-and-validate
       run: |
-        zip -r "${{ github.sha }}.zip" .
-        size_bytes=$(du -sb "${{ github.sha }}.zip" | cut -f1)
+        size_bytes=$(du -sb "/tmp/${{ github.sha }}.zip" | cut -f1)
         echo "ZIP size: $(( size_bytes/1024 )) KB"
         if [ "$size_bytes" -gt 52428800 ]; then
           echo "Error: ZIP > 50MB"
           exit 1
         fi
 
-    - name: 🔐 Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: 📤 Upload build artifacts
+    - name: 📤 Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: lambda-package-${{ github.event.workflow_run.run_number }}
-        path: ${{ github.sha }}.zip
-        retention-days: 10
-        if-no-files-found: error
-        compression-level: 6
+        name: lambda-package-${{ github.sha }}
+        path: /tmp/${{ github.sha }}.zip
+        retention-days: 7
 
-    - name: 🚀 Deploy to Lambda
-      id: deploy-version
+    - name: 🚀 Deploy to AWS Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb:///tmp/${{ github.sha }}.zip
+
+    - name: ⚙️ Update Lambda Configuration
+      run: |
+        aws lambda update-function-configuration \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --environment Variables="{
+            \"NODE_ENV\":\"${{ env.NODE_ENV }}\",
+            \"LOG_LEVEL\":\"${{ env.LOG_LEVEL }}\",
+            \"ENVIRONMENT\":\"${{ env.ENVIRONMENT }}\",
+            \"BIGQUERY_PROJECT_ID\":\"${{ env.BIGQUERY_PROJECT_ID }}\",
+            \"BIGQUERY_PRIVATE_KEY\":\"${{ env.BIGQUERY_PRIVATE_KEY }}\",
+            \"BIGQUERY_CLIENT_EMAIL\":\"${{ env.BIGQUERY_CLIENT_EMAIL }}\",
+            \"X_API_KEY\":\"${{ env.X_API_KEY }}\"
+          }" \
+          --timeout 30 \
+          --memory-size 512
+
+    - name: 🧹 Clean Up Temporary Files
+      if: always()
+      run: rm -f /tmp/${{ github.sha }}.zip
+
+    - name: ✅ Deployment Summary
       if: success()
       run: |
-        echo "🚀 Deploying to Lambda..."
-        
-        aws lambda update-function-code \
-          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
-          --zip-file fileb://${{ github.sha }}.zip
-        
-        # Store function name for later steps
-        echo "function-name=${{ secrets.LAMBDA_FUNCTION_NAME }}" >> $GITHUB_OUTPUT
-
-    - name: ⚙️ Update function configuration
-      run: |
-        echo "⚙️ Updating Lambda configuration..."
-        aws lambda update-function-configuration \
-          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
-          --environment Variables="{
-            \"FINANCE_API_BASE_URL\":\"${{ secrets.FINANCE_API_BASE_URL_DEV }}\",
-            \"FINANCE_API_KEY\":\"${{ secrets.FINANCE_API_KEY_DEV }}\",
-            \"BIGQUERY_PROJECT_ID\":\"${{ secrets.BIGQUERY_PROJECT_ID }}\",
-            \"BIGQUERY_PRIVATE_KEY\":\"${{ secrets.BIGQUERY_PRIVATE_KEY }}\",
-            \"BIGQUERY_CLIENT_EMAIL\":\"${{ secrets.BIGQUERY_CLIENT_EMAIL }}\",
-            \"X_API_KEY\":\"${{ secrets.X_API_KEY }}\"
-          }"
-
-    - name: 🧹 Remove Temporary Deployment Package
-      run: rm -f ${{ github.sha }}.zip
-
-    - name: ✅ Set build result
-      id: build-result
-      if: always()
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "success=true" >> $GITHUB_OUTPUT
-          echo "✅ Lambda deployment completed successfully"
-          echo "✅ Build completed successfully"
-        else
-          echo "success=false" >> $GITHUB_OUTPUT
-          echo "❌ Lambda deployment failed"
-          echo "❌ Build failed"
-          exit 1
-        fi
-
-  deployment-summary:
-    name: 📊 Deployment Summary
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: always()
-    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master'  && 'Prod' }}
-    
-    steps:
-    - name: 📊 Generate deployment summary
-      run: |
-        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📋 Build Information" >> $GITHUB_STEP_SUMMARY
-        echo "- **Environment**: ${{ github.ref == 'refs/heads/develop' && 'Dev' && '🧪 Development' || github.ref == 'refs/heads/master'  && 'Prod' && '🏭 Production' || github.ref == 'refs/heads/testing' && '🧪 Testing' || '❌ Other' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Build Status**: ${{ needs.build.outputs.build-success == 'true' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Deploy Status**: ${{ needs.build.outputs.build-success == 'true' && '✅ Deployed' || '❌ Not Deployed' }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🔍 Source Information" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: \`${{ github.event.workflow_run.head_branch }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit**: \`${{ github.event.workflow_run.head_sha }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Workflow Run**: \`${{ github.event.workflow_run.run_number }}\`" >> $GITHUB_STEP_SUMMARY
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ⏰ Execution Details" >> $GITHUB_STEP_SUMMARY
-        echo "- **Triggered At**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-        echo "- **Node Version**: ${{ env.NODE_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Deployment completed successfully!"
+        echo "📦 Package: ${{ github.sha }}.zip"
+        echo "🎯 Environment: ${{ env.ENVIRONMENT }}"
+        echo "🚀 Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        echo "⏰ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
