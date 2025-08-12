@@ -57,8 +57,13 @@ jobs:
         # Extract coverage table
         COVERAGE_TABLE=$(awk '/% Coverage report from v8/,/^$/' coverage_output.txt | grep -v "^$" || echo "Coverage table not found")
         
-        # Extract overall coverage percentage
-        OVERALL_COVERAGE=$(echo "$COVERAGE_TABLE" | grep "All files" | awk '{print $2}' || echo "N/A")
+        # Extract overall coverage percentage - more robust extraction
+        OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | awk -F'|' '{gsub(/[ %]/, "", $2); print $2}' || echo "N/A")
+        
+        # Fallback if first method fails
+        if [ "$OVERALL_COVERAGE" = "N/A" ] || [ -z "$OVERALL_COVERAGE" ]; then
+          OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | sed 's/.*|[[:space:]]*\([0-9.]*\).*/\1/' || echo "N/A")
+        fi
         
         # Set output for other workflows
         echo "coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
