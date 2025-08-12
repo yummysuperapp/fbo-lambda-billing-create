@@ -212,12 +212,33 @@ jobs:
       id: deploy-version
       if: success()
       run: |
+        # Determine environment name for display
+        case "${{ needs.check-tests.outputs.target-env }}" in
+          "production")
+            ENV_NAME="Production"
+            ;;
+          "development")
+            ENV_NAME="Development"
+            ;;
+          "testing")
+            ENV_NAME="Testing"
+            ;;
+          *)
+            echo "❌ Unknown environment: ${{ needs.check-tests.outputs.target-env }}"
+            exit 1
+            ;;
+        esac
+        
         echo ">>> Region: ${{ secrets.AWS_REGION }}"
-        echo ">>> Lambda: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
-        echo "🚀 Deploying to Development Lambda..."
+        echo ">>> Lambda Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
+        echo "🚀 Deploying to $ENV_NAME Lambda..."
+        
         aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+          --function-name "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
           --zip-file fileb://${{ github.sha }}.zip
+        
+        # Store function name for later steps
+        echo "function-name=${{ secrets.LAMBDA_FUNCTION_NAME }}" >> $GITHUB_OUTPUT
 
     - name: Remove Temporary Deployment Package
       run: rm -f ${{ github.sha }}.zip
@@ -228,13 +249,13 @@ jobs:
       run: |
         if [ "${{ job.status }}" == "success" ]; then
           echo "success=true" >> $GITHUB_OUTPUT
-          echo "✅ Development deployment completed successfully"
+          echo "✅ ${{ needs.check-tests.outputs.target-env }} deployment completed successfully"
           echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
           echo "🌍 Region: ${{ secrets.AWS_REGION }}"
           echo "✅ Build completed successfully"
         else
           echo "success=false" >> $GITHUB_OUTPUT
-          echo "❌ Development deployment failed"
+          echo "❌ ${{ needs.check-tests.outputs.target-env }} deployment failed"
           echo "🔗 Function: ${{ secrets.LAMBDA_FUNCTION_NAME }}"
           echo "🌍 Region: ${{ secrets.AWS_REGION }}"
           echo "❌ Build failed"
