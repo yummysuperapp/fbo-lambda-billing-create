@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "package": "npm run build && zip -r lambda-deployment.zip dist/ node_modules/ package.json index.mjs",
+    "package": "npm run build",
     "deploy": "node scripts/deploy.mjs",
     "deploy:dev": "npm run deploy dev",
     "deploy:prod": "npm run deploy prod"

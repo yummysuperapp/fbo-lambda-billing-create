@@ -67,8 +67,99 @@ jobs:
     - name: 🏗️ Build project
       run: npm run build
 
-    - name: 📦 Create deployment package
-      run: npm run package
+    - name: 🧹 Clean node_modules for production
+      run: rm -rf node_modules
+
+    - name: 📦 Install production dependencies only
+      run: npm ci --production --silent
+
+    - name: 📦 Create optimized deployment package
+      run: |
+        # Remove existing package
+        rm -f lambda-deployment.zip
+        
+        # Create temporary directory for packaging
+        TEMP_DIR="temp-lambda-package"
+        rm -rf "$TEMP_DIR"
+        mkdir -p "$TEMP_DIR"
+        
+        # Copy required files
+        cp -r dist "$TEMP_DIR/"
+        cp package.json "$TEMP_DIR/"
+        cp index.mjs "$TEMP_DIR/"
+        
+        # Copy node_modules excluding unnecessary files
+        mkdir -p "$TEMP_DIR/node_modules"
+        
+        # Use rsync to copy node_modules with exclusions
+        rsync -a --exclude='*.md' \
+                 --exclude='*.txt' \
+                 --exclude='*.log' \
+                 --exclude='*.map' \
+                 --exclude='*.d.ts.map' \
+                 --exclude='*.test.js' \
+                 --exclude='*.spec.js' \
+                 --exclude='*.test.ts' \
+                 --exclude='*.spec.ts' \
+                 --exclude='Gruntfile.js' \
+                 --exclude='gulpfile.js' \
+                 --exclude='Makefile' \
+                 --exclude='*.mk' \
+                 --exclude='*.gyp' \
+                 --exclude='*.gypi' \
+                 --exclude='.eslintrc*' \
+                 --exclude='.jshintrc' \
+                 --exclude='.jscsrc' \
+                 --exclude='.babelrc*' \
+                 --exclude='tsconfig.json' \
+                 --exclude='tslint.json' \
+                 --exclude='*.tgz' \
+                 --exclude='*.tar.gz' \
+                 --exclude='.git/' \
+                 --exclude='test/' \
+                 --exclude='tests/' \
+                 --exclude='__tests__/' \
+                 --exclude='spec/' \
+                 --exclude='specs/' \
+                 --exclude='example/' \
+                 --exclude='examples/' \
+                 --exclude='demo/' \
+                 --exclude='demos/' \
+                 --exclude='doc/' \
+                 --exclude='docs/' \
+                 --exclude='documentation/' \
+                 --exclude='.nyc_output/' \
+                 --exclude='coverage/' \
+                 --exclude='.cache/' \
+                 --exclude='cache/' \
+                 --exclude='tmp/' \
+                 --exclude='temp/' \
+                 node_modules/ "$TEMP_DIR/node_modules/"
+        
+        # Create the zip package
+        cd "$TEMP_DIR"
+        zip -r ../lambda-deployment.zip .
+        cd ..
+        
+        # Clean up temp directory
+        rm -rf "$TEMP_DIR"
+
+    - name: 📊 Validate package size
+      run: |
+        PACKAGE_SIZE=$(stat -c%s lambda-deployment.zip)
+        PACKAGE_SIZE_MB=$((PACKAGE_SIZE / 1024 / 1024))
+        MAX_SIZE_MB=50
+        
+        ls -lh lambda-deployment.zip
+        echo "📊 Package size: ${PACKAGE_SIZE_MB}MB"
+        
+        if [ $PACKAGE_SIZE_MB -gt $MAX_SIZE_MB ]; then
+          echo "❌ Error: Package size (${PACKAGE_SIZE_MB}MB) exceeds AWS Lambda limit (${MAX_SIZE_MB}MB)"
+          echo "💡 Consider removing more dependencies or using Lambda Layers"
+          exit 1
+        else
+          echo "✅ Package size is within AWS Lambda limits"
+        fi
 
     - name: 📤 Upload build artifacts
       uses: actions/upload-artifact@v4
