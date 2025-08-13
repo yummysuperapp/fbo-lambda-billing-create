@@ -197,15 +197,15 @@ jobs:
       run: |
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --environment Variables="{
-            \"NODE_ENV\":\"${{ env.NODE_ENV }}\",
-            \"LOG_LEVEL\":\"${{ env.LOG_LEVEL }}\",
-            \"ENVIRONMENT\":\"${{ env.ENVIRONMENT }}\",
-            \"BIGQUERY_PROJECT_ID\":\"${{ env.BIGQUERY_PROJECT_ID }}\",
-            \"BIGQUERY_PRIVATE_KEY\":\"${{ env.BIGQUERY_PRIVATE_KEY }}\",
-            \"BIGQUERY_CLIENT_EMAIL\":\"${{ env.BIGQUERY_CLIENT_EMAIL }}\",
-            \"X_API_KEY\":\"${{ env.X_API_KEY }}\"
-          }" \
+          --environment 'Variables={
+            "NODE_ENV":"${{ env.NODE_ENV }}",
+            "LOG_LEVEL":"${{ env.LOG_LEVEL }}",
+            "ENVIRONMENT":"${{ env.ENVIRONMENT }}",
+            "BIGQUERY_PROJECT_ID":"${{ env.BIGQUERY_PROJECT_ID }}",
+            "BIGQUERY_PRIVATE_KEY":"${{ env.BIGQUERY_PRIVATE_KEY }}",
+            "BIGQUERY_CLIENT_EMAIL":"${{ env.BIGQUERY_CLIENT_EMAIL }}",
+            "X_API_KEY":"${{ env.X_API_KEY }}"
+          }' \
           --timeout 30 \
           --memory-size 512
 
