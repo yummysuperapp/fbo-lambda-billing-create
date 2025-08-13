@@ -42,7 +42,7 @@ export interface S3Event {
   Records: S3EventRecord[];
 }
 
-// API Gateway Event Types
+// Legacy API Gateway REST (v1) - kept for backward compatibility if needed
 export interface APIGatewayEvent {
   httpMethod: string;
   path: string;
@@ -50,6 +50,39 @@ export interface APIGatewayEvent {
   queryStringParameters: FBOLambda.StringRecord | null;
   body: string | null;
   isBase64Encoded: boolean;
+}
+
+// API Gateway HTTP API (v2) Event Types
+export interface HttpEvent {
+  version: string; // e.g., "2.0"
+  routeKey: string; // e.g., "GET /billing"
+  rawPath: string; // e.g., "/develop/billing"
+  rawQueryString: string; // raw query string
+  cookies?: string[];
+  headers: FBOLambda.StringRecord;
+  queryStringParameters?: FBOLambda.StringRecord | null;
+  requestContext: {
+    accountId: string;
+    apiId: string;
+    domainName: string;
+    domainPrefix?: string;
+    http: {
+      method: string; // e.g., "GET"
+      path: string; // e.g., "/develop/billing"
+      protocol: string; // e.g., "HTTP/1.1"
+      sourceIp: string;
+      userAgent?: string;
+    };
+    requestId: string;
+    routeKey: string;
+    stage: string; // e.g., "develop"
+    time: string; // e.g., "13/Aug/2025:23:15:01 +0000"
+    timeEpoch: number; // e.g., 1755126901525
+  };
+  body?: string | null;
+  isBase64Encoded: boolean;
+  pathParameters?: FBOLambda.StringRecord | null;
+  stageVariables?: FBOLambda.StringRecord | null;
 }
 
 // Lambda Context Types
@@ -73,4 +106,4 @@ export interface CustomEvent {
 }
 
 // Union type for all supported events
-export type LambdaEvent = S3Event | APIGatewayEvent | CustomEvent;
+export type LambdaEvent = S3Event | APIGatewayEvent | HttpEvent | CustomEvent;

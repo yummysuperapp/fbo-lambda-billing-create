@@ -16,6 +16,13 @@ jobs:
     outputs:
       coverage: ${{ steps.coverage.outputs.coverage }}
       tests-passed: ${{ steps.test-result.outputs.passed }}
+      security-status: ${{ steps.security-audit.outputs.status }}
+      security-critical: ${{ steps.security-audit.outputs.critical }}
+      security-high: ${{ steps.security-audit.outputs.high }}
+      security-moderate: ${{ steps.security-audit.outputs.moderate }}
+      security-low: ${{ steps.security-audit.outputs.low }}
+      security-info: ${{ steps.security-audit.outputs.info }}
+      security-total: ${{ steps.security-audit.outputs.total }}
     
     steps:
     - name: 📥 Checkout code
@@ -329,10 +336,15 @@ jobs:
         fi
 
     - name: 📊 Quality summary
+      if: always()
       run: |
         echo "## 📊 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **Tests**: ${{ needs.test.outputs.tests-passed == 'true' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Coverage**: ${{ needs.test.outputs.coverage }}%" >> $GITHUB_STEP_SUMMARY
-        echo "- **Security**: ${{ steps.security-audit.outputs.status || 'N/A' }} (Total: ${{ steps.security-audit.outputs.total || '0' }}, Critical: ${{ steps.security-audit.outputs.critical || '0' }}, High: ${{ steps.security-audit.outputs.high || '0' }}, Moderate: ${{ steps.security-audit.outputs.moderate || '0' }}, Low: ${{ steps.security-audit.outputs.low || '0' }}, Info: ${{ steps.security-audit.outputs.info || '0' }})" >> $GITHUB_STEP_SUMMARY
+        echo "- **Security**: ${{ needs.test.outputs['security-status'] || 'N/A' }} (Total: ${{ needs.test.outputs['security-total'] || '0' }}, Critical: ${{ needs.test.outputs['security-critical'] || '0' }}, High: ${{ needs.test.outputs['security-high'] || '0' }}, Moderate: ${{ needs.test.outputs['security-moderate'] || '0' }}, Low: ${{ needs.test.outputs['security-low'] || '0' }}, Info: ${{ needs.test.outputs['security-info'] || '0' }})" >> $GITHUB_STEP_SUMMARY
         echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "\n### 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+        echo "- Status: ${{ needs.test.outputs['security-status'] || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Summary: Total ${{ needs.test.outputs['security-total'] || '0' }} | Critical ${{ needs.test.outputs['security-critical'] || '0' }}, High ${{ needs.test.outputs['security-high'] || '0' }}, Moderate ${{ needs.test.outputs['security-moderate'] || '0' }}, Low ${{ needs.test.outputs['security-low'] || '0' }}, Info ${{ needs.test.outputs['security-info'] || '0' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Artifacts: security-audit-${{ github.run_number }} (Actions > Run summary > Artifacts)" >> $GITHUB_STEP_SUMMARY
