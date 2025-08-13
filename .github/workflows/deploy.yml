@@ -1,10 +1,23 @@
 name: 🚀 Build & Deploy
 
 on:
+  # 🔄 Trigger after successful deployment
   workflow_run:
     workflows: ["🧪 Test & Quality Assurance"]
-    types: [completed]
-    branches: [ master, develop, testing ]
+    types:
+      - completed
+
+  # ⬆️ Trigger on direct pushes to main branches
+  push:
+    branches:
+      - develop
+      - master
+      - testing
+
+# 🚫 Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,9 +26,12 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
+    timeout-minutes: 30
     
-    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master' && 'Prod' || 'Dev' }}
+    defaults:
+      run:
+        shell: bash
     
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -85,21 +101,46 @@ jobs:
         
     - name: ✅ Validate required environment variables
       run: |
-        missing_vars=()
+        # Initialize error flag
+        has_errors=false
+        
+        echo "🔍 Validating required environment variables..."
         
         # Check critical AWS variables
-        [ -z "${{ env.LAMBDA_FUNCTION_NAME }}" ] && missing_vars+=("LAMBDA_FUNCTION_NAME")
-        [ -z "${{ env.AWS_REGION }}" ] && missing_vars+=("AWS_REGION")
-        [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && missing_vars+=("AWS_ACCESS_KEY_ID")
-        [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ] && missing_vars+=("AWS_SECRET_ACCESS_KEY")
+        if [ -z "${{ env.LAMBDA_FUNCTION_NAME }}" ]; then
+          echo "❌ Missing: LAMBDA_FUNCTION_NAME"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ env.AWS_REGION }}" ]; then
+          echo "❌ Missing: AWS_REGION"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+          echo "❌ Missing: AWS_ACCESS_KEY_ID"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+          echo "❌ Missing: AWS_SECRET_ACCESS_KEY"
+          has_errors=true
+        fi
         
         # Check application variables
-        [ -z "${{ env.NODE_ENV }}" ] && missing_vars+=("NODE_ENV")
-        [ -z "${{ env.ENVIRONMENT }}" ] && missing_vars+=("ENVIRONMENT")
+        if [ -z "${{ env.NODE_ENV }}" ]; then
+          echo "❌ Missing: NODE_ENV"
+          has_errors=true
+        fi
         
-        if [ ${#missing_vars[@]} -ne 0 ]; then
-          echo "❌ Missing required environment variables:"
-          printf '  - %s\n' "${missing_vars[@]}"
+        if [ -z "${{ env.ENVIRONMENT }}" ]; then
+          echo "❌ Missing: ENVIRONMENT"
+          has_errors=true
+        fi
+        
+        # Exit if any errors found
+        if [ "$has_errors" = "true" ]; then
+          echo "❌ One or more required environment variables are missing"
           exit 1
         fi
         
@@ -168,8 +209,21 @@ jobs:
         
         # Create the zip package
         cd "$TEMP_DIR"
+        
+        # Ensure temp directory exists
+        mkdir -p "/tmp"
+        
+        # Create zip package
         zip -r "/tmp/${{ github.sha }}.zip" .
         cd ..
+        
+        # Verify zip was created
+        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+          echo "❌ Error: Failed to create ZIP package"
+          exit 1
+        fi
+        
+        echo "✅ ZIP package created successfully"
         
         # Clean up temp directory
         rm -rf "$TEMP_DIR"
@@ -181,7 +235,23 @@ jobs:
           echo "Error: Package file not found"
           exit 1
         fi
-        size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip" 2>/dev/null || du -sb "/tmp/${{ github.sha }}.zip" | cut -f1)
+        # Get file size using multiple methods for compatibility
+         if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+           size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip")
+         elif command -v wc >/dev/null 2>&1; then
+           size_bytes=$(wc -c < "/tmp/${{ github.sha }}.zip")
+         elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+           size_bytes=$(du -b "/tmp/${{ github.sha }}.zip" | cut -f1)
+         else
+           # Fallback using ls -l
+           size_bytes=$(ls -l "/tmp/${{ github.sha }}.zip" | awk '{print $5}')
+         fi
+         
+         # Validate that we got a valid size
+         if [ -z "$size_bytes" ] || [ "$size_bytes" -eq 0 ] 2>/dev/null; then
+           echo "❌ Error: Could not determine package size"
+           exit 1
+         fi
         size_kb=$(( size_bytes/1024 ))
         size_mb=$(( size_bytes/1048576 ))
         echo "📦 Package size: ${size_kb} KB (${size_mb} MB)"
@@ -247,8 +317,19 @@ jobs:
       if: always()
       run: |
         echo "🧹 Cleaning up temporary files..."
-        [ -f "/tmp/${{ github.sha }}.zip" ] && rm -f "/tmp/${{ github.sha }}.zip" && echo "✅ Removed ZIP file"
-        [ -d "/tmp/lambda-package-${{ github.sha }}" ] && rm -rf "/tmp/lambda-package-${{ github.sha }}" && echo "✅ Removed package directory"
+        
+        # Remove ZIP file if exists
+        if [ -f "/tmp/${{ github.sha }}.zip" ]; then
+          rm -f "/tmp/${{ github.sha }}.zip"
+          echo "✅ Removed ZIP file"
+        fi
+        
+        # Remove package directory if exists
+        if [ -d "/tmp/lambda-package-${{ github.sha }}" ]; then
+          rm -rf "/tmp/lambda-package-${{ github.sha }}"
+          echo "✅ Removed package directory"
+        fi
+        
         echo "🧹 Cleanup completed"
         
     - name: 🎉 Deployment Summary
@@ -256,11 +337,11 @@ jobs:
       run: |
         echo "🎉 Deployment completed successfully!"
         echo "📋 Summary:"
-        echo "  > Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
-        echo "  > Region: ${{ env.AWS_REGION }}"
-        echo "  > Environment: ${{ env.ENVIRONMENT }}"
-        echo "  > Commit: ${{ github.sha }}"
-        echo "  > Triggered by: ${{ github.event_name }}"
+        echo "  • Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        echo "  • Region: ${{ env.AWS_REGION }}"
+        echo "  • Environment: ${{ env.ENVIRONMENT }}"
+        echo "  • Commit: ${{ github.sha }}"
+        echo "  • Triggered by: ${{ github.event_name }}"
         
         # Get function info
         echo "📊 Function details:"
