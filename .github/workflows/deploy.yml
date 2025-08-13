@@ -1,11 +1,14 @@
-name: 🚀 Build & Deploy
+name: Build & Deploy
 
 on:
   # 🔄 Trigger after successful testing
   workflow_run:
-    workflows: ["🧪 Testing Report"]
+    workflows: ["Testing Report"]
     types:
       - completed
+  
+  # ⬆️ Trigger on direct pushes to main branches
+  push:
     branches:
       - develop
       - master
