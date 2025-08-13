@@ -769,7 +769,7 @@ Todas las plantillas incorporan validación automática de:
 - **Licencia Privada** de Yummy Inc. con términos específicos
 - **Restricciones de uso** claramente definidas
 - **Contacto legal** para consultas de licencia
-- **Términos de terminación** y jurisdicción (Colombia)
+- **Términos de terminación** y jurisdicción
 
 ### 🛡️ Seguridad
 - **Política de reporte** de vulnerabilidades con proceso estructurado
