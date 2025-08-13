@@ -57,7 +57,7 @@ jobs:
       run: npm i -g rimraf --yes
 
     - name: 📦 Install Project Dependencies
-      run: npm ci --include=dev  # include devDependencies required for TypeScript build even when NODE_ENV=production
+      run: npm ci --include=dev
 
     - name: 🏗️ Build Project
       run: npm run build
