@@ -3,7 +3,7 @@ name: 🚀 Build & Deploy
 on:
   # 🔄 Trigger after successful deployment
   workflow_run:
-    workflows: ["🧪 Test & Quality Assurance"]
+    workflows: ["🧪 Testing Report"]
     types:
       - completed
 
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
     timeout-minutes: 30
-    
+
     defaults:
       run:
         shell: bash
