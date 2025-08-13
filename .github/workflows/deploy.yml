@@ -291,9 +291,6 @@ jobs:
         
         # Create environment variables JSON using only available secrets
         ENV_VARS=$(jq -nc \
-          --arg AWS_ACCESS_KEY_ID "${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          --arg AWS_SECRET_ACCESS_KEY "${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-          --arg AWS_REGION "${{ secrets.AWS_REGION }}" \
           --arg BIGQUERY_CLIENT_EMAIL "${{ secrets.BIGQUERY_CLIENT_EMAIL }}" \
           --arg BIGQUERY_PRIVATE_KEY "${{ secrets.BIGQUERY_PRIVATE_KEY }}" \
           --arg BIGQUERY_PROJECT_ID "${{ secrets.BIGQUERY_PROJECT_ID }}" \
@@ -301,7 +298,7 @@ jobs:
           --arg FINANCE_API_KEY "${{ secrets.FINANCE_API_KEY }}" \
           --arg LAMBDA_FUNCTION_NAME "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
           --arg X_API_KEY "${{ secrets.X_API_KEY }}" \
-          '{"Variables":{"AWS_ACCESS_KEY_ID":$AWS_ACCESS_KEY_ID,"AWS_SECRET_ACCESS_KEY":$AWS_SECRET_ACCESS_KEY,"AWS_REGION":$AWS_REGION,"BIGQUERY_CLIENT_EMAIL":$BIGQUERY_CLIENT_EMAIL,"BIGQUERY_PRIVATE_KEY":$BIGQUERY_PRIVATE_KEY,"BIGQUERY_PROJECT_ID":$BIGQUERY_PROJECT_ID,"FINANCE_API_BASE_URL":$FINANCE_API_BASE_URL,"FINANCE_API_KEY":$FINANCE_API_KEY,"LAMBDA_FUNCTION_NAME":$LAMBDA_FUNCTION_NAME,"X_API_KEY":$X_API_KEY}}')
+          '{"Variables":{"BIGQUERY_CLIENT_EMAIL":$BIGQUERY_CLIENT_EMAIL,"BIGQUERY_PRIVATE_KEY":$BIGQUERY_PRIVATE_KEY,"BIGQUERY_PROJECT_ID":$BIGQUERY_PROJECT_ID,"FINANCE_API_BASE_URL":$FINANCE_API_BASE_URL,"FINANCE_API_KEY":$FINANCE_API_KEY,"LAMBDA_FUNCTION_NAME":$LAMBDA_FUNCTION_NAME,"X_API_KEY":$X_API_KEY}}')
         
         # Update configuration
         aws lambda update-function-configuration \
