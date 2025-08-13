@@ -1,4 +1,4 @@
-# Guía de Contribución - FBO Lambda Template
+# Guía de Contribución
 
 ¡Gracias por tu interés en contribuir al proyecto FBO Lambda Template! Esta guía te ayudará a entender nuestro proceso de desarrollo y cómo puedes contribuir efectivamente.
 

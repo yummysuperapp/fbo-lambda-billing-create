@@ -1,4 +1,4 @@
-# 📋 GitHub Templates - FBO Lambda Template
+# 📋 GitHub Templates
 
 Este directorio contiene las plantillas de GitHub para Pull Requests e Issues, diseñadas específicamente para el equipo de Financial Backoffice siguiendo nuestros dogmas y definiciones de proceso.
 
