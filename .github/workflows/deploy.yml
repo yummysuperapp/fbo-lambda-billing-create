@@ -53,7 +53,10 @@ jobs:
         node-version: 22.x
         cache: npm
 
-    - name: 📦 Install Dependencies
+    - name: 🔧 Install Global Tools
+      run: npm i -g rimraf --yes
+
+    - name: 📦 Install Project Dependencies
       run: npm ci --silent
 
     - name: 🏗️ Build Project
