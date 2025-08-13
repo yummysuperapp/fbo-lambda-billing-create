@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection, InsertOneResult, InsertManyResult, UpdateResult, DeleteResult } from 'mongodb';
+import { MongoClient, Db, Collection, InsertOneResult, InsertManyResult, UpdateResult, DeleteResult, MongoClientOptions } from 'mongodb';
 import type { 
   MongoClientInterface, 
   MongoConfig, 
@@ -32,12 +32,14 @@ export class MongoDbClient implements MongoClientInterface {
         return;
       }
 
-      this.client = new MongoClient(this.config.uri, {
+      const options: MongoClientOptions = {
         maxPoolSize: this.config.maxPoolSize ?? 10,
         minPoolSize: this.config.minPoolSize ?? 1,
         maxIdleTimeMS: this.config.maxIdleTimeMS ?? 30000,
         serverSelectionTimeoutMS: this.config.serverSelectionTimeoutMS ?? 30000,
-      });
+      };
+      
+      this.client = new MongoClient(this.config.uri, options);
 
       await this.client.connect();
       this.db = this.client.db(this.config.database);
