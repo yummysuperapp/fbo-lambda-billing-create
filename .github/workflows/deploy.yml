@@ -5,11 +5,6 @@ on:
     workflows: ["🧪 Test & Quality Assurance"]
     types: [completed]
     branches: [ master, develop, testing ]
-  push:
-    branches:
-      - develop
-      - testing
-      - master
 
 permissions:
   contents: read
@@ -18,6 +13,7 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
     
     environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/testing' && 'Test' || github.ref == 'refs/heads/master' && 'Prod' || 'Dev' }}
     
@@ -86,6 +82,28 @@ jobs:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+        
+    - name: ✅ Validate required environment variables
+      run: |
+        missing_vars=()
+        
+        # Check critical AWS variables
+        [ -z "${{ env.LAMBDA_FUNCTION_NAME }}" ] && missing_vars+=("LAMBDA_FUNCTION_NAME")
+        [ -z "${{ env.AWS_REGION }}" ] && missing_vars+=("AWS_REGION")
+        [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && missing_vars+=("AWS_ACCESS_KEY_ID")
+        [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ] && missing_vars+=("AWS_SECRET_ACCESS_KEY")
+        
+        # Check application variables
+        [ -z "${{ env.NODE_ENV }}" ] && missing_vars+=("NODE_ENV")
+        [ -z "${{ env.ENVIRONMENT }}" ] && missing_vars+=("ENVIRONMENT")
+        
+        if [ ${#missing_vars[@]} -ne 0 ]; then
+          echo "❌ Missing required environment variables:"
+          printf '  - %s\n' "${missing_vars[@]}"
+          exit 1
+        fi
+        
+        echo "✅ All required environment variables are present"
 
     - name: 📦 Create optimized deployment package
       run: |
@@ -102,50 +120,51 @@ jobs:
         # Copy node_modules excluding unnecessary files
         mkdir -p "$TEMP_DIR/node_modules"
         
-        # Use rsync to copy node_modules with exclusions
-        rsync -a --exclude='*.md' \
-                 --exclude='*.txt' \
-                 --exclude='*.log' \
-                 --exclude='*.map' \
-                 --exclude='*.d.ts.map' \
-                 --exclude='*.test.js' \
-                 --exclude='*.spec.js' \
-                 --exclude='*.test.ts' \
-                 --exclude='*.spec.ts' \
-                 --exclude='Gruntfile.js' \
-                 --exclude='gulpfile.js' \
-                 --exclude='Makefile' \
-                 --exclude='*.mk' \
-                 --exclude='*.gyp' \
-                 --exclude='*.gypi' \
-                 --exclude='.eslintrc*' \
-                 --exclude='.jshintrc' \
-                 --exclude='.jscsrc' \
-                 --exclude='.babelrc*' \
-                 --exclude='tsconfig.json' \
-                 --exclude='tslint.json' \
-                 --exclude='*.tgz' \
-                 --exclude='*.tar.gz' \
-                 --exclude='.git/' \
-                 --exclude='test/' \
-                 --exclude='tests/' \
-                 --exclude='__tests__/' \
-                 --exclude='spec/' \
-                 --exclude='specs/' \
-                 --exclude='example/' \
-                 --exclude='examples/' \
-                 --exclude='demo/' \
-                 --exclude='demos/' \
-                 --exclude='doc/' \
-                 --exclude='docs/' \
-                 --exclude='documentation/' \
-                 --exclude='.nyc_output/' \
-                 --exclude='coverage/' \
-                 --exclude='.cache/' \
-                 --exclude='cache/' \
-                 --exclude='tmp/' \
-                 --exclude='temp/' \
-                 node_modules/ "$TEMP_DIR/node_modules/"
+        # Copy node_modules with exclusions using tar
+        if [ -d "node_modules" ]; then
+          tar --exclude='*.md' \
+              --exclude='*.txt' \
+              --exclude='*.log' \
+              --exclude='*.map' \
+              --exclude='*.d.ts.map' \
+              --exclude='*.test.js' \
+              --exclude='*.spec.js' \
+              --exclude='*.test.ts' \
+              --exclude='*.spec.ts' \
+              --exclude='Gruntfile.js' \
+              --exclude='gulpfile.js' \
+              --exclude='Makefile' \
+              --exclude='*.mk' \
+              --exclude='*.gyp' \
+              --exclude='*.gypi' \
+              --exclude='.eslintrc*' \
+              --exclude='.jshintrc' \
+              --exclude='.jscsrc' \
+              --exclude='.babelrc*' \
+              --exclude='tsconfig.json' \
+              --exclude='tslint.json' \
+              --exclude='*.tgz' \
+              --exclude='*.tar.gz' \
+              --exclude='test' \
+              --exclude='tests' \
+              --exclude='__tests__' \
+              --exclude='spec' \
+              --exclude='specs' \
+              --exclude='example' \
+              --exclude='examples' \
+              --exclude='demo' \
+              --exclude='demos' \
+              --exclude='doc' \
+              --exclude='docs' \
+              --exclude='documentation' \
+              --exclude='.nyc_output' \
+              --exclude='coverage' \
+              --exclude='.cache' \
+              --exclude='cache' \
+              --exclude='tmp' \
+              --exclude='temp' \
+              -cf - node_modules | (cd "$TEMP_DIR" && tar -xf -)
+        fi
         
         # Create the zip package
         cd "$TEMP_DIR"
@@ -158,12 +177,19 @@ jobs:
     - name: 📊 Validate package size
       id: package-and-validate
       run: |
-        size_bytes=$(du -sb "/tmp/${{ github.sha }}.zip" | cut -f1)
-        echo "ZIP size: $(( size_bytes/1024 )) KB"
-        if [ "$size_bytes" -gt 52428800 ]; then
-          echo "Error: ZIP > 50MB"
+        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+          echo "Error: Package file not found"
           exit 1
         fi
+        size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip" 2>/dev/null || du -sb "/tmp/${{ github.sha }}.zip" | cut -f1)
+        size_kb=$(( size_bytes/1024 ))
+        size_mb=$(( size_bytes/1048576 ))
+        echo "📦 Package size: ${size_kb} KB (${size_mb} MB)"
+        if [ "$size_bytes" -gt 52428800 ]; then
+          echo "❌ Error: Package size (${size_mb} MB) exceeds AWS Lambda limit of 50MB"
+          exit 1
+        fi
+        echo "✅ Package size validation passed"
 
     - name: 📤 Upload Build Artifacts
       uses: actions/upload-artifact@v4
@@ -174,12 +200,32 @@ jobs:
 
     - name: 🚀 Deploy to AWS Lambda
       run: |
+        echo "🚀 Deploying to Lambda function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        
+        # Check if function exists
+        if ! aws lambda get-function --function-name ${{ env.LAMBDA_FUNCTION_NAME }} >/dev/null 2>&1; then
+          echo "❌ Lambda function '${{ env.LAMBDA_FUNCTION_NAME }}' not found"
+          echo "Please create the function first or check the function name"
+          exit 1
+        fi
+        
+        # Deploy the code
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb:///tmp/${{ github.sha }}.zip
+          --zip-file fileb:///tmp/${{ github.sha }}.zip \
+          --no-cli-pager
+        
+        echo "✅ Code deployment completed"
 
     - name: ⚙️ Update Lambda Configuration
       run: |
+        echo "⚙️ Updating Lambda configuration..."
+        
+        # Wait for function to be ready after code update
+        echo "⏳ Waiting for function to be ready..."
+        aws lambda wait function-updated --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+        
+        # Update configuration
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
           --environment 'Variables={
@@ -192,17 +238,32 @@ jobs:
             "X_API_KEY":"${{ env.X_API_KEY }}"
           }' \
           --timeout 30 \
-          --memory-size 512
+          --memory-size 512 \
+          --no-cli-pager
+        
+        echo "✅ Configuration update completed"
 
     - name: 🧹 Clean Up Temporary Files
       if: always()
-      run: rm -f /tmp/${{ github.sha }}.zip
-
-    - name: ✅ Deployment Summary
+      run: |
+        echo "🧹 Cleaning up temporary files..."
+        [ -f "/tmp/${{ github.sha }}.zip" ] && rm -f "/tmp/${{ github.sha }}.zip" && echo "✅ Removed ZIP file"
+        [ -d "/tmp/lambda-package-${{ github.sha }}" ] && rm -rf "/tmp/lambda-package-${{ github.sha }}" && echo "✅ Removed package directory"
+        echo "🧹 Cleanup completed"
+        
+    - name: 🎉 Deployment Summary
       if: success()
       run: |
-        echo "✅ Deployment completed successfully!"
-        echo "📦 Package: ${{ github.sha }}.zip"
-        echo "🎯 Environment: ${{ env.ENVIRONMENT }}"
-        echo "🚀 Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
-        echo "⏰ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+        echo "🎉 Deployment completed successfully!"
+        echo "📋 Summary:"
+        echo "  > Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        echo "  > Region: ${{ env.AWS_REGION }}"
+        echo "  > Environment: ${{ env.ENVIRONMENT }}"
+        echo "  > Commit: ${{ github.sha }}"
+        echo "  > Triggered by: ${{ github.event_name }}"
+        
+        # Get function info
+        echo "📊 Function details:"
+        aws lambda get-function --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --query 'Configuration.{Runtime:Runtime,Timeout:Timeout,MemorySize:MemorySize,LastModified:LastModified}' \
+          --output table --no-cli-pager
