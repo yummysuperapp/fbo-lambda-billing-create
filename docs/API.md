@@ -2,7 +2,7 @@
 
 ## Visión General
 
-Esta documentación describe las APIs y interfaces públicas del FBO Lambda Template. Incluye detalles sobre clientes, servicios, utilidades y tipos disponibles.
+Esta documentación describe las APIs y interfaces públicas del FBO Lambda Template. Incluye detalles sobre clientes, servicios, utilidades y tipos disponibles para el desarrollo de funciones Lambda en el ecosistema financiero de Yummy Inc.
 
 ## Tabla de Contenidos
 
@@ -11,6 +11,7 @@ Esta documentación describe las APIs y interfaces públicas del FBO Lambda Temp
   - [MongoDB Client](#mongodb-client)
   - [PostgreSQL Client](#postgresql-client)
   - [S3 Client](#s3-client)
+  - [BigQuery Client](#bigquery-client)
 - [Services](#services)
   - [Finance Service](#finance-service)
 - [Utils](#utils)
@@ -18,13 +19,14 @@ Esta documentación describe las APIs y interfaces públicas del FBO Lambda Temp
   - [Helpers](#helpers)
 - [Types](#types)
 - [Interfaces](#interfaces)
-- [Exceptions](#exceptions)
+- [Configuration](#configuration)
+- [Handlers](#handlers)
 
 ## Clients
 
 ### HTTP Client
 
-Cliente HTTP robusto con soporte para reintentos, interceptores y configuración flexible.
+Cliente HTTP robusto con soporte para reintentos, interceptores y configuración flexible para comunicación con APIs externas.
 
 #### Importación
 ```typescript
@@ -39,6 +41,7 @@ interface HttpClientInterface {
   post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
   put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
   delete<T>(url: string, config?: HttpRequestConfig): Promise<T>;
+  patch<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
 }
 
 interface HttpRequestConfig {
@@ -48,133 +51,69 @@ interface HttpRequestConfig {
   retryDelay?: number;
   baseURL?: string;
   params?: Record<string, any>;
+  validateStatus?: (status: number) => boolean;
 }
 ```
 
 #### Constructor
 
 ```typescript
-new HttpClient(config?: HttpRequestConfig)
+new HttpClient(config?: HttpClientConfig)
 ```
 
 **Parámetros:**
 - `config` (opcional): Configuración del cliente HTTP
-
-**Ejemplo:**
-```typescript
-const client = new HttpClient({
-  baseURL: 'https://api.example.com',
-  timeout: 5000,
-  retries: 3,
-  headers: {
-    'Authorization': 'Bearer token',
-    'Content-Type': 'application/json'
-  }
-});
-```
+  - `baseURL`: URL base para todas las requests
+  - `timeout`: Timeout en milisegundos (default: 30000)
+  - `retries`: Número de reintentos (default: 3)
+  - `retryDelay`: Delay entre reintentos en ms (default: 1000)
+  - `headers`: Headers por defecto
 
 #### Métodos
 
-##### get<T>(url: string, config?: HttpRequestConfig): Promise<T>
-
+##### `get<T>(url: string, config?: HttpRequestConfig): Promise<T>`
 Realiza una petición GET HTTP.
 
-**Parámetros:**
-- `url`: URL del endpoint
-- `config` (opcional): Configuración específica para esta petición
-
-**Retorna:** Promise con los datos de respuesta
-
-**Ejemplo:**
-```typescript
-const users = await client.get<User[]>('/users');
-const user = await client.get<User>('/users/123', {
-  headers: { 'Accept': 'application/json' }
-});
-```
-
-##### post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>
-
+##### `post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
 Realiza una petición POST HTTP.
 
-**Parámetros:**
-- `url`: URL del endpoint
-- `data` (opcional): Datos a enviar en el body
-- `config` (opcional): Configuración específica para esta petición
+##### `put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
+Realiza una petición PUT HTTP.
 
-**Retorna:** Promise con los datos de respuesta
+##### `delete<T>(url: string, config?: HttpRequestConfig): Promise<T>`
+Realiza una petición DELETE HTTP.
 
-**Ejemplo:**
+##### `patch<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
+Realiza una petición PATCH HTTP.
+
+#### Ejemplo de Uso
+
 ```typescript
-const newUser = await client.post<User>('/users', {
+import { createHttpClient } from '@/clients';
+
+const httpClient = createHttpClient({
+  baseURL: 'https://api.example.com',
+  timeout: 5000,
+  retries: 2
+});
+
+// GET request
+const users = await httpClient.get<User[]>('/users');
+
+// POST request
+const newUser = await httpClient.post<User>('/users', {
   name: 'John Doe',
   email: 'john@example.com'
 });
 ```
 
-##### put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>
-
-Realiza una petición PUT HTTP.
-
-**Parámetros:**
-- `url`: URL del endpoint
-- `data` (opcional): Datos a enviar en el body
-- `config` (opcional): Configuración específica para esta petición
-
-**Retorna:** Promise con los datos de respuesta
-
-**Ejemplo:**
-```typescript
-const updatedUser = await client.put<User>('/users/123', {
-  name: 'Jane Doe'
-});
-```
-
-##### delete<T>(url: string, config?: HttpRequestConfig): Promise<T>
-
-Realiza una petición DELETE HTTP.
-
-**Parámetros:**
-- `url`: URL del endpoint
-- `config` (opcional): Configuración específica para esta petición
-
-**Retorna:** Promise con los datos de respuesta
-
-**Ejemplo:**
-```typescript
-await client.delete('/users/123');
-```
-
-#### Factory Functions
-
-##### createHttpClient(config?: HttpRequestConfig): HttpClient
-
-Crea una nueva instancia del cliente HTTP.
-
-**Ejemplo:**
-```typescript
-const client = createHttpClient({
-  baseURL: 'https://api.example.com',
-  timeout: 10000
-});
-```
-
-##### getHttpClient(): HttpClient
-
-Retorna una instancia singleton del cliente HTTP.
-
-**Ejemplo:**
-```typescript
-const client = getHttpClient();
-```
-
 ### MongoDB Client
 
-Cliente para operaciones con MongoDB.
+Cliente MongoDB optimizado con pool de conexiones y operaciones CRUD completas.
 
 #### Importación
 ```typescript
-import { createMongoClient, getMongoClient } from '@/clients/mongo.client';
+import { MongoClient, createMongoClient } from '@/clients/mongo.client';
 ```
 
 #### Interfaces
@@ -183,529 +122,581 @@ import { createMongoClient, getMongoClient } from '@/clients/mongo.client';
 interface MongoClientInterface {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  isConnected(): boolean;
-  db(name?: string): Db;
+  findOne<T>(collection: string, filter: object): Promise<T | null>;
+  findMany<T>(collection: string, filter: object): Promise<T[]>;
+  insertOne<T>(collection: string, document: T): Promise<InsertResult>;
+  insertMany<T>(collection: string, documents: T[]): Promise<InsertManyResult>;
+  updateOne(collection: string, filter: object, update: object): Promise<UpdateResult>;
+  updateMany(collection: string, filter: object, update: object): Promise<UpdateResult>;
+  deleteOne(collection: string, filter: object): Promise<DeleteResult>;
+  deleteMany(collection: string, filter: object): Promise<DeleteResult>;
 }
 ```
 
-#### Factory Functions
+#### Ejemplo de Uso
 
-##### createMongoClient(uri?: string): Promise<MongoClient>
-
-Crea y conecta un nuevo cliente MongoDB.
-
-**Parámetros:**
-- `uri` (opcional): URI de conexión a MongoDB
-
-**Retorna:** Promise con el cliente conectado
-
-**Ejemplo:**
 ```typescript
-const client = await createMongoClient('mongodb://localhost:27017/myapp');
-const db = client.db();
-const users = await db.collection('users').find({}).toArray();
-```
+import { createMongoClient } from '@/clients';
 
-##### getMongoClient(): Promise<MongoClient>
+const mongoClient = await createMongoClient();
 
-Retorna una instancia singleton del cliente MongoDB.
+// Insertar documento
+const result = await mongoClient.insertOne('users', {
+  name: 'John Doe',
+  email: 'john@example.com',
+  createdAt: new Date()
+});
 
-**Ejemplo:**
-```typescript
-const client = await getMongoClient();
+// Buscar documentos
+const users = await mongoClient.findMany('users', {
+  active: true
+});
+
+// Actualizar documento
+const updateResult = await mongoClient.updateOne('users', 
+  { email: 'john@example.com' },
+  { $set: { lastLogin: new Date() } }
+);
 ```
 
 ### PostgreSQL Client
 
-Cliente para operaciones con PostgreSQL.
+Cliente PostgreSQL con pool de conexiones, transacciones y queries tipadas.
 
 #### Importación
 ```typescript
-import { createPostgresClient, getPostgresClient } from '@/clients/postgres.client';
+import { PostgresClient, createPostgresClient } from '@/clients/postgres.client';
 ```
 
 #### Interfaces
 
 ```typescript
 interface PostgresClientInterface {
-  query<T>(text: string, params?: any[]): Promise<QueryResult<T>>;
   connect(): Promise<void>;
-  end(): Promise<void>;
+  disconnect(): Promise<void>;
+  query<T>(text: string, params?: any[]): Promise<QueryResult<T>>;
+  transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T>;
+}
+
+interface QueryResult<T> {
+  rows: T[];
+  rowCount: number;
+  command: string;
 }
 ```
 
-#### Factory Functions
+#### Ejemplo de Uso
 
-##### createPostgresClient(config?: PoolConfig): Promise<Pool>
-
-Crea un nuevo pool de conexiones PostgreSQL.
-
-**Parámetros:**
-- `config` (opcional): Configuración del pool
-
-**Retorna:** Promise con el pool de conexiones
-
-**Ejemplo:**
 ```typescript
-const client = await createPostgresClient({
-  host: 'localhost',
-  port: 5432,
-  database: 'myapp',
-  user: 'user',
-  password: 'password',
-  max: 20
-});
+import { createPostgresClient } from '@/clients';
 
-const result = await client.query('SELECT * FROM users WHERE id = $1', [123]);
+const pgClient = await createPostgresClient();
+
+// Query simple
+const result = await pgClient.query<User>(
+  'SELECT * FROM users WHERE active = $1',
+  [true]
+);
+
+// Transacción
+const transferResult = await pgClient.transaction(async (client) => {
+  await client.query('UPDATE accounts SET balance = balance - $1 WHERE id = $2', [100, fromAccountId]);
+  await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [100, toAccountId]);
+  return { success: true };
+});
 ```
 
 ### S3 Client
 
-Cliente para operaciones con AWS S3.
+Cliente AWS S3 con SDK v3 para operaciones de almacenamiento de archivos.
 
 #### Importación
 ```typescript
-import { createS3Client, getS3Client } from '@/clients/s3.client';
+import { S3Client, createS3Client } from '@/clients/s3.client';
 ```
 
 #### Interfaces
 
 ```typescript
 interface S3ClientInterface {
-  uploadFile(bucket: string, key: string, body: Buffer | Uint8Array | string): Promise<void>;
+  uploadFile(bucket: string, key: string, body: Buffer | Uint8Array | string): Promise<UploadResult>;
   downloadFile(bucket: string, key: string): Promise<Buffer>;
   deleteFile(bucket: string, key: string): Promise<void>;
-  listFiles(bucket: string, prefix?: string): Promise<S3Object[]>;
-  fileExists(bucket: string, key: string): Promise<boolean>;
+  listObjects(bucket: string, prefix?: string): Promise<S3Object[]>;
   getPresignedUrl(bucket: string, key: string, expiresIn?: number): Promise<string>;
+}
+
+interface UploadResult {
+  ETag: string;
+  Location: string;
+  Key: string;
+  Bucket: string;
+}
+
+interface S3Object {
+  Key: string;
+  LastModified: Date;
+  Size: number;
+  ETag: string;
 }
 ```
 
-#### Factory Functions
+#### Ejemplo de Uso
 
-##### createS3Client(config?: S3ClientConfig): S3Client
-
-Crea un nuevo cliente S3.
-
-**Parámetros:**
-- `config` (opcional): Configuración del cliente S3
-
-**Retorna:** Cliente S3 configurado
-
-**Ejemplo:**
 ```typescript
-const s3Client = createS3Client({
-  region: 'us-east-1'
+import { createS3Client } from '@/clients';
+
+const s3Client = createS3Client();
+
+// Subir archivo
+const uploadResult = await s3Client.uploadFile(
+  'my-bucket',
+  'documents/report.pdf',
+  fileBuffer
+);
+
+// Generar URL presignada
+const presignedUrl = await s3Client.getPresignedUrl(
+  'my-bucket',
+  'documents/report.pdf',
+  3600 // 1 hora
+);
+
+// Listar objetos
+const objects = await s3Client.listObjects('my-bucket', 'documents/');
+```
+
+### BigQuery Client
+
+Cliente Google Cloud BigQuery para analytics y consultas de datos masivos.
+
+#### Importación
+```typescript
+import { BigQueryClient, createBigQueryClient } from '@/clients/bigquery.client';
+```
+
+#### Interfaces
+
+```typescript
+interface BigQueryClientInterface {
+  query<T>(sql: string, params?: any[]): Promise<T[]>;
+  insertRows(datasetId: string, tableId: string, rows: any[]): Promise<void>;
+  createTable(datasetId: string, tableId: string, schema: TableSchema): Promise<void>;
+  getTableMetadata(datasetId: string, tableId: string): Promise<TableMetadata>;
+}
+```
+
+#### Ejemplo de Uso
+
+```typescript
+import { createBigQueryClient } from '@/clients';
+
+const bqClient = createBigQueryClient();
+
+// Ejecutar consulta
+const results = await bqClient.query<FinancialReport>(`
+  SELECT 
+    date,
+    SUM(amount) as total_amount,
+    COUNT(*) as transaction_count
+  FROM \`project.dataset.transactions\`
+  WHERE date >= @start_date
+  GROUP BY date
+  ORDER BY date
+`, {
+  start_date: '2024-01-01'
 });
 
-// Upload file
-await s3Client.uploadFile('my-bucket', 'path/to/file.txt', fileBuffer);
+// Insertar datos
+const rows = [
+  { id: 1, name: 'Transaction 1', amount: 100.50 },
+  { id: 2, name: 'Transaction 2', amount: 250.75 }
+];
 
-// Download file
-const fileData = await s3Client.downloadFile('my-bucket', 'path/to/file.txt');
-
-// List files
-const files = await s3Client.listFiles('my-bucket', 'path/');
+await bqClient.insertRows('financial_data', 'transactions', rows);
 ```
 
 ## Services
 
 ### Finance Service
 
-Servicio para operaciones financieras y de negocio.
+Servicio especializado para operaciones financieras y de negocio del backoffice.
 
 #### Importación
 ```typescript
-import { FinanceService } from '@/services/finance.service';
+import { FinanceService, createFinanceService } from '@/services/finance.service';
 ```
 
 #### Interfaces
 
 ```typescript
 interface FinanceServiceInterface {
-  getExchangeRates(): Promise<ExchangeRates>;
-  convertCurrency(amount: number, fromCurrency: string, toCurrency: string): Promise<number>;
-  validateTransaction(transaction: Transaction): Promise<ValidationResult>;
-  calculateFees(amount: number, feeStructure: FeeStructure): Promise<number>;
-}
-
-interface ExchangeRates {
-  [currency: string]: number;
+  processTransaction(transaction: Transaction): Promise<TransactionResult>;
+  calculateExchangeRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate>;
+  validatePayment(payment: Payment): Promise<ValidationResult>;
+  generateFinancialReport(params: ReportParams): Promise<FinancialReport>;
 }
 
 interface Transaction {
   id: string;
   amount: number;
   currency: string;
-  type: 'credit' | 'debit';
-  description?: string;
-  timestamp: Date;
+  fromAccount: string;
+  toAccount: string;
+  type: 'transfer' | 'payment' | 'refund';
+  metadata?: Record<string, any>;
 }
 
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
+interface TransactionResult {
+  success: boolean;
+  transactionId: string;
+  status: 'pending' | 'completed' | 'failed';
+  fees?: number;
+  exchangeRate?: number;
 }
 ```
 
-#### Constructor
+#### Ejemplo de Uso
 
 ```typescript
-new FinanceService(httpClient?: HttpClient)
-```
+import { createFinanceService } from '@/services';
 
-**Parámetros:**
-- `httpClient` (opcional): Cliente HTTP para APIs externas
+const financeService = createFinanceService();
 
-#### Métodos
-
-##### getExchangeRates(): Promise<ExchangeRates>
-
-Obtiene las tasas de cambio actuales.
-
-**Retorna:** Promise con las tasas de cambio
-
-**Ejemplo:**
-```typescript
-const service = new FinanceService();
-const rates = await service.getExchangeRates();
-console.log(rates.EUR); // 0.85
-```
-
-##### convertCurrency(amount: number, fromCurrency: string, toCurrency: string): Promise<number>
-
-Convierte una cantidad de una moneda a otra.
-
-**Parámetros:**
-- `amount`: Cantidad a convertir
-- `fromCurrency`: Moneda origen
-- `toCurrency`: Moneda destino
-
-**Retorna:** Promise con la cantidad convertida
-
-**Ejemplo:**
-```typescript
-const converted = await service.convertCurrency(100, 'USD', 'EUR');
-console.log(converted); // 85.0
-```
-
-##### validateTransaction(transaction: Transaction): Promise<ValidationResult>
-
-Valida una transacción financiera.
-
-**Parámetros:**
-- `transaction`: Transacción a validar
-
-**Retorna:** Promise con el resultado de validación
-
-**Ejemplo:**
-```typescript
-const transaction = {
-  id: 'txn-123',
-  amount: 100.50,
+// Procesar transacción
+const result = await financeService.processTransaction({
+  id: 'txn_123',
+  amount: 1000.00,
   currency: 'USD',
-  type: 'credit',
-  timestamp: new Date()
-};
+  fromAccount: 'acc_sender',
+  toAccount: 'acc_receiver',
+  type: 'transfer'
+});
 
-const result = await service.validateTransaction(transaction);
-if (result.isValid) {
-  console.log('Transaction is valid');
-} else {
-  console.log('Errors:', result.errors);
-}
+// Calcular tasa de cambio
+const exchangeRate = await financeService.calculateExchangeRate('USD', 'COP');
+
+// Generar reporte financiero
+const report = await financeService.generateFinancialReport({
+  startDate: '2024-01-01',
+  endDate: '2024-01-31',
+  currency: 'USD',
+  includeDetails: true
+});
 ```
 
 ## Utils
 
 ### Logger
 
-Sistema de logging estructurado.
+Sistema de logging estructurado con niveles configurables y formato JSON.
 
 #### Importación
 ```typescript
-import { createLogger } from '@/utils/logger.util';
+import { createLogger, Logger } from '@/utils/logger.util';
 ```
 
 #### Interfaces
 
 ```typescript
 interface Logger {
-  debug(message: string, meta?: any): void;
-  info(message: string, meta?: any): void;
-  warn(message: string, meta?: any): void;
-  error(message: string, meta?: any): void;
+  debug(message: string, meta?: object): void;
+  info(message: string, meta?: object): void;
+  warn(message: string, meta?: object): void;
+  error(message: string, error?: Error, meta?: object): void;
+  setContext(context: LogContext): void;
+}
+
+interface LogContext {
+  requestId?: string;
+  userId?: string;
+  operation?: string;
+  [key: string]: any;
 }
 ```
 
-#### Factory Function
+#### Ejemplo de Uso
 
-##### createLogger(service: string): Logger
-
-Crea un logger para un servicio específico.
-
-**Parámetros:**
-- `service`: Nombre del servicio
-
-**Retorna:** Instancia del logger
-
-**Ejemplo:**
 ```typescript
-const logger = createLogger('UserService');
+import { createLogger } from '@/utils';
 
-logger.info('User created', { userId: 123 });
-logger.error('Failed to create user', { error: 'Validation failed' });
-logger.debug('Processing user data', { data: userData });
+const logger = createLogger();
+
+// Logging básico
+logger.info('Processing transaction', { transactionId: 'txn_123' });
+logger.error('Transaction failed', error, { transactionId: 'txn_123' });
+
+// Con contexto
+logger.setContext({ requestId: 'req_456', userId: 'user_789' });
+logger.info('User action completed');
 ```
 
 ### Helpers
 
-Funciones auxiliares y utilidades.
+Funciones auxiliares reutilizables para operaciones comunes.
 
 #### Importación
 ```typescript
 import { 
-  retryWithBackoff, 
-  validateEmail, 
+  retryWithBackoff,
+  validateEmail,
   formatCurrency,
+  generateId,
   parseDate,
-  generateId
-} from '@/utils/helpers';
+  sanitizeInput
+} from '@/utils/helpers.util';
 ```
 
-#### Funciones
+#### Funciones Disponibles
 
-##### retryWithBackoff<T>(operation: () => Promise<T>, options?: RetryOptions): Promise<T>
-
+##### `retryWithBackoff<T>(operation: () => Promise<T>, options?: RetryOptions): Promise<T>`
 Ejecuta una operación con reintentos y backoff exponencial.
 
-**Parámetros:**
-- `operation`: Función a ejecutar
-- `options` (opcional): Opciones de retry
+##### `validateEmail(email: string): boolean`
+Valida formato de email.
 
-**Retorna:** Promise con el resultado de la operación
+##### `formatCurrency(amount: number, currency: string): string`
+Formatea cantidad monetaria según la moneda.
 
-**Ejemplo:**
+##### `generateId(prefix?: string): string`
+Genera ID único con prefijo opcional.
+
+##### `parseDate(dateString: string): Date | null`
+Parsea string de fecha de forma segura.
+
+##### `sanitizeInput(input: string): string`
+Sanitiza input del usuario.
+
+#### Ejemplo de Uso
+
 ```typescript
+import { retryWithBackoff, formatCurrency, generateId } from '@/utils';
+
+// Retry con backoff
 const result = await retryWithBackoff(
-  async () => await apiCall(),
-  {
-    maxRetries: 3,
-    baseDelay: 1000,
-    maxDelay: 10000
-  }
+  () => httpClient.get('/api/data'),
+  { maxRetries: 3, baseDelay: 1000 }
 );
-```
 
-##### validateEmail(email: string): boolean
-
-Valida un email usando regex.
-
-**Parámetros:**
-- `email`: Email a validar
-
-**Retorna:** true si es válido, false si no
-
-**Ejemplo:**
-```typescript
-const isValid = validateEmail('user@example.com'); // true
-const isInvalid = validateEmail('invalid-email'); // false
-```
-
-##### formatCurrency(amount: number, currency: string): string
-
-Formatea una cantidad como moneda.
-
-**Parámetros:**
-- `amount`: Cantidad a formatear
-- `currency`: Código de moneda
-
-**Retorna:** String formateado
-
-**Ejemplo:**
-```typescript
+// Formatear moneda
 const formatted = formatCurrency(1234.56, 'USD'); // "$1,234.56"
-```
 
-##### parseDate(dateString: string): Date
-
-Parsea una fecha desde string.
-
-**Parámetros:**
-- `dateString`: String de fecha
-
-**Retorna:** Objeto Date
-
-**Ejemplo:**
-```typescript
-const date = parseDate('2023-12-25'); // Date object
-```
-
-##### generateId(): string
-
-Genera un ID único.
-
-**Retorna:** String con ID único
-
-**Ejemplo:**
-```typescript
-const id = generateId(); // "abc123def456"
+// Generar ID
+const transactionId = generateId('txn'); // "txn_abc123def456"
 ```
 
 ## Types
 
-### Tipos Globales
+### Core Types
 
 ```typescript
-// Disponibles globalmente sin importación
-declare global {
-  namespace FBOLambda {
-    type Environment = 'development' | 'staging' | 'production' | 'test';
-    type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-    type Nullable<T> = T | null;
-    type Optional<T> = T | undefined;
-    type AsyncResult<T> = Promise<T>;
-    
-    type DatabaseResult<T> = {
-      success: boolean;
-      data?: T;
-      error?: string;
-      metadata?: Record<string, unknown>;
-    };
-    
-    type ApiResponse<T> = {
-      success: boolean;
-      data?: T;
-      message?: string;
-      errors?: string[];
-      timestamp: string;
-    };
-  }
-}
-```
-
-### Tipos de Clientes
-
-```typescript
-// HTTP Client Types
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-
-interface HttpRequestConfig {
-  timeout?: number;
+// Lambda Event Types
+interface LambdaEvent {
+  httpMethod?: string;
+  path?: string;
   headers?: Record<string, string>;
-  retries?: number;
-  retryDelay?: number;
-  baseURL?: string;
-  params?: Record<string, any>;
+  body?: string;
+  queryStringParameters?: Record<string, string>;
 }
 
-// Database Types
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  database: string;
-  username: string;
-  password: string;
+interface LambdaResponse {
+  statusCode: number;
+  headers?: Record<string, string>;
+  body: string;
 }
 
-// S3 Types
-interface S3Object {
-  Key: string;
-  Size: number;
-  LastModified: Date;
-  ETag: string;
+// S3 Event Types
+interface S3Event {
+  Records: S3Record[];
+}
+
+interface S3Record {
+  s3: {
+    bucket: { name: string };
+    object: { key: string; size: number };
+  };
+}
+
+// Custom Event Types
+interface CustomEvent {
+  type: string;
+  data: Record<string, any>;
+  timestamp: string;
+  source: string;
+}
+
+// Handler Context
+interface HandlerContext {
+  requestId: string;
+  functionName: string;
+  functionVersion: string;
+  memoryLimitInMB: string;
+  remainingTimeInMillis: number;
 }
 ```
 
-## Interfaces
-
-### Base Interfaces
+### Financial Types
 
 ```typescript
-interface BaseEntity {
+interface Transaction {
   id: string;
+  amount: number;
+  currency: string;
+  fromAccount: string;
+  toAccount: string;
+  type: TransactionType;
+  status: TransactionStatus;
   createdAt: Date;
   updatedAt: Date;
+  metadata?: Record<string, any>;
 }
 
-interface BaseService {
-  initialize(): Promise<void>;
-  cleanup(): Promise<void>;
+type TransactionType = 'transfer' | 'payment' | 'refund' | 'fee';
+type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+
+interface ExchangeRate {
+  fromCurrency: string;
+  toCurrency: string;
+  rate: number;
+  timestamp: Date;
+  provider: string;
 }
 
-interface BaseClient {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  isConnected(): boolean;
+interface FinancialReport {
+  period: {
+    start: Date;
+    end: Date;
+  };
+  summary: {
+    totalTransactions: number;
+    totalAmount: number;
+    currency: string;
+  };
+  breakdown: ReportBreakdown[];
 }
 ```
 
-## Exceptions
+## Configuration
 
-### Excepciones Personalizadas
+### Environment Configuration
+
+```typescript
+interface EnvironmentConfig {
+  NODE_ENV: 'development' | 'staging' | 'production' | 'test';
+  LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
+  
+  // Database Configuration
+  MONGODB_URI: string;
+  MONGODB_DATABASE: string;
+  POSTGRES_HOST: string;
+  POSTGRES_PORT: number;
+  POSTGRES_DATABASE: string;
+  POSTGRES_USER: string;
+  POSTGRES_PASSWORD: string;
+  
+  // AWS Configuration
+  AWS_REGION: string;
+  AWS_ACCESS_KEY_ID?: string;
+  AWS_SECRET_ACCESS_KEY?: string;
+  S3_BUCKET_NAME: string;
+  
+  // External APIs
+  FINANCE_API_URL: string;
+  FINANCE_API_KEY: string;
+  
+  // BigQuery
+  GOOGLE_CLOUD_PROJECT_ID: string;
+  GOOGLE_CLOUD_KEY_FILE?: string;
+}
+```
+
+### App Configuration
+
+```typescript
+interface AppConfig {
+  server: {
+    port: number;
+    timeout: number;
+  };
+  database: {
+    mongodb: MongoConfig;
+    postgres: PostgresConfig;
+  };
+  aws: {
+    region: string;
+    s3: S3Config;
+  };
+  logging: {
+    level: string;
+    format: 'json' | 'text';
+  };
+}
+```
+
+## Handlers
+
+### Main Handler
+
+Handler principal para eventos Lambda con routing automático.
 
 #### Importación
 ```typescript
-import { 
-  ValidationError, 
-  NetworkError, 
-  DatabaseError, 
-  BusinessLogicError 
-} from '@/interfaces/exceptions';
+import { handler } from '@/handlers';
 ```
 
-#### ValidationError
+#### Signature
+
+```typescript
+export const handler = async (
+  event: LambdaEvent | S3Event | CustomEvent,
+  context: Context
+): Promise<LambdaResponse> => {
+  // Implementation
+};
+```
+
+#### Ejemplo de Uso
+
+```typescript
+// En serverless.yml o SAM template
+functions:
+  processTransaction:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /transactions
+          method: post
+      - s3:
+          bucket: financial-documents
+          event: s3:ObjectCreated:*
+```
+
+## Error Handling
+
+### Custom Exceptions
 
 ```typescript
 class ValidationError extends Error {
-  constructor(message: string, public details: string[] = []) {
+  constructor(message: string, public field?: string) {
     super(message);
     this.name = 'ValidationError';
   }
 }
-```
 
-**Uso:**
-```typescript
-throw new ValidationError('Invalid input', ['Email is required', 'Age must be positive']);
-```
-
-#### NetworkError
-
-```typescript
 class NetworkError extends Error {
-  constructor(message: string, public statusCode?: number, public url?: string) {
+  constructor(message: string, public statusCode?: number) {
     super(message);
     this.name = 'NetworkError';
   }
 }
-```
 
-**Uso:**
-```typescript
-throw new NetworkError('Request failed', 500, 'https://api.example.com/users');
-```
-
-#### DatabaseError
-
-```typescript
 class DatabaseError extends Error {
-  constructor(message: string, public operation?: string, public table?: string) {
+  constructor(message: string, public operation?: string) {
     super(message);
     this.name = 'DatabaseError';
   }
 }
-```
 
-**Uso:**
-```typescript
-throw new DatabaseError('Connection failed', 'SELECT', 'users');
-```
-
-#### BusinessLogicError
-
-```typescript
 class BusinessLogicError extends Error {
   constructor(message: string, public code?: string) {
     super(message);
@@ -714,139 +705,65 @@ class BusinessLogicError extends Error {
 }
 ```
 
-**Uso:**
-```typescript
-throw new BusinessLogicError('Insufficient funds', 'INSUFFICIENT_FUNDS');
-```
-
-## Ejemplos de Uso Completos
-
-### Ejemplo 1: Procesamiento de Transacción
+### Error Response Helpers
 
 ```typescript
-import { createHttpClient } from '@/clients/http.client';
-import { createMongoClient } from '@/clients/mongo.client';
-import { FinanceService } from '@/services/finance.service';
-import { createLogger } from '@/utils/logger.util';
-import { ValidationError } from '@/interfaces/exceptions';
+import { createErrorResponse, createSuccessResponse } from '@/utils';
 
-async function processTransaction(transactionData: any) {
-  const logger = createLogger('TransactionProcessor');
-  const httpClient = createHttpClient();
-  const mongoClient = await createMongoClient();
-  const financeService = new FinanceService(httpClient);
+// Error response
+const errorResponse = createErrorResponse(
+  400,
+  'Validation failed',
+  { field: 'email', message: 'Invalid email format' }
+);
 
-  try {
-    // Validar transacción
-    const validation = await financeService.validateTransaction(transactionData);
-    if (!validation.isValid) {
-      throw new ValidationError('Invalid transaction', validation.errors);
-    }
-
-    // Convertir moneda si es necesario
-    let amount = transactionData.amount;
-    if (transactionData.currency !== 'USD') {
-      amount = await financeService.convertCurrency(
-        amount, 
-        transactionData.currency, 
-        'USD'
-      );
-    }
-
-    // Guardar en base de datos
-    const db = mongoClient.db();
-    const result = await db.collection('transactions').insertOne({
-      ...transactionData,
-      amountUSD: amount,
-      processedAt: new Date()
-    });
-
-    logger.info('Transaction processed successfully', { 
-      transactionId: result.insertedId 
-    });
-
-    return { success: true, id: result.insertedId };
-
-  } catch (error) {
-    logger.error('Failed to process transaction', { error });
-    throw error;
-  } finally {
-    await mongoClient.close();
-  }
-}
+// Success response
+const successResponse = createSuccessResponse(
+  { transactionId: 'txn_123', status: 'completed' },
+  201
+);
 ```
 
-### Ejemplo 2: Upload de Archivo a S3
+## Mejores Prácticas
 
-```typescript
-import { createS3Client } from '@/clients/s3.client';
-import { createLogger } from '@/utils/logger.util';
-import { retryWithBackoff } from '@/utils/helpers';
+### 1. Manejo de Errores
+- Siempre usar try-catch en operaciones asíncronas
+- Loggear errores con contexto suficiente
+- Retornar respuestas de error consistentes
 
-async function uploadFileWithRetry(
-  bucket: string, 
-  key: string, 
-  fileBuffer: Buffer
-) {
-  const logger = createLogger('FileUploader');
-  const s3Client = createS3Client();
+### 2. Logging
+- Usar logging estructurado con metadatos
+- Incluir requestId para correlación
+- No loggear información sensible
 
-  try {
-    await retryWithBackoff(
-      async () => {
-        await s3Client.uploadFile(bucket, key, fileBuffer);
-        logger.info('File uploaded successfully', { bucket, key });
-      },
-      {
-        maxRetries: 3,
-        baseDelay: 1000
-      }
-    );
+### 3. Validación
+- Validar todos los inputs usando Zod schemas
+- Sanitizar datos de entrada
+- Validar permisos y autorización
 
-    // Generar URL presignada para acceso
-    const presignedUrl = await s3Client.getPresignedUrl(bucket, key, 3600);
-    
-    return { success: true, url: presignedUrl };
+### 4. Performance
+- Reutilizar conexiones de base de datos
+- Implementar caching cuando sea apropiado
+- Usar connection pooling
 
-  } catch (error) {
-    logger.error('Failed to upload file', { bucket, key, error });
-    throw error;
-  }
-}
-```
+### 5. Seguridad
+- No exponer información sensible en logs
+- Usar variables de entorno para secretos
+- Validar y sanitizar todos los inputs
 
-## Versionado de API
+## Versionado
 
-### Versión Actual: 1.0.0
+Este template sigue [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Cambios incompatibles en la API
+- **MINOR**: Nuevas funcionalidades compatibles
+- **PATCH**: Correcciones de bugs compatibles
 
-### Changelog
+**Versión actual**: 1.0.0
 
-#### v1.0.0
-- Implementación inicial de todos los clientes
-- Sistema de logging estructurado
-- Manejo de excepciones personalizado
-- Suite completa de tests
+## Soporte
 
-### Compatibilidad
-
-- **Node.js**: 18+
-- **TypeScript**: 5.0+
-- **AWS SDK**: v3
-- **MongoDB**: 4.4+
-- **PostgreSQL**: 12+
-
-### Deprecaciones
-
-Ninguna en la versión actual.
-
-### Roadmap
-
-#### v1.1.0 (Próxima)
-- Circuit breaker pattern
-- Métricas avanzadas
-- Cache distribuido
-
-#### v2.0.0 (Futuro)
-- Breaking changes en interfaces
-- Migración a nuevas versiones de dependencias
-- Nuevas funcionalidades de negocio
+Para soporte técnico o preguntas sobre la API:
+- **Tech Lead**: José Carrillo <jose.carrillo@yummysuperapp.com>
+- **Equipo**: Financial Backoffice Team
+- **Documentación**: [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Issues**: [GitHub Issues](https://github.com/yummysuperapp/fbo-lambda-template/issues)

@@ -1,15 +1,21 @@
-name: 🚀 Build & Deploy
+name: Build & Deploy
 
 on:
+  # 🔄 Trigger after successful testing
   workflow_run:
-    workflows: ["🧪 Test & Quality Assurance"]
-    types: [completed]
-    branches: [ master, develop, testing ]
+    workflows: ["Testing Report"]
+    types:
+      - completed
   push:
     branches:
       - develop
-      - testing
       - master
+      - testing
+
+# 🚫 Prevent concurrent runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -18,62 +24,20 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    
-    environment: ${{ 
-      github.ref == 'refs/heads/develop' && 'Dev' ||
-      github.ref == 'refs/heads/testing' && 'Test' ||
-      github.ref == 'refs/heads/master' && 'Prod'
-    }}
-    
+    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-      NODE_ENV: ${{ 
-        github.ref == 'refs/heads/master' && 'production' ||
-        github.ref == 'refs/heads/testing' && 'testing' ||
-        'development'
-      }}
-      LOG_LEVEL: ${{ 
-        github.ref == 'refs/heads/master' && 'warn' ||
-        'debug'
-      }}
-      ENVIRONMENT: ${{ 
-        github.ref == 'refs/heads/master' && 'Prod' ||
-        github.ref == 'refs/heads/testing' && 'Test' ||
-        'Dev'
-      }}
-      FINANCE_BASE_URL: ${{ secrets.FINANCE_BASE_URL }}
-      FINANCE_API_KEY: ${{ secrets.FINANCE_API_KEY }}
-      FINANCE_DISPERSION_ENDPOINT: ${{ secrets.FINANCE_DISPERSION_ENDPOINT }}
-      VERTICAL: ${{ secrets.VERTICAL }}
+      NODE_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || github.ref == 'refs/heads/testing' && 'testing' || 'development' }}
+      LOG_LEVEL: ${{ github.ref == 'refs/heads/master' && 'warn' || 'debug' }}
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' || 'Dev' }}
       AWS_APP_NAME: ${{ secrets.AWS_APP_NAME }}
-      EXPIRATION_HOURS: ${{ secrets.EXPIRATION_HOURS }}
-      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-      ALLOWED_S3_BUCKETS: ${{ secrets.ALLOWED_S3_BUCKETS }}
-      PG_HOST: ${{ secrets.PG_HOST }}
-      PG_PORT: ${{ secrets.PG_PORT }}
-      PG_DATABASE: ${{ secrets.PG_DATABASE }}
-      PG_USER: ${{ secrets.PG_USER }}
-      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-      PG_SSL: ${{ secrets.PG_SSL }}
-      PG_MAX_CONNECTIONS: ${{ secrets.PG_MAX_CONNECTIONS }}
-      PG_CONNECTION_TIMEOUT: ${{ secrets.PG_CONNECTION_TIMEOUT }}
-      PG_IDLE_TIMEOUT: ${{ secrets.PG_IDLE_TIMEOUT }}
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-      MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
-      MONGO_MAX_POOL_SIZE: ${{ secrets.MONGO_MAX_POOL_SIZE }}
-      MONGO_MIN_POOL_SIZE: ${{ secrets.MONGO_MIN_POOL_SIZE }}
-      MONGO_MAX_IDLE_TIME: ${{ secrets.MONGO_MAX_IDLE_TIME }}
-      MONGO_SERVER_SELECTION_TIMEOUT: ${{ secrets.MONGO_SERVER_SELECTION_TIMEOUT }}
-      N8N_HOST: ${{ secrets.N8N_HOST }}
-      N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
-      BIGQUERY_DATASET_ID: ${{ secrets.BIGQUERY_DATASET_ID }}
-      BIGQUERY_LOCATION: ${{ secrets.BIGQUERY_LOCATION }}
-      BIGQUERY_KEY_FILENAME: ${{ secrets.BIGQUERY_KEY_FILENAME }}
-      BIGQUERY_MAX_RETRIES: ${{ secrets.BIGQUERY_MAX_RETRIES }}
-      BIGQUERY_AUTO_RETRY: ${{ secrets.BIGQUERY_AUTO_RETRY }}
       BIGQUERY_PROJECT_ID: ${{ secrets.BIGQUERY_PROJECT_ID }}
       BIGQUERY_PRIVATE_KEY: ${{ secrets.BIGQUERY_PRIVATE_KEY }}
       BIGQUERY_CLIENT_EMAIL: ${{ secrets.BIGQUERY_CLIENT_EMAIL }}
@@ -90,7 +54,7 @@ jobs:
         cache: npm
 
     - name: 📦 Install Dependencies
-      run: npm ci --production --silent
+      run: npm ci --silent
 
     - name: 🏗️ Build Project
       run: npm run build
@@ -101,6 +65,58 @@ jobs:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+        
+    - name: ✅ Validate required environment variables
+      run: |
+        # Initialize error flag
+        has_errors=false
+        
+        echo "🔍 Validating required environment variables..."
+        
+        # Check critical AWS variables
+        if [ -z "${{ env.LAMBDA_FUNCTION_NAME }}" ]; then
+          echo "❌ Missing: LAMBDA_FUNCTION_NAME"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ env.AWS_REGION }}" ]; then
+          echo "❌ Missing: AWS_REGION"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+          echo "❌ Missing: AWS_ACCESS_KEY_ID"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+          echo "❌ Missing: AWS_SECRET_ACCESS_KEY"
+          has_errors=true
+        fi
+        
+        # Check application variables
+        if [ -z "${{ env.NODE_ENV }}" ]; then
+          echo "❌ Missing: NODE_ENV"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ env.ENVIRONMENT }}" ]; then
+          echo "❌ Missing: ENVIRONMENT"
+          has_errors=true
+        fi
+        
+        if [ -z "${{ env.BIGQUERY_PROJECT_ID }}" ]; then
+          echo "❌ Missing: BIGQUERY_PROJECT_ID"
+          has_errors=true
+        fi
+        
+        # Exit if any errors found
+        if [ "$has_errors" = "true" ]; then
+          echo "❌ One or more required environment variables are missing"
+          exit 1
+        fi
+        
+        echo "✅ All required environment variables are present"
 
     - name: 📦 Create optimized deployment package
       run: |
@@ -109,63 +125,92 @@ jobs:
         rm -rf "$TEMP_DIR"
         mkdir -p "$TEMP_DIR"
         
-        # Copy required files
-        cp -r dist "$TEMP_DIR/"
-        cp package.json "$TEMP_DIR/"
-        cp index.mjs "$TEMP_DIR/"
+        # Copy required files with error checking
+        if [ ! -d "dist" ]; then
+          echo "❌ Error: dist directory not found. Make sure build step completed successfully."
+          exit 1
+        fi
+        
+        if [ ! -f "package.json" ]; then
+          echo "❌ Error: package.json not found"
+          exit 1
+        fi
+        
+        if [ ! -f "index.mjs" ]; then
+          echo "❌ Error: index.mjs not found"
+          exit 1
+        fi
+        
+        cp -r dist "$TEMP_DIR/" || { echo "❌ Error copying dist directory"; exit 1; }
+        cp package.json "$TEMP_DIR/" || { echo "❌ Error copying package.json"; exit 1; }
+        cp index.mjs "$TEMP_DIR/" || { echo "❌ Error copying index.mjs"; exit 1; }
         
         # Copy node_modules excluding unnecessary files
         mkdir -p "$TEMP_DIR/node_modules"
         
-        # Use rsync to copy node_modules with exclusions
-        rsync -a --exclude='*.md' \
-                 --exclude='*.txt' \
-                 --exclude='*.log' \
-                 --exclude='*.map' \
-                 --exclude='*.d.ts.map' \
-                 --exclude='*.test.js' \
-                 --exclude='*.spec.js' \
-                 --exclude='*.test.ts' \
-                 --exclude='*.spec.ts' \
-                 --exclude='Gruntfile.js' \
-                 --exclude='gulpfile.js' \
-                 --exclude='Makefile' \
-                 --exclude='*.mk' \
-                 --exclude='*.gyp' \
-                 --exclude='*.gypi' \
-                 --exclude='.eslintrc*' \
-                 --exclude='.jshintrc' \
-                 --exclude='.jscsrc' \
-                 --exclude='.babelrc*' \
-                 --exclude='tsconfig.json' \
-                 --exclude='tslint.json' \
-                 --exclude='*.tgz' \
-                 --exclude='*.tar.gz' \
-                 --exclude='.git/' \
-                 --exclude='test/' \
-                 --exclude='tests/' \
-                 --exclude='__tests__/' \
-                 --exclude='spec/' \
-                 --exclude='specs/' \
-                 --exclude='example/' \
-                 --exclude='examples/' \
-                 --exclude='demo/' \
-                 --exclude='demos/' \
-                 --exclude='doc/' \
-                 --exclude='docs/' \
-                 --exclude='documentation/' \
-                 --exclude='.nyc_output/' \
-                 --exclude='coverage/' \
-                 --exclude='.cache/' \
-                 --exclude='cache/' \
-                 --exclude='tmp/' \
-                 --exclude='temp/' \
-                 node_modules/ "$TEMP_DIR/node_modules/"
+        # Copy node_modules with exclusions using tar
+        if [ -d "node_modules" ]; then
+          tar --exclude='*.md' \
+              --exclude='*.txt' \
+              --exclude='*.log' \
+              --exclude='*.map' \
+              --exclude='*.d.ts.map' \
+              --exclude='*.test.js' \
+              --exclude='*.spec.js' \
+              --exclude='*.test.ts' \
+              --exclude='*.spec.ts' \
+              --exclude='Gruntfile.js' \
+              --exclude='gulpfile.js' \
+              --exclude='Makefile' \
+              --exclude='*.mk' \
+              --exclude='*.gyp' \
+              --exclude='*.gypi' \
+              --exclude='.eslintrc*' \
+              --exclude='.jshintrc' \
+              --exclude='.jscsrc' \
+              --exclude='.babelrc*' \
+              --exclude='tsconfig.json' \
+              --exclude='tslint.json' \
+              --exclude='*.tgz' \
+              --exclude='*.tar.gz' \
+              --exclude='test' \
+              --exclude='tests' \
+              --exclude='__tests__' \
+              --exclude='spec' \
+              --exclude='specs' \
+              --exclude='example' \
+              --exclude='examples' \
+              --exclude='demo' \
+              --exclude='demos' \
+              --exclude='doc' \
+              --exclude='docs' \
+              --exclude='documentation' \
+              --exclude='.nyc_output' \
+              --exclude='coverage' \
+              --exclude='.cache' \
+              --exclude='cache' \
+              --exclude='tmp' \
+              --exclude='temp' \
+              -cf - node_modules | (cd "$TEMP_DIR" && tar -xf -)
+        fi
         
         # Create the zip package
         cd "$TEMP_DIR"
+        
+        # Ensure temp directory exists
+        mkdir -p "/tmp"
+        
+        # Create zip package
         zip -r "/tmp/${{ github.sha }}.zip" .
         cd ..
+        
+        # Verify zip was created
+        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+          echo "❌ Error: Failed to create ZIP package"
+          exit 1
+        fi
+        
+        echo "✅ ZIP package created successfully"
         
         # Clean up temp directory
         rm -rf "$TEMP_DIR"
@@ -173,12 +218,40 @@ jobs:
     - name: 📊 Validate package size
       id: package-and-validate
       run: |
-        size_bytes=$(du -sb "/tmp/${{ github.sha }}.zip" | cut -f1)
-        echo "ZIP size: $(( size_bytes/1024 )) KB"
-        if [ "$size_bytes" -gt 52428800 ]; then
-          echo "Error: ZIP > 50MB"
+        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+          echo "Error: Package file not found"
           exit 1
         fi
+        # Get file size using multiple methods for compatibility
+        if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip")
+        elif command -v wc >/dev/null 2>&1; then
+          size_bytes=$(wc -c < "/tmp/${{ github.sha }}.zip")
+        elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(du -b "/tmp/${{ github.sha }}.zip" | cut -f1)
+        else
+          # Fallback using ls -l with better error handling
+          if ls -l "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+            size_bytes=$(ls -l "/tmp/${{ github.sha }}.zip" | awk '{print $5}')
+          else
+            echo "❌ Error: Cannot access package file for size calculation"
+            exit 1
+          fi
+        fi
+        
+        # Validate that we got a valid size
+        if [ -z "$size_bytes" ] || ! [ "$size_bytes" -gt 0 ] 2>/dev/null; then
+          echo "❌ Error: Could not determine package size or size is invalid"
+          exit 1
+        fi
+        size_kb=$(( size_bytes/1024 ))
+        size_mb=$(( size_bytes/1048576 ))
+        echo "📦 Package size: ${size_kb} KB (${size_mb} MB)"
+        if [ "$size_bytes" -gt 52428800 ]; then
+          echo "❌ Error: Package size (${size_mb} MB) exceeds AWS Lambda limit of 50MB"
+          exit 1
+        fi
+        echo "✅ Package size validation passed"
 
     - name: 📤 Upload Build Artifacts
       uses: actions/upload-artifact@v4
@@ -189,35 +262,84 @@ jobs:
 
     - name: 🚀 Deploy to AWS Lambda
       run: |
+        echo "🚀 Deploying to Lambda function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        
+        # Check if function exists
+        if ! aws lambda get-function --function-name ${{ env.LAMBDA_FUNCTION_NAME }} >/dev/null 2>&1; then
+          echo "❌ Lambda function '${{ env.LAMBDA_FUNCTION_NAME }}' not found"
+          echo "Please create the function first or check the function name"
+          exit 1
+        fi
+        
+        # Deploy the code
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb:///tmp/${{ github.sha }}.zip
+          --zip-file fileb:///tmp/${{ github.sha }}.zip \
+          --no-cli-pager
+        
+        echo "✅ Code deployment completed"
 
     - name: ⚙️ Update Lambda Configuration
       run: |
+        echo "⚙️ Updating Lambda configuration..."
+        
+        # Wait for function to be ready after code update
+        echo "⏳ Waiting for function to be ready..."
+        aws lambda wait function-updated --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+        
+        # Create environment variables JSON using only available secrets
+        ENV_VARS=$(jq -nc \
+          --arg BIGQUERY_CLIENT_EMAIL "${{ secrets.BIGQUERY_CLIENT_EMAIL }}" \
+          --arg BIGQUERY_PRIVATE_KEY "${{ secrets.BIGQUERY_PRIVATE_KEY }}" \
+          --arg BIGQUERY_PROJECT_ID "${{ secrets.BIGQUERY_PROJECT_ID }}" \
+          --arg FINANCE_API_BASE_URL "${{ secrets.FINANCE_API_BASE_URL }}" \
+          --arg FINANCE_API_KEY "${{ secrets.FINANCE_API_KEY }}" \
+          --arg LAMBDA_FUNCTION_NAME "${{ secrets.LAMBDA_FUNCTION_NAME }}" \
+          --arg X_API_KEY "${{ secrets.X_API_KEY }}" \
+          '{"Variables":{"BIGQUERY_CLIENT_EMAIL":$BIGQUERY_CLIENT_EMAIL,"BIGQUERY_PRIVATE_KEY":$BIGQUERY_PRIVATE_KEY,"BIGQUERY_PROJECT_ID":$BIGQUERY_PROJECT_ID,"FINANCE_API_BASE_URL":$FINANCE_API_BASE_URL,"FINANCE_API_KEY":$FINANCE_API_KEY,"LAMBDA_FUNCTION_NAME":$LAMBDA_FUNCTION_NAME,"X_API_KEY":$X_API_KEY}}')
+        
+        # Update configuration
         aws lambda update-function-configuration \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --environment 'Variables={
-            "NODE_ENV":"${{ env.NODE_ENV }}",
-            "LOG_LEVEL":"${{ env.LOG_LEVEL }}",
-            "ENVIRONMENT":"${{ env.ENVIRONMENT }}",
-            "BIGQUERY_PROJECT_ID":"${{ env.BIGQUERY_PROJECT_ID }}",
-            "BIGQUERY_PRIVATE_KEY":"${{ env.BIGQUERY_PRIVATE_KEY }}",
-            "BIGQUERY_CLIENT_EMAIL":"${{ env.BIGQUERY_CLIENT_EMAIL }}",
-            "X_API_KEY":"${{ env.X_API_KEY }}"
-          }' \
+          --environment "$ENV_VARS" \
           --timeout 30 \
-          --memory-size 512
+          --memory-size 512 \
+          --no-cli-pager
+        
+        echo "✅ Configuration update completed"
 
     - name: 🧹 Clean Up Temporary Files
       if: always()
-      run: rm -f /tmp/${{ github.sha }}.zip
-
-    - name: ✅ Deployment Summary
+      run: |
+        echo "🧹 Cleaning up temporary files..."
+        
+        # Remove ZIP file if exists
+        if [ -f "/tmp/${{ github.sha }}.zip" ]; then
+          rm -f "/tmp/${{ github.sha }}.zip"
+          echo "✅ Removed ZIP file"
+        fi
+        
+        # Remove package directory if exists
+        if [ -d "/tmp/lambda-package-${{ github.sha }}" ]; then
+          rm -rf "/tmp/lambda-package-${{ github.sha }}"
+          echo "✅ Removed package directory"
+        fi
+        
+        echo "🧹 Cleanup completed"
+        
+    - name: 🎉 Deployment Summary
       if: success()
       run: |
-        echo "✅ Deployment completed successfully!"
-        echo "📦 Package: ${{ github.sha }}.zip"
-        echo "🎯 Environment: ${{ env.ENVIRONMENT }}"
-        echo "🚀 Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
-        echo "⏰ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+        echo "🎉 Deployment completed successfully!"
+        echo "📋 Summary:"
+        echo "  • Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
+        echo "  • Region: ${{ env.AWS_REGION }}"
+        echo "  • Environment: ${{ env.ENVIRONMENT }}"
+        echo "  • Commit: ${{ github.sha }}"
+        echo "  • Triggered by: ${{ github.event_name }}"
+        
+        # Get function info
+        echo "📊 Function details:"
+        aws lambda get-function --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --query 'Configuration.{Runtime:Runtime,Timeout:Timeout,MemorySize:MemorySize,LastModified:LastModified}' \
+          --output table --no-cli-pager

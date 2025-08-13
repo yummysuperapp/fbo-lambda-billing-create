@@ -1,0 +1,104 @@
+name: Branch Naming Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master, develop]
+
+jobs:
+  validate-branch-name:
+    name: 🌿 Validate Branch Naming Convention
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check branch name
+        run: |
+          branch_name="${{ github.head_ref }}"
+          echo "🔍 Validating branch name: $branch_name"
+          
+          # Define the regex pattern for valid branch names
+          # Format: <type>/FB-<number>_<description>
+          pattern="^(feat|fix|hotfix|refactor|docs|test|chore)\/FB-[0-9]+_[a-z0-9-]+$"
+          
+          if [[ $branch_name =~ $pattern ]]; then
+            echo "✅ Branch name follows the convention: $branch_name"
+            echo "📋 Pattern: <type>/FB-<number>_<description>"
+            echo "🎯 Examples:"
+            echo "   - feat/FB-123_nueva-funcionalidad"
+            echo "   - fix/FB-456_correccion-bug"
+            echo "   - hotfix/FB-789_fallo-critico"
+          else
+            echo "❌ Branch name does not follow the convention: $branch_name"
+            echo ""
+            echo "📋 Required format: <type>/FB-<number>_<description>"
+            echo ""
+            echo "🔧 Valid types: feat, fix, hotfix, refactor, docs, test, chore"
+            echo "🎯 Examples:"
+            echo "   ✅ feat/FB-123_integracion-bigquery"
+            echo "   ✅ fix/FB-456_error-conexion-mongodb"
+            echo "   ✅ hotfix/FB-789_fallo-critico-produccion"
+            echo "   ✅ refactor/FB-234_optimizacion-queries"
+            echo "   ✅ docs/FB-567_actualizacion-readme"
+            echo "   ✅ test/FB-890_cobertura-servicios"
+            echo "   ✅ chore/FB-101_actualizacion-dependencias"
+            echo ""
+            echo "❌ Invalid examples:"
+            echo "   ❌ feature/FB-123-nueva-funcionalidad (wrong type)"
+            echo "   ❌ feat/JIRA-123_nueva-funcionalidad (wrong prefix)"
+            echo "   ❌ feat/FB-123-nueva-funcionalidad (missing underscore)"
+            echo "   ❌ feat/FB-123_Nueva_Funcionalidad (uppercase/underscores)"
+            echo "   ❌ feat/FB-123_nueva funcionalidad (spaces)"
+            echo ""
+            echo "📖 For more details, see: CONTRIBUTING.md#convenciones-de-nomenclatura-de-ramas"
+            exit 1
+          fi
+      
+      - name: Add PR comment with validation result
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchName = context.payload.pull_request.head.ref;
+            const comment = `## ❌ Branch Naming Convention Violation
+            
+            **Branch:** \`${branchName}\`
+            
+            Your branch name does not follow our naming convention. Please rename your branch to follow this format:
+            
+            \`\`\`
+            <type>/FB-<number>_<description>
+            \`\`\`
+            
+            ### 🔧 Valid Types
+            - \`feat/\` - New features
+            - \`fix/\` - Bug fixes  
+            - \`hotfix/\` - Urgent production fixes
+            - \`refactor/\` - Code refactoring
+            - \`docs/\` - Documentation changes
+            - \`test/\` - Adding or modifying tests
+            - \`chore/\` - Maintenance tasks
+            
+            ### ✅ Examples
+            - \`feat/FB-123_integracion-bigquery\`
+            - \`fix/FB-456_error-conexion-mongodb\`
+            - \`hotfix/FB-789_fallo-critico-produccion\`
+            
+            ### 📖 More Information
+            See our [Contributing Guide](./CONTRIBUTING.md#convenciones-de-nomenclatura-de-ramas) for detailed naming conventions.
+            
+            ---
+            
+            **How to rename your branch:**
+            \`\`\`bash
+            git branch -m ${branchName} <new-branch-name>
+            git push origin -u <new-branch-name>
+            git push origin --delete ${branchName}
+            \`\`\`
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

@@ -1,0 +1,154 @@
+# EditorConfig is awesome: https://EditorConfig.org
+# 
+# FBO Lambda Template - Language Standards:
+# - All code (variables, functions, classes, comments) MUST be in English
+# - Documentation files (README.md, docs/*.md) should be in Spanish
+# - Code examples in documentation MUST be in English
+# - Full documentation: https://www.notion.so/yummy/financial-backoffice
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# TypeScript and JavaScript files
+[*.{ts,tsx,js,jsx}]
+indent_size = 2
+max_line_length = 100
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 120
+
+# Package.json
+[package.json]
+indent_size = 2
+
+# Configuration files
+[*.{config.js,config.ts}]
+indent_size = 2
+
+# Test files
+[*.{test.ts,test.js,spec.ts,spec.js}]
+indent_size = 2
+
+# Docker files
+[Dockerfile*]
+indent_style = tab
+indent_size = 4
+
+# Shell scripts
+[*.{sh,bash}]
+indent_style = tab
+indent_size = 4
+end_of_line = lf
+
+# Windows batch files
+[*.{bat,cmd}]
+end_of_line = crlf
+
+# Makefile
+[Makefile]
+indent_style = tab
+indent_size = 4
+
+# Python files (if any)
+[*.py]
+indent_size = 4
+max_line_length = 88
+
+# Go files (if any)
+[*.go]
+indent_style = tab
+indent_size = 4
+
+# SQL files
+[*.sql]
+indent_size = 2
+
+# XML files
+[*.xml]
+indent_size = 2
+
+# HTML files
+[*.html]
+indent_size = 2
+
+# CSS and SCSS files
+[*.{css,scss,sass}]
+indent_size = 2
+
+# Less files
+[*.less]
+indent_size = 2
+
+# Stylus files
+[*.styl]
+indent_size = 2
+
+# Vue files
+[*.vue]
+indent_size = 2
+
+# Svelte files
+[*.svelte]
+indent_size = 2
+
+# GraphQL files
+[*.{graphql,gql}]
+indent_size = 2
+
+# Prisma schema files
+[*.prisma]
+indent_size = 2
+
+# Terraform files
+[*.{tf,tfvars}]
+indent_size = 2
+
+# CloudFormation templates
+[*.{template,cfn}]
+indent_size = 2
+
+# AWS SAM templates
+[template.{yaml,yml}]
+indent_size = 2
+
+# GitHub Actions workflows
+[.github/workflows/*.{yml,yaml}]
+indent_size = 2
+
+# Environment files
+[.env*]
+indent_size = 2
+trim_trailing_whitespace = true
+
+# License files
+[LICENSE*]
+trim_trailing_whitespace = false
+
+# Changelog files
+[CHANGELOG*]
+trim_trailing_whitespace = false
+max_line_length = 120
+
+# README files
+[README*]
+trim_trailing_whitespace = false
+max_line_length = 120
