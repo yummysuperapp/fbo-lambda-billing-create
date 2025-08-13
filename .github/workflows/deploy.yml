@@ -1,14 +1,11 @@
 name: 🚀 Build & Deploy
 
 on:
-  # 🔄 Trigger after successful deployment
+  # 🔄 Trigger after successful testing
   workflow_run:
     workflows: ["🧪 Testing Report"]
     types:
       - completed
-
-  # ⬆️ Trigger on direct pushes to main branches
-  push:
     branches:
       - develop
       - master
@@ -26,13 +23,13 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
+    # Only run if triggered by push OR if workflow_run was successful
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
     timeout-minutes: 30
-
     defaults:
       run:
         shell: bash
-    
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -138,6 +135,11 @@ jobs:
           has_errors=true
         fi
         
+        if [ -z "${{ env.BIGQUERY_PROJECT_ID }}" ]; then
+          echo "❌ Missing: BIGQUERY_PROJECT_ID"
+          has_errors=true
+        fi
+        
         # Exit if any errors found
         if [ "$has_errors" = "true" ]; then
           echo "❌ One or more required environment variables are missing"
@@ -153,10 +155,25 @@ jobs:
         rm -rf "$TEMP_DIR"
         mkdir -p "$TEMP_DIR"
         
-        # Copy required files
-        cp -r dist "$TEMP_DIR/"
-        cp package.json "$TEMP_DIR/"
-        cp index.mjs "$TEMP_DIR/"
+        # Copy required files with error checking
+        if [ ! -d "dist" ]; then
+          echo "❌ Error: dist directory not found. Make sure build step completed successfully."
+          exit 1
+        fi
+        
+        if [ ! -f "package.json" ]; then
+          echo "❌ Error: package.json not found"
+          exit 1
+        fi
+        
+        if [ ! -f "index.mjs" ]; then
+          echo "❌ Error: index.mjs not found"
+          exit 1
+        fi
+        
+        cp -r dist "$TEMP_DIR/" || { echo "❌ Error copying dist directory"; exit 1; }
+        cp package.json "$TEMP_DIR/" || { echo "❌ Error copying package.json"; exit 1; }
+        cp index.mjs "$TEMP_DIR/" || { echo "❌ Error copying index.mjs"; exit 1; }
         
         # Copy node_modules excluding unnecessary files
         mkdir -p "$TEMP_DIR/node_modules"
@@ -236,22 +253,27 @@ jobs:
           exit 1
         fi
         # Get file size using multiple methods for compatibility
-         if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
-           size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip")
-         elif command -v wc >/dev/null 2>&1; then
-           size_bytes=$(wc -c < "/tmp/${{ github.sha }}.zip")
-         elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
-           size_bytes=$(du -b "/tmp/${{ github.sha }}.zip" | cut -f1)
-         else
-           # Fallback using ls -l
-           size_bytes=$(ls -l "/tmp/${{ github.sha }}.zip" | awk '{print $5}')
-         fi
-         
-         # Validate that we got a valid size
-         if [ -z "$size_bytes" ] || [ "$size_bytes" -eq 0 ] 2>/dev/null; then
-           echo "❌ Error: Could not determine package size"
-           exit 1
-         fi
+        if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip")
+        elif command -v wc >/dev/null 2>&1; then
+          size_bytes=$(wc -c < "/tmp/${{ github.sha }}.zip")
+        elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(du -b "/tmp/${{ github.sha }}.zip" | cut -f1)
+        else
+          # Fallback using ls -l with better error handling
+          if ls -l "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
+            size_bytes=$(ls -l "/tmp/${{ github.sha }}.zip" | awk '{print $5}')
+          else
+            echo "❌ Error: Cannot access package file for size calculation"
+            exit 1
+          fi
+        fi
+        
+        # Validate that we got a valid size
+        if [ -z "$size_bytes" ] || ! [ "$size_bytes" -gt 0 ] 2>/dev/null; then
+          echo "❌ Error: Could not determine package size or size is invalid"
+          exit 1
+        fi
         size_kb=$(( size_bytes/1024 ))
         size_mb=$(( size_bytes/1048576 ))
         echo "📦 Package size: ${size_kb} KB (${size_mb} MB)"
@@ -297,17 +319,16 @@ jobs:
         
         # Create environment variables JSON
         ENV_VARS=$(cat <<EOF
-{
-  "NODE_ENV": "${{ env.NODE_ENV }}",
-  "LOG_LEVEL": "${{ env.LOG_LEVEL }}",
-  "ENVIRONMENT": "${{ env.ENVIRONMENT }}",
-  "BIGQUERY_PROJECT_ID": "${{ env.BIGQUERY_PROJECT_ID }}",
-  "BIGQUERY_PRIVATE_KEY": "${{ env.BIGQUERY_PRIVATE_KEY }}",
-  "BIGQUERY_CLIENT_EMAIL": "${{ env.BIGQUERY_CLIENT_EMAIL }}",
-  "X_API_KEY": "${{ env.X_API_KEY }}"
-}
-EOF
-)
+          {
+            "NODE_ENV": "${{ env.NODE_ENV }}",
+            "LOG_LEVEL": "${{ env.LOG_LEVEL }}",
+            "ENVIRONMENT": "${{ env.ENVIRONMENT }}",
+            "BIGQUERY_PROJECT_ID": "${{ env.BIGQUERY_PROJECT_ID }}",
+            "BIGQUERY_PRIVATE_KEY": "${{ env.BIGQUERY_PRIVATE_KEY }}",
+            "BIGQUERY_CLIENT_EMAIL": "${{ env.BIGQUERY_CLIENT_EMAIL }}",
+            "X_API_KEY": "${{ env.X_API_KEY }}"
+          }
+        EOF)
         
         # Update configuration
         aws lambda update-function-configuration \
