@@ -57,10 +57,13 @@ jobs:
       run: npm i -g rimraf --yes
 
     - name: 📦 Install Project Dependencies
-      run: npm install
+      run: npm ci --include=dev  # include devDependencies required for TypeScript build even when NODE_ENV=production
 
     - name: 🏗️ Build Project
       run: npm run build
+
+    - name: 🧹 Prune dev dependencies for packaging
+      run: npm prune --omit=dev
 
     - name: 🔐 Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
