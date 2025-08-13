@@ -317,18 +317,24 @@ jobs:
         echo "⏳ Waiting for function to be ready..."
         aws lambda wait function-updated --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
         
-        # Create environment variables JSON
-        ENV_VARS=$(cat <<EOF
-          {
-            "NODE_ENV": "${{ env.NODE_ENV }}",
-            "LOG_LEVEL": "${{ env.LOG_LEVEL }}",
-            "ENVIRONMENT": "${{ env.ENVIRONMENT }}",
-            "BIGQUERY_PROJECT_ID": "${{ env.BIGQUERY_PROJECT_ID }}",
-            "BIGQUERY_PRIVATE_KEY": "${{ env.BIGQUERY_PRIVATE_KEY }}",
-            "BIGQUERY_CLIENT_EMAIL": "${{ env.BIGQUERY_CLIENT_EMAIL }}",
-            "X_API_KEY": "${{ env.X_API_KEY }}"
-          }
-        EOF)
+        # Create environment variables JSON using jq for safer handling
+        ENV_VARS=$(jq -n \
+          --arg NODE_ENV "${{ env.NODE_ENV }}" \
+          --arg LOG_LEVEL "${{ env.LOG_LEVEL }}" \
+          --arg ENVIRONMENT "${{ env.ENVIRONMENT }}" \
+          --arg BIGQUERY_PROJECT_ID "${{ env.BIGQUERY_PROJECT_ID }}" \
+          --arg BIGQUERY_PRIVATE_KEY "${{ env.BIGQUERY_PRIVATE_KEY }}" \
+          --arg BIGQUERY_CLIENT_EMAIL "${{ env.BIGQUERY_CLIENT_EMAIL }}" \
+          --arg X_API_KEY "${{ env.X_API_KEY }}" \
+          '{
+            NODE_ENV: $NODE_ENV,
+            LOG_LEVEL: $LOG_LEVEL,
+            ENVIRONMENT: $ENVIRONMENT,
+            BIGQUERY_PROJECT_ID: $BIGQUERY_PROJECT_ID,
+            BIGQUERY_PRIVATE_KEY: $BIGQUERY_PRIVATE_KEY,
+            BIGQUERY_CLIENT_EMAIL: $BIGQUERY_CLIENT_EMAIL,
+            X_API_KEY: $X_API_KEY
+          }')
         
         # Update configuration
         aws lambda update-function-configuration \
