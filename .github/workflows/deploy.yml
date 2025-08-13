@@ -6,10 +6,6 @@ on:
     workflows: ["Testing Report"]
     types:
       - completed
-    branches:
-      - develop
-      - master
-      - testing
 
 # 🚫 Prevent concurrent runs
 concurrency:
@@ -23,8 +19,10 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    # ✅ Only run if the testing workflow was successful
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # ✅ Only run if the testing workflow was successful and on target branches
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      contains(fromJSON('["develop", "master", "testing"]'), github.event.workflow_run.head_branch)
     environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
     timeout-minutes: 30
     defaults:
