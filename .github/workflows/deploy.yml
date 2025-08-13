@@ -57,7 +57,7 @@ jobs:
       run: npm i -g rimraf --yes
 
     - name: 📦 Install Project Dependencies
-      run: npm ci --silent
+      run: npm install
 
     - name: 🏗️ Build Project
       run: npm run build
