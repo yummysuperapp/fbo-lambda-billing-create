@@ -6,6 +6,10 @@ on:
     workflows: ["Testing Report"]
     types:
       - completed
+    branches:
+      - master
+      - develop
+      - testing
 
 # 🚫 Prevent concurrent runs
 concurrency:
@@ -19,7 +23,7 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'master' || github.event.workflow_run.head_branch == 'testing') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'master' || github.event.workflow_run.head_branch == 'testing') && (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'release') }}
     environment: ${{ github.event.workflow_run.head_branch == 'develop' && 'Dev' || github.event.workflow_run.head_branch == 'master' && 'Prod' || github.event.workflow_run.head_branch == 'testing' && 'Test' || 'Dev' }}
     timeout-minutes: 30
     defaults:
