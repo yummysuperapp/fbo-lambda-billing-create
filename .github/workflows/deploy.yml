@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment: ${{ 
-      github.ref == 'refs/heads/development' && 'Dev' ||
+      github.ref == 'refs/heads/develop' && 'Dev' ||
       github.ref == 'refs/heads/testing' && 'Test' ||
       github.ref == 'refs/heads/master' && 'Prod'
     }}
