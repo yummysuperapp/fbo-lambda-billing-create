@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentación del Proyecto
+    url: https://github.com/yummysuperapp/fbo-lambda-template/blob/main/README.md
+    about: Consulta la documentación completa del proyecto
+  - name: 🏗️ Arquitectura del Sistema
+    url: https://github.com/yummysuperapp/fbo-lambda-template/blob/main/docs/ARCHITECTURE.md
+    about: Revisa la documentación de arquitectura y patrones
+  - name: ⚙️ Guía de Configuración
+    url: https://github.com/yummysuperapp/fbo-lambda-template/blob/main/docs/CONFIGURATION.md
+    about: Consulta la guía de configuración por ambiente
+  - name: 🔧 Log de Mejoras
+    url: https://github.com/yummysuperapp/fbo-lambda-template/blob/main/docs/IMPROVEMENTS.md
+    about: Revisa el historial de mejoras implementadas
+  - name: 💬 Discusiones del Equipo
+    url: https://github.com/yummysuperapp/fbo-lambda-template/discussions
+    about: Participa en discusiones técnicas y de proceso

@@ -654,6 +654,33 @@ X_API_KEY
 - **Test Suite**: 70 tests organizados en 4 archivos con cobertura completa
 - **Type Safety**: Configuración TypeScript ultra-estricta mantenida
 
+## 📋 GitHub Templates y Proceso
+
+### Plantillas de Desarrollo
+Este template incluye plantillas completas para GitHub que implementan nuestros dogmas del equipo:
+
+- [📋 Pull Request Template](.github/pull_request_template.md) - Validación completa de DoD
+- [🐛 Bug Report Template](.github/ISSUE_TEMPLATE/bug_report.md) - Reporte estructurado de bugs
+- [✨ Feature Request Template](.github/ISSUE_TEMPLATE/feature_request.md) - Basado en Definition of Ready
+- [🔧 Technical Task Template](.github/ISSUE_TEMPLATE/technical_task.md) - Para spikes, POCs y mejoras técnicas
+- [📊 Technical Debt Template](.github/ISSUE_TEMPLATE/technical_debt.md) - Documentación de deuda técnica
+
+### Dogmas del Equipo Implementados
+- ✅ **Escalabilidad**: Todo debe ser escalable, elástico y pensado en usos futuros
+- ✅ **Testing**: Incremento mínimo de 3% en cobertura (excepción: >80%)
+- ✅ **Responsabilidad**: Toda tarea asignada a responsable específico
+- ✅ **Calidad**: Solo PM/TL pueden marcar tareas como HECHO
+- ✅ **Documentación**: Todo bug sin documentación es un error
+- ✅ **Deuda Técnica**: Bugs documentados y despriorizados son deuda técnica válida
+
+### Definition of Ready (DoR) y Definition of Done (DoD)
+Todas las plantillas incorporan validación automática de:
+- 🎯 Claridad de objetivos y criterios de aceptación
+- 🔍 Identificación de dependencias y viabilidad técnica
+- 📊 Métricas de éxito y timeline establecidos
+- 🧪 Testing completo con evidencia documentada
+- 📚 Documentación técnica y funcional actualizada
+
 ## 📚 Documentación Adicional
 
 Para información más detallada, consulta:
@@ -663,6 +690,7 @@ Para información más detallada, consulta:
 - [🔧 Log de Mejoras](docs/IMPROVEMENTS.md) - Historial detallado de optimizaciones
 - [🧪 Suite de Testing](tests/) - 70 tests con cobertura del 100%
 - [🚀 Workflows CI/CD](.github/workflows/) - Pipelines optimizados con quality gates
+- [📋 GitHub Templates](.github/) - Plantillas de PR e Issues con dogmas del equipo
 
 ## 🔧 Mejoras Técnicas Recientes
 
