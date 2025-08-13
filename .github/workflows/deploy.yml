@@ -26,20 +26,9 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-      NODE_ENV: ${{ 
-        github.ref == 'refs/heads/master' && 'production' ||
-        github.ref == 'refs/heads/testing' && 'testing' ||
-        'development'
-      }}
-      LOG_LEVEL: ${{ 
-        github.ref == 'refs/heads/master' && 'warn' ||
-        'debug'
-      }}
-      ENVIRONMENT: ${{ 
-        github.ref == 'refs/heads/master' && 'Prod' ||
-        github.ref == 'refs/heads/testing' && 'Test' ||
-        'Dev'
-      }}
+      NODE_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || github.ref == 'refs/heads/testing' && 'testing' || 'development' }}
+      LOG_LEVEL: ${{ github.ref == 'refs/heads/master' && 'warn' || 'debug' }}
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' || 'Dev' }}
       FINANCE_BASE_URL: ${{ secrets.FINANCE_BASE_URL }}
       FINANCE_API_KEY: ${{ secrets.FINANCE_API_KEY }}
       FINANCE_DISPERSION_ENDPOINT: ${{ secrets.FINANCE_DISPERSION_ENDPOINT }}
