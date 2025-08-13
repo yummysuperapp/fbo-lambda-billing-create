@@ -2,11 +2,11 @@ name: Testing Report
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ master, develop, testing ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ master, develop, testing ]
   release:
-    types: [ published, created ]
+    types: [ created ]
 
 jobs:
   test:
@@ -285,7 +285,7 @@ jobs:
           coverage/
           coverage_report.md
           coverage_output.txt
-        retention-days: 30
+        retention-days: 90
 
     - name: 📤 Upload security audit artifacts
       if: always()
@@ -295,7 +295,7 @@ jobs:
         path: |
           audit_output.json
           audit_output.txt
-        retention-days: 30
+        retention-days: 90
 
     - name: ✅ Set test result
       id: test-result
