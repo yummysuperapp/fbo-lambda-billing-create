@@ -11,8 +11,8 @@ on:
       - testing
       - master
 
-env:
-  NODE_VERSION: '22.x'
+permissions:
+  contents: read
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment: ${{ 
-      github.ref == 'refs/heads/develop' && 'Dev' ||
+      github.ref == 'refs/heads/development' && 'Dev' ||
       github.ref == 'refs/heads/testing' && 'Test' ||
       github.ref == 'refs/heads/master' && 'Prod'
     }}
@@ -86,11 +86,11 @@ jobs:
     - name: 🟢 Initialize Node.js Environment
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ env.NODE_VERSION }}
+        node-version: 22.x
         cache: npm
 
     - name: 📦 Install Dependencies
-      run: npm ci
+      run: npm ci --production --silent
 
     - name: 🏗️ Build Project
       run: npm run build
@@ -101,12 +101,6 @@ jobs:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-
-    - name: 🧹 Clean node_modules for production
-      run: rm -rf node_modules
-
-    - name: 📦 Install production dependencies only
-      run: npm ci --production --silent
 
     - name: 📦 Create optimized deployment package
       run: |
