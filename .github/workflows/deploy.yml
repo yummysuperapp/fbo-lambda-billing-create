@@ -87,7 +87,7 @@ jobs:
         cache: npm
 
     - name: 📦 Install Dependencies
-      run: npm ci --production --silent
+      run: npm ci --silent
 
     - name: 🏗️ Build Project
       run: npm run build
