@@ -22,6 +22,53 @@ Template empresarial ultra-optimizado para el desarrollo de funciones AWS Lambda
 - **Microservicios de Backoffice**: Operaciones administrativas y de soporte
 - **Event-Driven Architecture**: Procesamiento de eventos financieros en tiempo real
 
+## 🌐 Estándares de Idioma y Documentación
+
+> **IMPORTANTE**: Este proyecto sigue estándares específicos de idioma para mantener consistencia y profesionalismo.
+
+### 📝 Convenciones de Idioma
+- **Documentación Principal**: Escrita en **español** (README, guías, comentarios de documentación)
+- **Código Fuente**: Escrito completamente en **inglés** (variables, funciones, clases, comentarios de código)
+- **Fragmentos de Código en Documentación**: Todos los ejemplos de código en **inglés**
+- **Nombres de Archivos y Directorios**: En **inglés** siguiendo convenciones estándar
+- **Commits y Pull Requests**: Títulos y descripciones en **español**, código en **inglés**
+
+### 📚 Documentación Completa
+La documentación técnica completa y actualizada del proyecto se encuentra disponible en:
+
+**🔗 [Notion - Financial Backoffice Documentation](https://www.notion.so/yummy/financial-backoffice)**
+
+Esta documentación incluye:
+- Arquitectura detallada del sistema
+- Guías de implementación paso a paso
+- Diagramas de flujo y casos de uso
+- Especificaciones técnicas completas
+- Procedimientos operativos y troubleshooting
+- Roadmap y planificación de features
+
+### 🎯 Ejemplo de Aplicación
+```typescript
+// ✅ CORRECTO: Código en inglés
+const calculateTransactionFee = (amount: number): number => {
+  return amount * 0.025;
+};
+
+// ❌ INCORRECTO: Código en español
+const calcularComisionTransaccion = (monto: number): number => {
+  return monto * 0.025;
+};
+```
+
+```markdown
+<!-- ✅ CORRECTO: Documentación en español -->
+## Configuración de Base de Datos
+Esta sección explica cómo configurar la conexión a PostgreSQL.
+
+<!-- ❌ INCORRECTO: Documentación en inglés -->
+## Database Configuration
+This section explains how to configure PostgreSQL connection.
+```
+
 ## 🛠️ Stack Tecnológico
 
 ### Core Technologies

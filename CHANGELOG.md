@@ -8,19 +8,24 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 ## [Unreleased]
 
 ### Added
-- Plantillas de GitHub para Pull Requests e Issues
-- Políticas de seguridad y reporte de vulnerabilidades
-- Guía de contribución completa
-- Código de conducta del equipo
-- Licencia privada de Yummy Inc.
+- Validación automática de nomenclatura de ramas con GitHub Actions
+- Estándares de idioma documentados (código en inglés, documentación en español)
+- Referencia a documentación completa en Notion
+- Configuración de Vitest con cobertura del 100%
+- Workflows de CI/CD optimizados con quality gates
+- Métricas de desarrollo actualizadas y realistas
 
 ### Changed
-- README.md actualizado con información completa del proyecto
-- Documentación mejorada con badges y metadatos
+- IMPROVEMENTS.md actualizado para reflejar la realidad del proyecto como template
+- Métricas cambiadas de rendimiento de aplicación a métricas de template
+- Hoja de ruta futura adaptada para expansión del template
+- Stack tecnológico actualizado (Node.js 22.x, TypeScript 5.7+, ESLint 9.x)
+- Configuración de testing migrada completamente a Vitest
 
-### Security
-- Implementación de políticas de seguridad
-- Guías para manejo seguro de secretos y credenciales
+### Fixed
+- Corrección de inconsistencias de idioma en documentación
+- Actualización de referencias obsoletas en documentación
+- Alineación de documentación con la realidad del proyecto
 
 ## [1.0.0] - 2024-01-15
 
@@ -217,7 +222,7 @@ export const validatePayment = (payment: Payment) => { ... }
 1.0.0-rc.1       # Release candidate
 
 # Build metadata (ignorado en precedencia)
-1.0.0+20240115   # Build del 15 de enero 2024
+1.0.0+20250813   # Build del 13 de agosto 2025
 1.0.0+exp.sha.5114f85  # Build experimental con hash
 ```
 

@@ -242,6 +242,149 @@ const API_BASE_URL = 'https://api.example.com';
 // database-clients/
 ```
 
+### 🌐 Estándares de Idioma
+
+> **CRÍTICO**: Este proyecto sigue estándares estrictos de idioma que DEBEN ser respetados en todas las contribuciones.
+
+#### 📝 Reglas Obligatorias
+
+**✅ CÓDIGO FUENTE (Siempre en inglés)**
+```typescript
+// ✅ CORRECTO: Variables, funciones, clases en inglés
+const calculateTransactionFee = (amount: number): number => {
+  const processingFee = amount * 0.025;
+  return processingFee;
+};
+
+interface PaymentRequest {
+  userId: string;
+  amount: number;
+  currency: string;
+}
+
+// ❌ INCORRECTO: Código en español
+const calcularComisionTransaccion = (monto: number): number => {
+  const comisionProcesamiento = monto * 0.025;
+  return comisionProcesamiento;
+};
+```
+
+**✅ COMENTARIOS DE CÓDIGO (Siempre en inglés)**
+```typescript
+// ✅ CORRECTO: Comentarios de código en inglés
+/**
+ * Validates payment request data
+ * @param request - Payment request object
+ * @returns Validation result
+ */
+const validatePayment = (request: PaymentRequest): boolean => {
+  // Check if amount is positive
+  if (request.amount <= 0) {
+    return false;
+  }
+  return true;
+};
+
+// ❌ INCORRECTO: Comentarios en español
+/**
+ * Valida los datos de solicitud de pago
+ * @param solicitud - Objeto de solicitud de pago
+ * @returns Resultado de validación
+ */
+```
+
+**✅ DOCUMENTACIÓN (Siempre en español)**
+```markdown
+<!-- ✅ CORRECTO: Documentación en español -->
+## Configuración de Base de Datos
+
+Esta sección explica cómo configurar la conexión a PostgreSQL para el ambiente de desarrollo.
+
+### Pasos de Instalación
+1. Instalar PostgreSQL 15+
+2. Crear base de datos `fbo_dev`
+3. Configurar variables de entorno
+
+<!-- ❌ INCORRECTO: Documentación en inglés -->
+## Database Configuration
+
+This section explains how to configure PostgreSQL connection for development environment.
+```
+
+**✅ FRAGMENTOS DE CÓDIGO EN DOCUMENTACIÓN (Siempre en inglés)**
+```markdown
+<!-- ✅ CORRECTO: Código en documentación en inglés -->
+## Ejemplo de Uso
+
+```typescript
+const client = new DatabaseClient({
+  host: 'localhost',
+  port: 5432,
+  database: 'fbo_dev'
+});
+
+const result = await client.executeQuery('SELECT * FROM transactions');
+```
+
+<!-- ❌ INCORRECTO: Código en documentación en español -->
+```typescript
+const cliente = new ClienteBaseDatos({
+  servidor: 'localhost',
+  puerto: 5432,
+  baseDatos: 'fbo_dev'
+});
+```
+
+#### 🎯 Aplicación por Tipo de Archivo
+
+| Tipo de Archivo | Idioma del Contenido | Ejemplos |
+|----------------|---------------------|----------|
+| **Código TypeScript** | 🇺🇸 Inglés | `*.ts`, `*.js`, `*.mjs` |
+| **Tests** | 🇺🇸 Inglés | `*.test.ts`, `*.spec.ts` |
+| **Configuración** | 🇺🇸 Inglés | `tsconfig.json`, `package.json` |
+| **Documentación** | 🇪🇸 Español | `README.md`, `docs/*.md` |
+| **Commits** | 🇪🇸 Español | Títulos y descripciones |
+| **Pull Requests** | 🇪🇸 Español | Títulos y descripciones |
+| **Issues** | 🇪🇸 Español | Títulos y descripciones |
+
+#### 🚫 Violaciones Comunes a Evitar
+
+```typescript
+// ❌ NUNCA: Mezclar idiomas en el mismo contexto
+const calculateTotal = (monto: number): number => {
+  // Calcular el total con impuestos
+  const tax = amount * 0.19;
+  return monto + tax;
+};
+
+// ❌ NUNCA: Variables en español
+const nombreUsuario = 'jose.carrillo';
+const configuracionBaseDatos = { host: 'localhost' };
+
+// ❌ NUNCA: Funciones en español
+function procesarTransaccion(datos: any) {
+  return datos;
+}
+
+// ❌ NUNCA: Clases en español
+class ServicioFinanciero {
+  constructor() {}
+}
+```
+
+#### 📚 Referencia a Documentación Completa
+
+Para documentación técnica detallada, arquitectura del sistema y guías de implementación, consulta:
+
+**🔗 [Notion - Financial Backoffice Documentation](https://www.notion.so/yummy/financial-backoffice)**
+
+Esta documentación incluye:
+- Especificaciones técnicas completas
+- Diagramas de arquitectura actualizados
+- Guías de troubleshooting
+- Procedimientos operativos
+- Roadmap y planificación
+
 ### Estructura de Archivos
 
 ```typescript
@@ -427,4 +570,4 @@ npm audit fix
 
 **¡Gracias por contribuir al éxito del equipo Financial Backoffice!** 🚀
 
-*Última actualización: Enero 2024*
+*Última actualización: Agosto 2025*

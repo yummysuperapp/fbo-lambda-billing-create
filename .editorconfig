@@ -1,4 +1,10 @@
 # EditorConfig is awesome: https://EditorConfig.org
+# 
+# FBO Lambda Template - Language Standards:
+# - All code (variables, functions, classes, comments) MUST be in English
+# - Documentation files (README.md, docs/*.md) should be in Spanish
+# - Code examples in documentation MUST be in English
+# - Full documentation: https://www.notion.so/yummy/financial-backoffice
 
 # top-most EditorConfig file
 root = true

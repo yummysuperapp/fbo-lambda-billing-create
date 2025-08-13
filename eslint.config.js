@@ -1,6 +1,16 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
+/**
+ * ESLint Configuration for FBO Lambda Template
+ * 
+ * LANGUAGE STANDARDS:
+ * - All code (variables, functions, classes, comments) MUST be in English
+ * - Documentation files (README.md, docs/*.md) should be in Spanish
+ * - Code examples in documentation MUST be in English
+ * 
+ * For complete documentation see: https://www.notion.so/yummy/financial-backoffice
+ */
 export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

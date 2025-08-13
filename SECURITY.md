@@ -17,14 +17,13 @@ Si descubres una vulnerabilidad de seguridad, por favor **NO** la reportes públ
 
 #### 1. Contacto Inicial
 
-**Email de Seguridad**: security@yummysuperapp.com
 **Tech Lead**: jose.carrillo@yummysuperapp.com
+**Product Manager**: victor@yummysuperapp.com
 
 #### 2. Información Requerida
 
 Incluye la siguiente información en tu reporte:
 
-```markdown
 **Tipo de Vulnerabilidad**: [e.g., Injection, XSS, CSRF, etc.]
 **Severidad**: [Critical/High/Medium/Low]
 **Componente Afectado**: [e.g., API endpoint, función específica]
@@ -38,7 +37,6 @@ Incluye la siguiente información en tu reporte:
 **Impacto Potencial**: [Descripción del impacto]
 **Evidencia**: [Screenshots, logs, código de prueba]
 **Mitigación Sugerida**: [Si tienes sugerencias]
-```
 
 #### 3. Proceso de Respuesta
 
@@ -338,5 +336,5 @@ Para cualquier pregunta relacionada con seguridad:
 
 ---
 
-*Última actualización: Enero 2024*
-*Próxima revisión: Abril 2024*
+*Última actualización: Agosto 2025*
+*Próxima revisión: Agosto 2025*
