@@ -508,6 +508,41 @@ El pipeline automatiza completamente la preparación del paquete Lambda:
 | `testing` | **Testing** 🔬 | Ambiente de testing | `*_DEV` |
 | Otras | **None** ❌ | Sin deployment automático | N/A |
 
+### 🌿 Convenciones de Nomenclatura de Ramas
+
+Todas las ramas de desarrollo deben seguir la convención que incluye el código de Jira como prefijo:
+
+#### Formato Obligatorio
+```
+<tipo>/FB-<número>_<descripción-corta>
+```
+
+#### Tipos de Rama Permitidos
+- **`feat/`** - Nuevas funcionalidades
+- **`fix/`** - Corrección de bugs
+- **`hotfix/`** - Correcciones urgentes en producción
+- **`refactor/`** - Refactoring de código
+- **`docs/`** - Cambios en documentación
+- **`test/`** - Añadir o modificar tests
+- **`chore/`** - Tareas de mantenimiento
+
+#### Ejemplos Válidos
+```bash
+feat/FB-123_integracion-bigquery
+fix/FB-456_error-conexion-mongodb
+hotfix/FB-789_fallo-critico-produccion
+refactor/FB-234_optimizacion-queries
+docs/FB-567_actualizacion-readme
+test/FB-890_cobertura-servicios
+chore/FB-101_actualizacion-dependencias
+```
+
+#### Validación Automática
+- ✅ **Workflow de validación** automática en PRs
+- ✅ **Comentarios automáticos** con instrucciones de corrección
+- ✅ **Bloqueo de merge** hasta cumplir la convención
+- ✅ **Guía detallada** en [CONTRIBUTING.md](CONTRIBUTING.md#convenciones-de-nomenclatura-de-ramas)
+
 ### 🔄 Flujo de Deployment por Rama
 
 ```bash
@@ -681,16 +716,82 @@ Todas las plantillas incorporan validación automática de:
 - 🧪 Testing completo con evidencia documentada
 - 📚 Documentación técnica y funcional actualizada
 
+## 🔒 Políticas y Gobernanza
+
+### 📜 Licencia y Uso
+- **Licencia Privada** de Yummy Inc. con términos específicos
+- **Restricciones de uso** claramente definidas
+- **Contacto legal** para consultas de licencia
+- **Términos de terminación** y jurisdicción (Colombia)
+
+### 🛡️ Seguridad
+- **Política de reporte** de vulnerabilidades con proceso estructurado
+- **Clasificación de severidad** (Critical, High, Medium, Low)
+- **Timeframes de respuesta** definidos (24h confirmación, 72h evaluación)
+- **Estándares de seguridad** para autenticación, validación y manejo de secretos
+- **Monitoreo y detección** de eventos de seguridad
+- **Plan de respuesta** a incidentes con contactos de emergencia
+
+### 🤝 Código de Conducta
+- **Estándares de comportamiento** profesional
+- **Proceso de reporte** y investigación
+- **Consecuencias por incumplimiento** claramente definidas
+- **Integración con dogmas del equipo** (responsabilidad, calidad, transparencia)
+- **Mejora continua** y reconocimiento
+
+### 🚀 Guía de Contribución
+- **Proceso completo** de desarrollo y contribución
+- **Estándares de código** y naming conventions
+- **Flujo de trabajo** con Git y GitHub
+- **Criterios de revisión** de código
+- **Políticas de testing** y cobertura
+
+### 🔄 Gestión de Dependencias
+- **Renovate Bot** configurado para actualizaciones automáticas
+- **Agrupación inteligente** de dependencias relacionadas
+- **Auto-merge** para patches y minor updates
+- **Revisión manual** requerida para major updates
+- **Alertas de seguridad** procesadas inmediatamente
+- **Programación semanal** (lunes antes de 6 AM COT)
+
+### 📝 Documentación de Cambios
+- **Changelog** estructurado siguiendo Keep a Changelog
+- **Semantic Versioning** implementado
+- **Proceso de release** documentado
+- **Historial completo** de mejoras y cambios
+
 ## 📚 Documentación Adicional
 
-Para información más detallada, consulta:
+### 📋 Plantillas y Procesos
+- [📋 Plantillas de GitHub](.github/README.md) - Guía completa de plantillas para PRs e Issues
+- [🚀 Guía de Contribución](CONTRIBUTING.md) - Proceso completo de desarrollo y contribución
+- [🤝 Código de Conducta](CODE_OF_CONDUCT.md) - Estándares de comportamiento del equipo
 
-- [📖 Arquitectura del Sistema](docs/ARCHITECTURE.md) - Diseño y patrones arquitectónicos
+### 🔒 Políticas y Seguridad
+- [🛡️ Política de Seguridad](SECURITY.md) - Reporte de vulnerabilidades y estándares
+- [📜 Licencia](LICENSE) - Términos de uso y restricciones
+- [📝 Changelog](CHANGELOG.md) - Historial de cambios y versiones
+
+### 🏗️ Documentación Técnica
+- [🏗️ Arquitectura del Sistema](docs/ARCHITECTURE.md) - Diseño y patrones arquitectónicos
 - [⚙️ Guía de Configuración](docs/CONFIGURATION.md) - Configuración completa por ambiente
-- [🔧 Log de Mejoras](docs/IMPROVEMENTS.md) - Historial detallado de optimizaciones
+- [📈 Log de Mejoras](docs/IMPROVEMENTS.md) - Historial detallado de optimizaciones
+
+### 🧪 Testing y CI/CD
 - [🧪 Suite de Testing](tests/) - 70 tests con cobertura del 100%
 - [🚀 Workflows CI/CD](.github/workflows/) - Pipelines optimizados con quality gates
 - [📋 GitHub Templates](.github/) - Plantillas de PR e Issues con dogmas del equipo
+
+### 🔧 Configuración del Proyecto
+- [🔄 Renovate Config](renovate.json) - Configuración de actualizaciones automáticas
+- [📝 Editor Config](.editorconfig) - Configuración de formato de código
+- [🟢 Node Version](.nvmrc) - Versión de Node.js recomendada
+- [🚫 Git Ignore](.gitignore) - Archivos excluidos del control de versiones
+
+### 💬 Comunicación
+- [💬 Discusiones del Equipo](https://github.com/yummysuperapp/fbo-lambda-template/discussions) - Espacio para ideas y feedback
+- [📧 Contacto de Seguridad](mailto:security@yummysuperapp.com) - Reporte de vulnerabilidades
+- [👨‍💻 Tech Lead](mailto:jose.carrillo@yummysuperapp.com) - José Carrillo
 
 ## 🔧 Mejoras Técnicas Recientes
 

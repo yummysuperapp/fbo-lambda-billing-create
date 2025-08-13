@@ -19,6 +19,17 @@
 <!-- Enlaza el issue o ticket relacionado -->
 Closes #
 
+### 🌿 Validación de Nomenclatura de Rama
+- [ ] La rama sigue la convención: `<tipo>/FB-<número>_<descripción-corta>`
+- [ ] El código de Jira (FB-XXX) corresponde al ticket relacionado
+- [ ] El tipo de rama coincide con el tipo de cambio seleccionado arriba
+
+Ejemplos válidos:
+- feat/FB-123_nueva-funcionalidad
+- fix/FB-456_correccion-bug
+- hotfix/FB-789_fallo-critico
+- docs/FB-101_actualizacion-readme
+
 ## ✅ Definition of Done (DoD) Checklist
 
 ### 🚀 Implementación

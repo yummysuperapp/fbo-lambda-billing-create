@@ -110,6 +110,18 @@ assignees: ''
 - [ ] > 13 puntos (Requiere conversión a Epic)
 - [ ] Requiere Spike (2-5 puntos) para investigación
 
+## 🌿 Nomenclatura de Rama para Desarrollo
+
+Cuando se implemente esta funcionalidad, la rama debe seguir la convención:
+
+```
+feat/FB-[NÚMERO-JIRA]_[descripción-corta]
+```
+
+**Ejemplo**: `feat/FB-123_nueva-funcionalidad-pagos`
+
+> 📋 **Recordatorio**: El número de Jira debe coincidir con el ticket asociado a este issue.
+
 ## 🔗 Información Adicional
 
 ### Mockups/Wireframes

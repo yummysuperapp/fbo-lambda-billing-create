@@ -81,6 +81,18 @@ assignees: ''
 - Documentación: 
 - Logs de monitoreo: 
 
+## 🌿 Nomenclatura de Rama para Corrección
+
+Cuando se corrija este bug, la rama debe seguir la convención:
+
+```
+fix/FB-[NÚMERO-JIRA]_[descripción-corta]
+```
+
+**Ejemplo**: `fix/FB-456_correccion-error-conexion`
+
+> 📋 **Recordatorio**: El número de Jira debe coincidir con el ticket asociado a este issue.
+
 ---
 
 **Nota**: Este bug será considerado deuda técnica una vez documentado y priorizado por los líderes del equipo.
