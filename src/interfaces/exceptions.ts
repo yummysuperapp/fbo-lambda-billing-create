@@ -22,8 +22,8 @@ export class LambdaError extends Error {
     this.timestamp = new Date();
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
+    if ('captureStackTrace' in Error && typeof (Error as { captureStackTrace?: (targetObject: object, constructorOpt?: object) => void }).captureStackTrace === 'function') {
+      (Error as { captureStackTrace: (targetObject: object, constructorOpt?: object) => void }).captureStackTrace(this, this.constructor);
     }
   }
 }
