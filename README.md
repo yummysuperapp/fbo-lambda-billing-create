@@ -2,14 +2,14 @@
 
 > **Template avanzado para funciones Lambda del Financial Backoffice de Yummy Inc**
 
+[![Testing Report](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/test.yml/badge.svg)](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/test.yml)
+[![Build & Deploy](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/deploy.yml/badge.svg)](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/deploy.yml)
+[![Branch Naming Validation](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/branch-naming.yml/badge.svg)](https://github.com/yummysuperapp/fbo-lambda-billing-create/actions/workflows/branch-naming.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue.svg)](https://www.typescriptlang.org/)
-[![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)
-[![License](https://img.shields.io/badge/License-Private-red.svg)](LICENSE)
 [![Vitest](https://img.shields.io/badge/Testing-Vitest-yellow.svg)](https://vitest.dev/)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](https://vitest.dev/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)](https://github.com/features/actions)
-[![Quality Gates](https://img.shields.io/badge/Quality%20Gates-Enabled-brightgreen.svg)](https://github.com/features/actions)
+[![License](https://img.shields.io/badge/License-Private-red.svg)](LICENSE)
 
 ## 📋 Descripción
 
