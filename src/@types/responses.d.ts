@@ -2,14 +2,6 @@
  * Response and API Types
  */
 
-// Lambda Response Types
-export interface LambdaResponse {
-  statusCode: number;
-  headers?: FBOLambda.StringRecord;
-  body: string;
-  isBase64Encoded?: boolean;
-}
-
 // File Operation Types
 export interface FileMetadata {
   bucket: string;

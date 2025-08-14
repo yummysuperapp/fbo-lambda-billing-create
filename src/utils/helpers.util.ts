@@ -1,14 +1,16 @@
-import { LambdaResponse, LambdaEvent, HttpEvent, HttpStatusType, HttpMethodType } from '@/types';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { LambdaEvent, HttpStatusType, HttpMethodType, HttpStatusMessageType } from '@/types';
 
 /**
  * Creates a standardized Lambda response
  */
 export const createResponse = (
   statusCode: HttpStatusType,
+  httpStatusMessage?: HttpStatusMessageType,
   body?: FBOLambda.UnknownRecord,
   headers?: Record<string, string>,
   isBase64Encoded = false,
-): LambdaResponse => ({
+): APIGatewayProxyResult => ({
     statusCode,
     isBase64Encoded,
     headers: {
@@ -16,57 +18,10 @@ export const createResponse = (
       'X-Powered-By': 'Yummy-FBO-Lambda',
       ...(headers || {}),
     },
-    body: JSON.stringify(body || {}),
-});
-
-/**
- * Creates a standardized success response
- */
-export const createSuccessResponse = (
-  data?: FBOLambda.UnknownRecord,
-  message?: string,
-  statusCode: HttpStatusType = 200,
-  headers?: Record<string, string>
-): LambdaResponse => ({
-  statusCode,
-  isBase64Encoded: false,
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Powered-By': 'Yummy-FBO-Lambda',
-    ...(headers || {}),
-  },
-  body: JSON.stringify({
-    success: true,
-    data,
-    ...(message && { message }),
-  }),
-});
-
-/**
- * Creates a standardized error response
- */
-export const createErrorResponse = (
-  message: string,
-  statusCode: HttpStatusType = 500,
-  errorCode: string = 'INTERNAL_ERROR',
-  details?: FBOLambda.UnknownRecord | null,
-  headers?: Record<string, string>
-): LambdaResponse => ({
-  statusCode,
-  isBase64Encoded: false,
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Powered-By': 'Yummy-FBO-Lambda',
-    ...(headers || {}),
-  },
-  body: JSON.stringify({
-    success: false,
-    error: {
-      message,
-      code: errorCode,
-      ...(details !== undefined && { details }),
-    },
-  }),
+    body: JSON.stringify({
+      message: httpStatusMessage,
+      ...(body || {})
+    }),
 });
 
 /**
@@ -199,18 +154,18 @@ export function generateId(): string {
 }
 
 /**
- * Type guard to check if event is HttpEvent
+ * Type guard to check if event is APIGatewayProxyEvent
  */
-export const isHttpEvent = (event: LambdaEvent): event is HttpEvent => {
-  return 'requestContext' in event && 'http' in (event as HttpEvent).requestContext;
+export const isHttpEvent = (event: LambdaEvent): event is APIGatewayProxyEvent => {
+  return 'requestContext' in event && 'httpMethod' in event && 'path' in event;
 };
 
 /**
- * Check if event is HttpEvent and get HTTP method
+ * Check if event is APIGatewayProxyEvent and get HTTP method
  */
 export const getHttpEventMethod = (event: LambdaEvent): HttpMethodType | null => {
   if (isHttpEvent(event)) {
-    return event.requestContext.http.method;
+    return event.httpMethod as HttpMethodType;
   }
   return null;
 };
