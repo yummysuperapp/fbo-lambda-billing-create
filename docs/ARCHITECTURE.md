@@ -35,12 +35,12 @@ Las capas superiores no dependen de implementaciones concretas sino de abstracci
 ```typescript
 // ✅ Correcto - Depende de abstracción
 interface PaymentService {
-  processPayment(payment: Payment): Promise<PaymentResult>;
+	processPayment(payment: Payment): Promise<PaymentResult>;
 }
 
 // ❌ Incorrecto - Depende de implementación concreta
 class PaymentHandler {
-  constructor(private stripeClient: StripeClient) {}
+	constructor(private stripeClient: StripeClient) {}
 }
 ```
 
@@ -59,7 +59,7 @@ Abierto para extensión, cerrado para modificación:
 ```typescript
 // Extensible mediante factory pattern
 interface ClientFactory {
-  createClient(type: ClientType): BaseClient;
+	createClient(type: ClientType): BaseClient;
 }
 ```
 
@@ -126,22 +126,22 @@ graph TB
 ```typescript
 // src/handlers/index.ts
 export const handler = async (event: LambdaEvent, context: Context): Promise<LambdaResponse> => {
-  const logger = createLogger();
-  logger.setContext({ requestId: context.awsRequestId });
+	const logger = createLogger();
+	logger.setContext({ requestId: context.awsRequestId });
 
-  try {
-    // 1. Validar evento
-    const validatedEvent = validateEvent(event);
+	try {
+		// 1. Validar evento
+		const validatedEvent = validateEvent(event);
 
-    // 2. Enrutar a servicio apropiado
-    const result = await routeToService(validatedEvent);
+		// 2. Enrutar a servicio apropiado
+		const result = await routeToService(validatedEvent);
 
-    // 3. Formatear respuesta
-    return createSuccessResponse(result);
-  } catch (error) {
-    logger.error('Handler error', error);
-    return createErrorResponse(error);
-  }
+		// 3. Formatear respuesta
+		return createSuccessResponse(result);
+	} catch (error) {
+		logger.error('Handler error', error);
+		return createErrorResponse(error);
+	}
 };
 ```
 
@@ -160,27 +160,27 @@ export const handler = async (event: LambdaEvent, context: Context): Promise<Lam
 ```typescript
 // src/services/finance.service.ts
 export class FinanceService implements FinanceServiceInterface {
-  constructor(
-    private readonly httpClient: HttpClientInterface,
-    private readonly mongoClient: MongoClientInterface,
-    private readonly logger: Logger
-  ) {}
+	constructor(
+		private readonly httpClient: HttpClientInterface,
+		private readonly mongoClient: MongoClientInterface,
+		private readonly logger: Logger
+	) {}
 
-  async processTransaction(transaction: Transaction): Promise<TransactionResult> {
-    // 1. Validar transacción
-    await this.validateTransaction(transaction);
+	async processTransaction(transaction: Transaction): Promise<TransactionResult> {
+		// 1. Validar transacción
+		await this.validateTransaction(transaction);
 
-    // 2. Calcular fees
-    const fees = await this.calculateFees(transaction);
+		// 2. Calcular fees
+		const fees = await this.calculateFees(transaction);
 
-    // 3. Procesar con proveedor externo
-    const result = await this.processWithProvider(transaction);
+		// 3. Procesar con proveedor externo
+		const result = await this.processWithProvider(transaction);
 
-    // 4. Guardar en base de datos
-    await this.saveTransaction(transaction, result);
+		// 4. Guardar en base de datos
+		await this.saveTransaction(transaction, result);
 
-    return result;
-  }
+		return result;
+	}
 }
 ```
 
@@ -199,16 +199,16 @@ export class FinanceService implements FinanceServiceInterface {
 ```typescript
 // src/clients/mongo.client.ts
 export class MongoClient implements MongoClientInterface {
-  private connection: MongoConnection;
+	private connection: MongoConnection;
 
-  async findOne<T>(collection: string, filter: object): Promise<T | null> {
-    try {
-      const db = await this.getDatabase();
-      return await db.collection(collection).findOne(filter);
-    } catch (error) {
-      throw new DatabaseError(`Failed to find document: ${error.message}`);
-    }
-  }
+	async findOne<T>(collection: string, filter: object): Promise<T | null> {
+		try {
+			const db = await this.getDatabase();
+			return await db.collection(collection).findOne(filter);
+		} catch (error) {
+			throw new DatabaseError(`Failed to find document: ${error.message}`);
+		}
+	}
 }
 ```
 
@@ -229,19 +229,19 @@ Para la creación de clientes y servicios:
 ```typescript
 // src/factories/client.factory.ts
 export class ClientFactory {
-  static createHttpClient(config?: HttpClientConfig): HttpClient {
-    return new HttpClient({
-      timeout: config?.timeout ?? 30000,
-      retries: config?.retries ?? 3,
-      ...config,
-    });
-  }
+	static createHttpClient(config?: HttpClientConfig): HttpClient {
+		return new HttpClient({
+			timeout: config?.timeout ?? 30000,
+			retries: config?.retries ?? 3,
+			...config,
+		});
+	}
 
-  static async createMongoClient(): Promise<MongoClient> {
-    const client = new MongoClient(process.env.MONGODB_URI!);
-    await client.connect();
-    return client;
-  }
+	static async createMongoClient(): Promise<MongoClient> {
+		const client = new MongoClient(process.env.MONGODB_URI!);
+		await client.connect();
+		return client;
+	}
 }
 ```
 
@@ -252,17 +252,17 @@ Para instancias compartidas como loggers y configuración:
 ```typescript
 // src/utils/logger.util.ts
 class LoggerSingleton {
-  private static instance: Logger;
+	private static instance: Logger;
 
-  static getInstance(): Logger {
-    if (!LoggerSingleton.instance) {
-      LoggerSingleton.instance = new Logger({
-        level: process.env.LOG_LEVEL || 'info',
-        format: 'json',
-      });
-    }
-    return LoggerSingleton.instance;
-  }
+	static getInstance(): Logger {
+		if (!LoggerSingleton.instance) {
+			LoggerSingleton.instance = new Logger({
+				level: process.env.LOG_LEVEL || 'info',
+				format: 'json',
+			});
+		}
+		return LoggerSingleton.instance;
+	}
 }
 ```
 
@@ -273,19 +273,19 @@ Para diferentes estrategias de procesamiento:
 ```typescript
 // src/strategies/payment.strategy.ts
 interface PaymentStrategy {
-  process(payment: Payment): Promise<PaymentResult>;
+	process(payment: Payment): Promise<PaymentResult>;
 }
 
 class CreditCardStrategy implements PaymentStrategy {
-  async process(payment: Payment): Promise<PaymentResult> {
-    // Lógica específica para tarjetas de crédito
-  }
+	async process(payment: Payment): Promise<PaymentResult> {
+		// Lógica específica para tarjetas de crédito
+	}
 }
 
 class BankTransferStrategy implements PaymentStrategy {
-  async process(payment: Payment): Promise<PaymentResult> {
-    // Lógica específica para transferencias bancarias
-  }
+	async process(payment: Payment): Promise<PaymentResult> {
+		// Lógica específica para transferencias bancarias
+	}
 }
 ```
 
@@ -296,18 +296,18 @@ Para eventos y notificaciones:
 ```typescript
 // src/events/event.emitter.ts
 class EventEmitter {
-  private listeners: Map<string, Function[]> = new Map();
+	private listeners: Map<string, Function[]> = new Map();
 
-  on(event: string, listener: Function): void {
-    const listeners = this.listeners.get(event) || [];
-    listeners.push(listener);
-    this.listeners.set(event, listeners);
-  }
+	on(event: string, listener: Function): void {
+		const listeners = this.listeners.get(event) || [];
+		listeners.push(listener);
+		this.listeners.set(event, listeners);
+	}
 
-  emit(event: string, data: any): void {
-    const listeners = this.listeners.get(event) || [];
-    listeners.forEach((listener) => listener(data));
-  }
+	emit(event: string, data: any): void {
+		const listeners = this.listeners.get(event) || [];
+		listeners.forEach((listener) => listener(data));
+	}
 }
 ```
 
@@ -318,17 +318,17 @@ Para abstracción de acceso a datos:
 ```typescript
 // src/repositories/transaction.repository.ts
 interface TransactionRepository {
-  save(transaction: Transaction): Promise<void>;
-  findById(id: string): Promise<Transaction | null>;
-  findByStatus(status: TransactionStatus): Promise<Transaction[]>;
+	save(transaction: Transaction): Promise<void>;
+	findById(id: string): Promise<Transaction | null>;
+	findByStatus(status: TransactionStatus): Promise<Transaction[]>;
 }
 
 class MongoTransactionRepository implements TransactionRepository {
-  constructor(private mongoClient: MongoClient) {}
+	constructor(private mongoClient: MongoClient) {}
 
-  async save(transaction: Transaction): Promise<void> {
-    await this.mongoClient.insertOne('transactions', transaction);
-  }
+	async save(transaction: Transaction): Promise<void> {
+		await this.mongoClient.insertOne('transactions', transaction);
+	}
 }
 ```
 
@@ -501,11 +501,11 @@ flowchart TD
 ```typescript
 // Configuración de servicios AWS
 const awsConfig = {
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
+	region: process.env.AWS_REGION || 'us-east-1',
+	credentials: {
+		accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+	},
 };
 
 // S3 Client
@@ -520,24 +520,24 @@ const cloudWatchLogs = new CloudWatchLogsClient(awsConfig);
 ```typescript
 // MongoDB Atlas
 const mongoConfig = {
-  uri: process.env.MONGODB_URI!,
-  options: {
-    maxPoolSize: 10,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-  },
+	uri: process.env.MONGODB_URI!,
+	options: {
+		maxPoolSize: 10,
+		serverSelectionTimeoutMS: 5000,
+		socketTimeoutMS: 45000,
+	},
 };
 
 // PostgreSQL RDS
 const postgresConfig = {
-  host: process.env.POSTGRES_HOST!,
-  port: parseInt(process.env.POSTGRES_PORT!),
-  database: process.env.POSTGRES_DATABASE!,
-  user: process.env.POSTGRES_USER!,
-  password: process.env.POSTGRES_PASSWORD!,
-  max: 20, // pool size
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+	host: process.env.POSTGRES_HOST!,
+	port: parseInt(process.env.POSTGRES_PORT!),
+	database: process.env.POSTGRES_DATABASE!,
+	user: process.env.POSTGRES_USER!,
+	password: process.env.POSTGRES_PASSWORD!,
+	max: 20, // pool size
+	idleTimeoutMillis: 30000,
+	connectionTimeoutMillis: 2000,
 };
 ```
 
@@ -546,14 +546,14 @@ const postgresConfig = {
 ```typescript
 // Finance API Integration
 const financeApiConfig = {
-  baseURL: process.env.FINANCE_API_URL!,
-  timeout: 10000,
-  headers: {
-    Authorization: `Bearer ${process.env.FINANCE_API_KEY!}`,
-    'Content-Type': 'application/json',
-  },
-  retries: 3,
-  retryDelay: 1000,
+	baseURL: process.env.FINANCE_API_URL!,
+	timeout: 10000,
+	headers: {
+		Authorization: `Bearer ${process.env.FINANCE_API_KEY!}`,
+		'Content-Type': 'application/json',
+	},
+	retries: 3,
+	retryDelay: 1000,
 };
 ```
 
@@ -564,18 +564,18 @@ const financeApiConfig = {
 ```typescript
 // JWT Token Validation
 const validateToken = async (token: string): Promise<TokenPayload> => {
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    return decoded as TokenPayload;
-  } catch (error) {
-    throw new AuthenticationError('Invalid token');
-  }
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+		return decoded as TokenPayload;
+	} catch (error) {
+		throw new AuthenticationError('Invalid token');
+	}
 };
 
 // Role-based Access Control
 const checkPermissions = (user: User, resource: string, action: string): boolean => {
-  const permissions = user.roles.flatMap((role) => role.permissions);
-  return permissions.some((p) => p.resource === resource && p.actions.includes(action));
+	const permissions = user.roles.flatMap((role) => role.permissions);
+	return permissions.some((p) => p.resource === resource && p.actions.includes(action));
 };
 ```
 
@@ -584,20 +584,20 @@ const checkPermissions = (user: User, resource: string, action: string): boolean
 ```typescript
 // Zod Schemas para validación
 const TransactionSchema = z.object({
-  id: z.string().uuid(),
-  amount: z.number().positive(),
-  currency: z.enum(['USD', 'EUR', 'COP']),
-  fromAccount: z.string().min(1),
-  toAccount: z.string().min(1),
-  type: z.enum(['transfer', 'payment', 'refund']),
+	id: z.string().uuid(),
+	amount: z.number().positive(),
+	currency: z.enum(['USD', 'EUR', 'COP']),
+	fromAccount: z.string().min(1),
+	toAccount: z.string().min(1),
+	type: z.enum(['transfer', 'payment', 'refund']),
 });
 
 // Sanitización de inputs
 const sanitizeInput = (input: string): string => {
-  return input
-    .trim()
-    .replace(/[<>"'&]/g, '')
-    .substring(0, 1000); // Limitar longitud
+	return input
+		.trim()
+		.replace(/[<>"'&]/g, '')
+		.substring(0, 1000); // Limitar longitud
 };
 ```
 
@@ -606,19 +606,19 @@ const sanitizeInput = (input: string): string => {
 ```typescript
 // AWS Secrets Manager
 const getSecret = async (secretName: string): Promise<string> => {
-  const client = new SecretsManagerClient({ region: 'us-east-1' });
-  const response = await client.send(new GetSecretValueCommand({ SecretId: secretName }));
-  return response.SecretString!;
+	const client = new SecretsManagerClient({ region: 'us-east-1' });
+	const response = await client.send(new GetSecretValueCommand({ SecretId: secretName }));
+	return response.SecretString!;
 };
 
 // Environment Variables Validation
 const validateEnvironment = (): void => {
-  const required = ['NODE_ENV', 'MONGODB_URI', 'POSTGRES_HOST', 'AWS_REGION', 'FINANCE_API_URL'];
+	const required = ['NODE_ENV', 'MONGODB_URI', 'POSTGRES_HOST', 'AWS_REGION', 'FINANCE_API_URL'];
 
-  const missing = required.filter((key) => !process.env[key]);
-  if (missing.length > 0) {
-    throw new Error(`Missing environment variables: ${missing.join(', ')}`);
-  }
+	const missing = required.filter((key) => !process.env[key]);
+	if (missing.length > 0) {
+		throw new Error(`Missing environment variables: ${missing.join(', ')}`);
+	}
 };
 ```
 
@@ -629,27 +629,27 @@ const validateEnvironment = (): void => {
 ```typescript
 // Logger Configuration
 const logger = createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: 'json',
-  defaultMeta: {
-    service: 'fbo-lambda-template',
-    version: process.env.APP_VERSION || '1.0.0',
-  },
-  transports: [
-    new CloudWatchTransport({
-      logGroupName: '/aws/lambda/fbo-lambda-template',
-      logStreamName: () => new Date().toISOString().split('T')[0],
-    }),
-  ],
+	level: process.env.LOG_LEVEL || 'info',
+	format: 'json',
+	defaultMeta: {
+		service: 'fbo-lambda-template',
+		version: process.env.APP_VERSION || '1.0.0',
+	},
+	transports: [
+		new CloudWatchTransport({
+			logGroupName: '/aws/lambda/fbo-lambda-template',
+			logStreamName: () => new Date().toISOString().split('T')[0],
+		}),
+	],
 });
 
 // Structured Logging
 logger.info('Transaction processed', {
-  transactionId: 'txn_123',
-  amount: 1000.0,
-  currency: 'USD',
-  duration: 1250,
-  status: 'completed',
+	transactionId: 'txn_123',
+	amount: 1000.0,
+	currency: 'USD',
+	duration: 1250,
+	status: 'completed',
 });
 ```
 
@@ -658,48 +658,48 @@ logger.info('Transaction processed', {
 ```typescript
 // Custom Metrics
 const publishMetric = async (metricName: string, value: number, unit: string) => {
-  const cloudWatch = new CloudWatchClient({ region: 'us-east-1' });
+	const cloudWatch = new CloudWatchClient({ region: 'us-east-1' });
 
-  await cloudWatch.send(
-    new PutMetricDataCommand({
-      Namespace: 'FBO/Lambda',
-      MetricData: [
-        {
-          MetricName: metricName,
-          Value: value,
-          Unit: unit,
-          Timestamp: new Date(),
-          Dimensions: [
-            {
-              Name: 'Environment',
-              Value: process.env.NODE_ENV!,
-            },
-          ],
-        },
-      ],
-    })
-  );
+	await cloudWatch.send(
+		new PutMetricDataCommand({
+			Namespace: 'FBO/Lambda',
+			MetricData: [
+				{
+					MetricName: metricName,
+					Value: value,
+					Unit: unit,
+					Timestamp: new Date(),
+					Dimensions: [
+						{
+							Name: 'Environment',
+							Value: process.env.NODE_ENV!,
+						},
+					],
+				},
+			],
+		})
+	);
 };
 
 // Performance Monitoring
 const measurePerformance = async <T>(operation: string, fn: () => Promise<T>): Promise<T> => {
-  const start = Date.now();
-  try {
-    const result = await fn();
-    const duration = Date.now() - start;
+	const start = Date.now();
+	try {
+		const result = await fn();
+		const duration = Date.now() - start;
 
-    await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
-    await publishMetric(`${operation}.Success`, 1, 'Count');
+		await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
+		await publishMetric(`${operation}.Success`, 1, 'Count');
 
-    return result;
-  } catch (error) {
-    const duration = Date.now() - start;
+		return result;
+	} catch (error) {
+		const duration = Date.now() - start;
 
-    await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
-    await publishMetric(`${operation}.Error`, 1, 'Count');
+		await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
+		await publishMetric(`${operation}.Error`, 1, 'Count');
 
-    throw error;
-  }
+		throw error;
+	}
 };
 ```
 
@@ -718,17 +718,17 @@ const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 
 // Custom Subsegments
 const traceOperation = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
-  const subsegment = AWSXRay.getSegment()?.addNewSubsegment(name);
+	const subsegment = AWSXRay.getSegment()?.addNewSubsegment(name);
 
-  try {
-    const result = await fn();
-    subsegment?.close();
-    return result;
-  } catch (error) {
-    subsegment?.addError(error);
-    subsegment?.close();
-    throw error;
-  }
+	try {
+		const result = await fn();
+		subsegment?.close();
+		return result;
+	} catch (error) {
+		subsegment?.addError(error);
+		subsegment?.close();
+		throw error;
+	}
 };
 ```
 
@@ -759,17 +759,17 @@ functions:
 ```typescript
 // Database Connection Pools
 const mongoPool = {
-  maxPoolSize: 10,
-  minPoolSize: 2,
-  maxIdleTimeMS: 30000,
-  serverSelectionTimeoutMS: 5000,
+	maxPoolSize: 10,
+	minPoolSize: 2,
+	maxIdleTimeMS: 30000,
+	serverSelectionTimeoutMS: 5000,
 };
 
 const postgresPool = {
-  max: 20,
-  min: 5,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+	max: 20,
+	min: 5,
+	idleTimeoutMillis: 30000,
+	connectionTimeoutMillis: 2000,
 };
 ```
 
@@ -778,31 +778,31 @@ const postgresPool = {
 ```typescript
 // In-Memory Cache
 class MemoryCache {
-  private cache = new Map<string, { value: any; expiry: number }>();
+	private cache = new Map<string, { value: any; expiry: number }>();
 
-  set(key: string, value: any, ttlMs: number): void {
-    this.cache.set(key, {
-      value,
-      expiry: Date.now() + ttlMs,
-    });
-  }
+	set(key: string, value: any, ttlMs: number): void {
+		this.cache.set(key, {
+			value,
+			expiry: Date.now() + ttlMs,
+		});
+	}
 
-  get(key: string): any | null {
-    const item = this.cache.get(key);
-    if (!item || Date.now() > item.expiry) {
-      this.cache.delete(key);
-      return null;
-    }
-    return item.value;
-  }
+	get(key: string): any | null {
+		const item = this.cache.get(key);
+		if (!item || Date.now() > item.expiry) {
+			this.cache.delete(key);
+			return null;
+		}
+		return item.value;
+	}
 }
 
 // Redis Cache (para múltiples instancias)
 const redisClient = new Redis({
-  host: process.env.REDIS_HOST,
-  port: parseInt(process.env.REDIS_PORT!),
-  retryDelayOnFailover: 100,
-  maxRetriesPerRequest: 3,
+	host: process.env.REDIS_HOST,
+	port: parseInt(process.env.REDIS_PORT!),
+	retryDelayOnFailover: 100,
+	maxRetriesPerRequest: 3,
 });
 ```
 

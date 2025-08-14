@@ -158,18 +158,18 @@ jobs:
 
 ```json
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true
-  }
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true
+	}
 }
 ```
 
@@ -209,22 +209,22 @@ jobs:
 ```typescript
 // vitest.config.ts
 export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    setupFiles: ['./tests/setup.ts'],
-    coverage: {
-      provider: 'v8',
-      thresholds: {
-        global: {
-          branches: 100,
-          functions: 100,
-          lines: 100,
-          statements: 100,
-        },
-      },
-    },
-  },
+	test: {
+		globals: true,
+		environment: 'node',
+		setupFiles: ['./tests/setup.ts'],
+		coverage: {
+			provider: 'v8',
+			thresholds: {
+				global: {
+					branches: 100,
+					functions: 100,
+					lines: 100,
+					statements: 100,
+				},
+			},
+		},
+	},
 });
 ```
 
@@ -381,9 +381,9 @@ tests/
 import { z } from 'zod';
 
 const PaymentSchema = z.object({
-  amount: z.number().positive(),
-  currency: z.string().length(3),
-  method: z.enum(['credit_card', 'bank_transfer']),
+	amount: z.number().positive(),
+	currency: z.string().length(3),
+	method: z.enum(['credit_card', 'bank_transfer']),
 });
 ```
 
@@ -482,18 +482,18 @@ const PaymentSchema = z.object({
 
 ```typescript
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.CloudWatchLogs({
-      logGroupName: '/aws/lambda/fbo-template',
-      logStreamName: () => new Date().toISOString().split('T')[0],
-    }),
-  ],
+	level: process.env.LOG_LEVEL || 'info',
+	format: winston.format.combine(
+		winston.format.timestamp(),
+		winston.format.errors({ stack: true }),
+		winston.format.json()
+	),
+	transports: [
+		new winston.transports.CloudWatchLogs({
+			logGroupName: '/aws/lambda/fbo-template',
+			logStreamName: () => new Date().toISOString().split('T')[0],
+		}),
+	],
 });
 ```
 
@@ -516,9 +516,9 @@ const logger = winston.createLogger({
 
 ```typescript
 const metrics = {
-  paymentProcessed: new CloudWatchMetric('PaymentProcessed'),
-  errorRate: new CloudWatchMetric('ErrorRate'),
-  responseTime: new CloudWatchMetric('ResponseTime'),
+	paymentProcessed: new CloudWatchMetric('PaymentProcessed'),
+	errorRate: new CloudWatchMetric('ErrorRate'),
+	responseTime: new CloudWatchMetric('ResponseTime'),
 };
 ```
 

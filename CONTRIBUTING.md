@@ -224,18 +224,18 @@ Los workflows de CI/CD validarán automáticamente que las ramas sigan esta conv
 ```typescript
 // ✅ Correcto: Strong typing
 interface UserData {
-  id: string;
-  email: string;
-  createdAt: Date;
+	id: string;
+	email: string;
+	createdAt: Date;
 }
 
 const processUser = (user: UserData): Promise<ProcessResult> => {
-  // Implementation
+	// Implementation
 };
 
 // ❌ Incorrecto: Uso de any
 const processUser = (user: any): any => {
-  // Implementation
+	// Implementation
 };
 ```
 
@@ -270,20 +270,20 @@ const API_BASE_URL = 'https://api.example.com';
 ```typescript
 // ✅ CORRECTO: Variables, funciones, clases en inglés
 const calculateTransactionFee = (amount: number): number => {
-  const processingFee = amount * 0.025;
-  return processingFee;
+	const processingFee = amount * 0.025;
+	return processingFee;
 };
 
 interface PaymentRequest {
-  userId: string;
-  amount: number;
-  currency: string;
+	userId: string;
+	amount: number;
+	currency: string;
 }
 
 // ❌ INCORRECTO: Código en español
 const calcularComisionTransaccion = (monto: number): number => {
-  const comisionProcesamiento = monto * 0.025;
-  return comisionProcesamiento;
+	const comisionProcesamiento = monto * 0.025;
+	return comisionProcesamiento;
 };
 ```
 
@@ -297,11 +297,11 @@ const calcularComisionTransaccion = (monto: number): number => {
  * @returns Validation result
  */
 const validatePayment = (request: PaymentRequest): boolean => {
-  // Check if amount is positive
-  if (request.amount <= 0) {
-    return false;
-  }
-  return true;
+	// Check if amount is positive
+	if (request.amount <= 0) {
+		return false;
+	}
+	return true;
 };
 
 // ❌ INCORRECTO: Comentarios en español
@@ -343,9 +343,9 @@ This section explains how to configure PostgreSQL connection for development env
 
 ```typescript
 const client = new DatabaseClient({
-  host: 'localhost',
-  port: 5432,
-  database: 'fbo_dev',
+	host: 'localhost',
+	port: 5432,
+	database: 'fbo_dev',
 });
 
 const result = await client.executeQuery('SELECT * FROM transactions');
@@ -356,9 +356,9 @@ const result = await client.executeQuery('SELECT * FROM transactions');
 
 ```typescript
 const cliente = new ClienteBaseDatos({
-  servidor: 'localhost',
-  puerto: 5432,
-  baseDatos: 'fbo_dev',
+	servidor: 'localhost',
+	puerto: 5432,
+	baseDatos: 'fbo_dev',
 });
 ```
 
@@ -379,9 +379,9 @@ const cliente = new ClienteBaseDatos({
 ```typescript
 // ❌ NUNCA: Mezclar idiomas en el mismo contexto
 const calculateTotal = (monto: number): number => {
-  // Calcular el total con impuestos
-  const tax = amount * 0.19;
-  return monto + tax;
+	// Calcular el total con impuestos
+	const tax = amount * 0.19;
+	return monto + tax;
 };
 
 // ❌ NUNCA: Variables en español
@@ -390,12 +390,12 @@ const configuracionBaseDatos = { host: 'localhost' };
 
 // ❌ NUNCA: Funciones en español
 function procesarTransaccion(datos: any) {
-  return datos;
+	return datos;
 }
 
 // ❌ NUNCA: Clases en español
 class ServicioFinanciero {
-  constructor() {}
+	constructor() {}
 }
 ```
 
@@ -426,8 +426,8 @@ import { Logger } from '@/utils';
 
 // 3. Types e interfaces
 interface ServiceConfig {
-  timeout: number;
-  retries: number;
+	timeout: number;
+	retries: number;
 }
 
 // 4. Constantes
@@ -435,7 +435,7 @@ const DEFAULT_TIMEOUT = 5000;
 
 // 5. Implementación
 export class FinanceService {
-  // Implementation
+	// Implementation
 }
 ```
 
@@ -452,20 +452,20 @@ export class FinanceService {
 ```typescript
 // Unit Tests
 describe('FinanceService', () => {
-  it('should calculate total correctly', () => {
-    // Test implementation
-  });
+	it('should calculate total correctly', () => {
+		// Test implementation
+	});
 
-  it('should handle edge cases', () => {
-    // Edge case testing
-  });
+	it('should handle edge cases', () => {
+		// Edge case testing
+	});
 });
 
 // Integration Tests
 describe('Database Integration', () => {
-  it('should connect to MongoDB successfully', async () => {
-    // Integration test
-  });
+	it('should connect to MongoDB successfully', async () => {
+		// Integration test
+	});
 });
 ```
 
@@ -499,7 +499,7 @@ npm run check-all
  * @throws {ValidationError} When baseAmount is negative
  */
 export const calculateTotal = (baseAmount: number, taxRate: number, fees: number = 0): number => {
-  // Implementation
+	// Implementation
 };
 ```
 

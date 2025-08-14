@@ -1,105 +1,105 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", ":dependencyDashboard", ":semanticCommits", ":automergeDigest", ":automergeBranch"],
-  "timezone": "America/Caracas",
-  "schedule": ["before 6am on monday"],
-  "labels": ["dependencies", "renovate"],
-  "assignees": ["jose.carrillo"],
-  "reviewers": ["jose.carrillo"],
-  "prConcurrentLimit": 3,
-  "prHourlyLimit": 2,
-  "commitMessagePrefix": "chore(deps):",
-  "commitMessageAction": "update",
-  "commitMessageTopic": "{{depName}}",
-  "commitMessageExtra": "to {{newVersion}}",
-  "semanticCommits": "enabled",
-  "packageRules": [
-    {
-      "description": "Group AWS SDK updates",
-      "groupName": "AWS SDK",
-      "matchPackagePatterns": ["^@aws-sdk/", "^aws-"],
-      "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Group TypeScript and related packages",
-      "groupName": "TypeScript",
-      "matchPackageNames": ["typescript", "@types/node", "ts-node", "tsx"],
-      "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Group testing packages",
-      "groupName": "Testing",
-      "matchPackageNames": ["vitest", "@vitest/ui", "@vitest/coverage-v8", "jsdom"],
-      "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Group ESLint and Prettier packages",
-      "groupName": "Code Quality",
-      "matchPackageNames": [
-        "eslint",
-        "prettier",
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
-        "eslint-config-prettier",
-        "eslint-plugin-prettier"
-      ],
-      "schedule": ["before 6am on monday"]
-    },
-    {
-      "description": "Auto-merge patch updates for non-major dependencies",
-      "matchUpdateTypes": ["patch"],
-      "automerge": true,
-      "automergeType": "branch",
-      "requiredStatusChecks": null
-    },
-    {
-      "description": "Auto-merge minor updates for dev dependencies",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor"],
-      "automerge": true,
-      "automergeType": "branch"
-    },
-    {
-      "description": "Require manual approval for major updates",
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "labels": ["dependencies", "major-update", "requires-review"],
-      "reviewers": ["jose.carrillo"]
-    },
-    {
-      "description": "Pin Docker digests",
-      "matchDatasources": ["docker"],
-      "pinDigests": true
-    },
-    {
-      "description": "Separate major Node.js updates",
-      "matchPackageNames": ["node"],
-      "matchUpdateTypes": ["major"],
-      "labels": ["node-major", "requires-review"],
-      "automerge": false
-    }
-  ],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": ["security", "vulnerability"],
-    "assignees": ["jose.carrillo"],
-    "reviewers": ["jose.carrillo"],
-    "schedule": ["at any time"],
-    "prPriority": 10
-  },
-  "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["before 6am on monday"],
-    "commitMessageAction": "update",
-    "commitMessageTopic": "lock file",
-    "labels": ["dependencies", "lock-file"]
-  },
-  "ignoreDeps": [],
-  "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
-  "platformAutomerge": true,
-  "rebaseWhen": "conflicted",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "🤖 Dependency Dashboard - FBO Lambda Template",
-  "dependencyDashboardHeader": "Este dashboard muestra el estado de todas las dependencias del proyecto. Las actualizaciones se procesan automáticamente según las reglas configuradas.",
-  "dependencyDashboardFooter": "---\n\n**Configuración de Renovate:**\n- 📅 Actualizaciones programadas: Lunes antes de las 6 AM (COT)\n- 🔒 Auto-merge: Patches y minor updates para devDependencies\n- 👥 Revisor asignado: @jose.carrillo\n- 🚨 Alertas de seguridad: Procesadas inmediatamente\n\n*Para más información, consulta la [documentación de Renovate](https://docs.renovatebot.com/)*"
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:base", ":dependencyDashboard", ":semanticCommits", ":automergeDigest", ":automergeBranch"],
+	"timezone": "America/Caracas",
+	"schedule": ["before 6am on monday"],
+	"labels": ["dependencies", "renovate"],
+	"assignees": ["jose.carrillo"],
+	"reviewers": ["jose.carrillo"],
+	"prConcurrentLimit": 3,
+	"prHourlyLimit": 2,
+	"commitMessagePrefix": "chore(deps):",
+	"commitMessageAction": "update",
+	"commitMessageTopic": "{{depName}}",
+	"commitMessageExtra": "to {{newVersion}}",
+	"semanticCommits": "enabled",
+	"packageRules": [
+		{
+			"description": "Group AWS SDK updates",
+			"groupName": "AWS SDK",
+			"matchPackagePatterns": ["^@aws-sdk/", "^aws-"],
+			"schedule": ["before 6am on monday"]
+		},
+		{
+			"description": "Group TypeScript and related packages",
+			"groupName": "TypeScript",
+			"matchPackageNames": ["typescript", "@types/node", "ts-node", "tsx"],
+			"schedule": ["before 6am on monday"]
+		},
+		{
+			"description": "Group testing packages",
+			"groupName": "Testing",
+			"matchPackageNames": ["vitest", "@vitest/ui", "@vitest/coverage-v8", "jsdom"],
+			"schedule": ["before 6am on monday"]
+		},
+		{
+			"description": "Group ESLint and Prettier packages",
+			"groupName": "Code Quality",
+			"matchPackageNames": [
+				"eslint",
+				"prettier",
+				"@typescript-eslint/eslint-plugin",
+				"@typescript-eslint/parser",
+				"eslint-config-prettier",
+				"eslint-plugin-prettier"
+			],
+			"schedule": ["before 6am on monday"]
+		},
+		{
+			"description": "Auto-merge patch updates for non-major dependencies",
+			"matchUpdateTypes": ["patch"],
+			"automerge": true,
+			"automergeType": "branch",
+			"requiredStatusChecks": null
+		},
+		{
+			"description": "Auto-merge minor updates for dev dependencies",
+			"matchDepTypes": ["devDependencies"],
+			"matchUpdateTypes": ["minor"],
+			"automerge": true,
+			"automergeType": "branch"
+		},
+		{
+			"description": "Require manual approval for major updates",
+			"matchUpdateTypes": ["major"],
+			"automerge": false,
+			"labels": ["dependencies", "major-update", "requires-review"],
+			"reviewers": ["jose.carrillo"]
+		},
+		{
+			"description": "Pin Docker digests",
+			"matchDatasources": ["docker"],
+			"pinDigests": true
+		},
+		{
+			"description": "Separate major Node.js updates",
+			"matchPackageNames": ["node"],
+			"matchUpdateTypes": ["major"],
+			"labels": ["node-major", "requires-review"],
+			"automerge": false
+		}
+	],
+	"vulnerabilityAlerts": {
+		"enabled": true,
+		"labels": ["security", "vulnerability"],
+		"assignees": ["jose.carrillo"],
+		"reviewers": ["jose.carrillo"],
+		"schedule": ["at any time"],
+		"prPriority": 10
+	},
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": ["before 6am on monday"],
+		"commitMessageAction": "update",
+		"commitMessageTopic": "lock file",
+		"labels": ["dependencies", "lock-file"]
+	},
+	"ignoreDeps": [],
+	"ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
+	"platformAutomerge": true,
+	"rebaseWhen": "conflicted",
+	"dependencyDashboard": true,
+	"dependencyDashboardTitle": "🤖 Dependency Dashboard - FBO Lambda Template",
+	"dependencyDashboardHeader": "Este dashboard muestra el estado de todas las dependencias del proyecto. Las actualizaciones se procesan automáticamente según las reglas configuradas.",
+	"dependencyDashboardFooter": "---\n\n**Configuración de Renovate:**\n- 📅 Actualizaciones programadas: Lunes antes de las 6 AM (COT)\n- 🔒 Auto-merge: Patches y minor updates para devDependencies\n- 👥 Revisor asignado: @jose.carrillo\n- 🚨 Alertas de seguridad: Procesadas inmediatamente\n\n*Para más información, consulta la [documentación de Renovate](https://docs.renovatebot.com/)*"
 }

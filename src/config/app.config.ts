@@ -29,61 +29,61 @@ import { env, type EnvVars } from './environment.config';
  * @returns {AppConfig} Complete application configuration
  */
 function createConfig(envVars: EnvVars): AppConfig {
-  return {
-    finance: {
-      baseUrl: envVars.FINANCE_BASE_URL,
-      apiKey: envVars.FINANCE_API_KEY,
-      dispersionEndpoint: envVars.FINANCE_DISPERSION_ENDPOINT,
-    },
-    aws: {
-      ...(envVars.AWS_ACCESS_KEY_ID && { accessKeyId: envVars.AWS_ACCESS_KEY_ID }),
-      ...(envVars.AWS_SECRET_ACCESS_KEY && { secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY }),
-      region: envVars.AWS_REGION,
-      s3BucketName: envVars.S3_BUCKET_NAME,
-    },
-    postgres: {
-      host: envVars.PG_HOST,
-      port: envVars.PG_PORT,
-      database: envVars.PG_DATABASE,
-      user: envVars.PG_USER,
-      password: envVars.PG_PASSWORD,
-      ssl: envVars.PG_SSL,
-      maxConnections: envVars.PG_MAX_CONNECTIONS,
-      connectionTimeoutMillis: envVars.PG_CONNECTION_TIMEOUT,
-      idleTimeoutMillis: envVars.PG_IDLE_TIMEOUT,
-    },
-    mongo: {
-      uri: envVars.MONGO_URI,
-      database: envVars.MONGO_DATABASE,
-      maxPoolSize: envVars.MONGO_MAX_POOL_SIZE,
-      minPoolSize: envVars.MONGO_MIN_POOL_SIZE,
-      maxIdleTimeMS: envVars.MONGO_MAX_IDLE_TIME,
-      serverSelectionTimeoutMS: envVars.MONGO_SERVER_SELECTION_TIMEOUT,
-    },
-    appName: envVars.AWS_APP_NAME,
-    vertical: envVars.VERTICAL,
-    expirationHours: envVars.EXPIRATION_HOURS,
-    n8n: {
-      host: envVars.N8N_HOST,
-      apiKey: envVars.N8N_API_KEY,
-    },
-    bigquery: {
-      projectId: envVars.BIGQUERY_PROJECT_ID,
-      datasetId: envVars.BIGQUERY_DATASET_ID,
-      location: envVars.BIGQUERY_LOCATION,
-      ...(envVars.BIGQUERY_KEY_FILENAME && { keyFilename: envVars.BIGQUERY_KEY_FILENAME }),
-      ...(envVars.BIGQUERY_CLIENT_EMAIL &&
-        envVars.BIGQUERY_PRIVATE_KEY && {
-          credentials: {
-            client_email: envVars.BIGQUERY_CLIENT_EMAIL,
-            private_key: envVars.BIGQUERY_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            project_id: envVars.BIGQUERY_PROJECT_ID,
-          },
-        }),
-      maxRetries: envVars.BIGQUERY_MAX_RETRIES,
-      autoRetry: envVars.BIGQUERY_AUTO_RETRY,
-    },
-  };
+	return {
+		finance: {
+			baseUrl: envVars.FINANCE_BASE_URL,
+			apiKey: envVars.FINANCE_API_KEY,
+			dispersionEndpoint: envVars.FINANCE_DISPERSION_ENDPOINT,
+		},
+		aws: {
+			...(envVars.AWS_ACCESS_KEY_ID && { accessKeyId: envVars.AWS_ACCESS_KEY_ID }),
+			...(envVars.AWS_SECRET_ACCESS_KEY && { secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY }),
+			region: envVars.AWS_REGION,
+			s3BucketName: envVars.S3_BUCKET_NAME,
+		},
+		postgres: {
+			host: envVars.PG_HOST,
+			port: envVars.PG_PORT,
+			database: envVars.PG_DATABASE,
+			user: envVars.PG_USER,
+			password: envVars.PG_PASSWORD,
+			ssl: envVars.PG_SSL,
+			maxConnections: envVars.PG_MAX_CONNECTIONS,
+			connectionTimeoutMillis: envVars.PG_CONNECTION_TIMEOUT,
+			idleTimeoutMillis: envVars.PG_IDLE_TIMEOUT,
+		},
+		mongo: {
+			uri: envVars.MONGO_URI,
+			database: envVars.MONGO_DATABASE,
+			maxPoolSize: envVars.MONGO_MAX_POOL_SIZE,
+			minPoolSize: envVars.MONGO_MIN_POOL_SIZE,
+			maxIdleTimeMS: envVars.MONGO_MAX_IDLE_TIME,
+			serverSelectionTimeoutMS: envVars.MONGO_SERVER_SELECTION_TIMEOUT,
+		},
+		appName: envVars.AWS_APP_NAME,
+		vertical: envVars.VERTICAL,
+		expirationHours: envVars.EXPIRATION_HOURS,
+		n8n: {
+			host: envVars.N8N_HOST,
+			apiKey: envVars.N8N_API_KEY,
+		},
+		bigquery: {
+			projectId: envVars.BIGQUERY_PROJECT_ID,
+			datasetId: envVars.BIGQUERY_DATASET_ID,
+			location: envVars.BIGQUERY_LOCATION,
+			...(envVars.BIGQUERY_KEY_FILENAME && { keyFilename: envVars.BIGQUERY_KEY_FILENAME }),
+			...(envVars.BIGQUERY_CLIENT_EMAIL &&
+				envVars.BIGQUERY_PRIVATE_KEY && {
+					credentials: {
+						client_email: envVars.BIGQUERY_CLIENT_EMAIL,
+						private_key: envVars.BIGQUERY_PRIVATE_KEY.replace(/\\n/g, '\n'),
+						project_id: envVars.BIGQUERY_PROJECT_ID,
+					},
+				}),
+			maxRetries: envVars.BIGQUERY_MAX_RETRIES,
+			autoRetry: envVars.BIGQUERY_AUTO_RETRY,
+		},
+	};
 }
 
 // Create application configuration

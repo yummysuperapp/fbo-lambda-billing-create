@@ -6,52 +6,52 @@ dotenv.config({ path: '.env.test' });
 
 // Mock AWS SDK
 vi.mock('@aws-sdk/client-s3', () => ({
-  S3Client: vi.fn(() => ({
-    send: vi.fn(),
-  })),
-  GetObjectCommand: vi.fn(),
-  PutObjectCommand: vi.fn(),
-  HeadObjectCommand: vi.fn(),
+	S3Client: vi.fn(() => ({
+		send: vi.fn(),
+	})),
+	GetObjectCommand: vi.fn(),
+	PutObjectCommand: vi.fn(),
+	HeadObjectCommand: vi.fn(),
 }));
 
 vi.mock('@aws-sdk/client-sqs', () => ({
-  SQSClient: vi.fn(() => ({
-    send: vi.fn(),
-  })),
-  SendMessageCommand: vi.fn(),
-  ReceiveMessageCommand: vi.fn(),
-  DeleteMessageCommand: vi.fn(),
-  PurgeQueueCommand: vi.fn(),
+	SQSClient: vi.fn(() => ({
+		send: vi.fn(),
+	})),
+	SendMessageCommand: vi.fn(),
+	ReceiveMessageCommand: vi.fn(),
+	DeleteMessageCommand: vi.fn(),
+	PurgeQueueCommand: vi.fn(),
 }));
 
 // Mock Axios
 vi.mock('axios', () => ({
-  default: {
-    create: vi.fn(() => ({
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() },
-      },
-    })),
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
+	default: {
+		create: vi.fn(() => ({
+			get: vi.fn(),
+			post: vi.fn(),
+			put: vi.fn(),
+			delete: vi.fn(),
+			interceptors: {
+				request: { use: vi.fn() },
+				response: { use: vi.fn() },
+			},
+		})),
+		get: vi.fn(),
+		post: vi.fn(),
+		put: vi.fn(),
+		delete: vi.fn(),
+	},
 }));
 
 // Mock Logger
 vi.mock('@/utils/logger', () => ({
-  createLogger: vi.fn(() => ({
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-  })),
+	createLogger: vi.fn(() => ({
+		info: vi.fn(),
+		error: vi.fn(),
+		warn: vi.fn(),
+		debug: vi.fn(),
+	})),
 }));
 
 // Set test environment variables

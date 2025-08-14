@@ -405,33 +405,33 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 export class FBOLambdaStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+		super(scope, id, props);
 
-    // Lambda Function
-    const fboFunction = new lambda.Function(this, 'FBOLambdaFunction', {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('dist'),
-      timeout: cdk.Duration.seconds(30),
-      environment: {
-        NODE_ENV: process.env.NODE_ENV || 'development',
-        MONGODB_URI: process.env.MONGODB_URI || '',
-        POSTGRES_HOST: process.env.POSTGRES_HOST || '',
-      },
-    });
+		// Lambda Function
+		const fboFunction = new lambda.Function(this, 'FBOLambdaFunction', {
+			runtime: lambda.Runtime.NODEJS_18_X,
+			handler: 'index.handler',
+			code: lambda.Code.fromAsset('dist'),
+			timeout: cdk.Duration.seconds(30),
+			environment: {
+				NODE_ENV: process.env.NODE_ENV || 'development',
+				MONGODB_URI: process.env.MONGODB_URI || '',
+				POSTGRES_HOST: process.env.POSTGRES_HOST || '',
+			},
+		});
 
-    // API Gateway
-    const api = new apigateway.RestApi(this, 'FBOApi', {
-      restApiName: 'FBO Lambda Template API',
-      description: 'API for FBO Lambda Template',
-    });
+		// API Gateway
+		const api = new apigateway.RestApi(this, 'FBOApi', {
+			restApiName: 'FBO Lambda Template API',
+			description: 'API for FBO Lambda Template',
+		});
 
-    const integration = new apigateway.LambdaIntegration(fboFunction);
-    api.root.addProxy({
-      defaultIntegration: integration,
-    });
-  }
+		const integration = new apigateway.LambdaIntegration(fboFunction);
+		api.root.addProxy({
+			defaultIntegration: integration,
+		});
+	}
 }
 ```
 
@@ -613,18 +613,18 @@ import { logger } from '@/utils/logger.util';
 
 // Log de información
 logger.info('Payment processed successfully', {
-  paymentId: 'pay_123',
-  amount: 100.0,
-  currency: 'USD',
-  timestamp: new Date().toISOString(),
+	paymentId: 'pay_123',
+	amount: 100.0,
+	currency: 'USD',
+	timestamp: new Date().toISOString(),
 });
 
 // Log de error
 logger.error('Payment processing failed', {
-  paymentId: 'pay_123',
-  error: error.message,
-  stack: error.stack,
-  timestamp: new Date().toISOString(),
+	paymentId: 'pay_123',
+	error: error.message,
+	stack: error.stack,
+	timestamp: new Date().toISOString(),
 });
 ```
 
@@ -639,19 +639,19 @@ const cloudwatch = new AWS.CloudWatch();
 
 // Métrica de pagos procesados
 const putMetric = async (metricName: string, value: number, unit: string = 'Count') => {
-  await cloudwatch
-    .putMetricData({
-      Namespace: 'FBO/Lambda',
-      MetricData: [
-        {
-          MetricName: metricName,
-          Value: value,
-          Unit: unit,
-          Timestamp: new Date(),
-        },
-      ],
-    })
-    .promise();
+	await cloudwatch
+		.putMetricData({
+			Namespace: 'FBO/Lambda',
+			MetricData: [
+				{
+					MetricName: metricName,
+					Value: value,
+					Unit: unit,
+					Timestamp: new Date(),
+				},
+			],
+		})
+		.promise();
 };
 
 // Uso
@@ -705,18 +705,18 @@ captureHTTPsGlobal(require('https'));
 
 // Crear subsegmentos
 export const traceAsyncFunction = async (name: string, fn: () => Promise<any>) => {
-  const segment = AWSXRay.getSegment();
-  const subsegment = segment?.addNewSubsegment(name);
+	const segment = AWSXRay.getSegment();
+	const subsegment = segment?.addNewSubsegment(name);
 
-  try {
-    const result = await fn();
-    subsegment?.close();
-    return result;
-  } catch (error) {
-    subsegment?.addError(error as Error);
-    subsegment?.close();
-    throw error;
-  }
+	try {
+		const result = await fn();
+		subsegment?.close();
+		return result;
+	} catch (error) {
+		subsegment?.addError(error as Error);
+		subsegment?.close();
+		throw error;
+	}
 };
 ```
 
@@ -872,18 +872,18 @@ import AWS from 'aws-sdk';
 const secretsManager = new AWS.SecretsManager();
 
 export const getSecret = async (secretName: string): Promise<string> => {
-  try {
-    const result = await secretsManager
-      .getSecretValue({
-        SecretId: secretName,
-      })
-      .promise();
+	try {
+		const result = await secretsManager
+			.getSecretValue({
+				SecretId: secretName,
+			})
+			.promise();
 
-    return result.SecretString || '';
-  } catch (error) {
-    logger.error('Failed to retrieve secret', { secretName, error });
-    throw error;
-  }
+		return result.SecretString || '';
+	} catch (error) {
+		logger.error('Failed to retrieve secret', { secretName, error });
+		throw error;
+	}
 };
 
 // Uso
@@ -897,12 +897,12 @@ const apiKey = await getSecret('fbo/external-api/key');
 import { getSecret } from './secrets';
 
 export const loadEnvironmentVariables = async () => {
-  // Cargar secretos desde AWS Secrets Manager
-  if (process.env.NODE_ENV === 'production') {
-    process.env.MONGODB_PASSWORD = await getSecret('fbo/mongodb/password');
-    process.env.POSTGRES_PASSWORD = await getSecret('fbo/postgres/password');
-    process.env.API_KEY = await getSecret('fbo/external-api/key');
-  }
+	// Cargar secretos desde AWS Secrets Manager
+	if (process.env.NODE_ENV === 'production') {
+		process.env.MONGODB_PASSWORD = await getSecret('fbo/mongodb/password');
+		process.env.POSTGRES_PASSWORD = await getSecret('fbo/postgres/password');
+		process.env.API_KEY = await getSecret('fbo/external-api/key');
+	}
 };
 ```
 
@@ -1051,19 +1051,19 @@ import { MongoClient } from 'mongodb';
 let cachedClient: MongoClient | null = null;
 
 export const getMongoClient = async (): Promise<MongoClient> => {
-  if (cachedClient) {
-    return cachedClient;
-  }
+	if (cachedClient) {
+		return cachedClient;
+	}
 
-  cachedClient = new MongoClient(process.env.MONGODB_URI!, {
-    maxPoolSize: 10,
-    minPoolSize: 2,
-    maxIdleTimeMS: 30000,
-    serverSelectionTimeoutMS: 5000,
-  });
+	cachedClient = new MongoClient(process.env.MONGODB_URI!, {
+		maxPoolSize: 10,
+		minPoolSize: 2,
+		maxIdleTimeMS: 30000,
+		serverSelectionTimeoutMS: 5000,
+	});
 
-  await cachedClient.connect();
-  return cachedClient;
+	await cachedClient.connect();
+	return cachedClient;
 };
 ```
 
@@ -1137,7 +1137,7 @@ const httpClient = axios.create({ timeout: 5000 });
 
 // Handler optimizado
 export const handler = async (event: APIGatewayProxyEvent) => {
-  // Lógica del handler
+	// Lógica del handler
 };
 ```
 
@@ -1146,14 +1146,14 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 ```javascript
 // webpack.config.js
 module.exports = {
-  target: 'node',
-  mode: 'production',
-  externals: ['aws-sdk'], // Excluir AWS SDK
-  optimization: {
-    minimize: true,
-    usedExports: true,
-    sideEffects: false,
-  },
+	target: 'node',
+	mode: 'production',
+	externals: ['aws-sdk'], // Excluir AWS SDK
+	optimization: {
+		minimize: true,
+		usedExports: true,
+		sideEffects: false,
+	},
 };
 ```
 
@@ -1164,21 +1164,21 @@ module.exports = {
 const startTime = Date.now();
 
 try {
-  // Lógica de negocio
-  const result = await processPayment(payment);
+	// Lógica de negocio
+	const result = await processPayment(payment);
 
-  // Métrica de éxito
-  await putMetric('PaymentSuccess', 1);
+	// Métrica de éxito
+	await putMetric('PaymentSuccess', 1);
 
-  return result;
+	return result;
 } catch (error) {
-  // Métrica de error
-  await putMetric('PaymentError', 1);
-  throw error;
+	// Métrica de error
+	await putMetric('PaymentError', 1);
+	throw error;
 } finally {
-  // Métrica de latencia
-  const duration = Date.now() - startTime;
-  await putMetric('PaymentDuration', duration, 'Milliseconds');
+	// Métrica de latencia
+	const duration = Date.now() - startTime;
+	await putMetric('PaymentDuration', duration, 'Milliseconds');
 }
 ```
 

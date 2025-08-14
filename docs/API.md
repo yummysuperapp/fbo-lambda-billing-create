@@ -38,21 +38,21 @@ import { HttpClient, createHttpClient, getHttpClient } from '@/clients/http.clie
 
 ```typescript
 interface HttpClientInterface {
-  get<T>(url: string, config?: HttpRequestConfig): Promise<T>;
-  post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
-  put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
-  delete<T>(url: string, config?: HttpRequestConfig): Promise<T>;
-  patch<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
+	get<T>(url: string, config?: HttpRequestConfig): Promise<T>;
+	post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
+	put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
+	delete<T>(url: string, config?: HttpRequestConfig): Promise<T>;
+	patch<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>;
 }
 
 interface HttpRequestConfig {
-  timeout?: number;
-  headers?: Record<string, string>;
-  retries?: number;
-  retryDelay?: number;
-  baseURL?: string;
-  params?: Record<string, any>;
-  validateStatus?: (status: number) => boolean;
+	timeout?: number;
+	headers?: Record<string, string>;
+	retries?: number;
+	retryDelay?: number;
+	baseURL?: string;
+	params?: Record<string, any>;
+	validateStatus?: (status: number) => boolean;
 }
 ```
 
@@ -99,9 +99,9 @@ Realiza una petición PATCH HTTP.
 import { createHttpClient } from '@/clients';
 
 const httpClient = createHttpClient({
-  baseURL: 'https://api.example.com',
-  timeout: 5000,
-  retries: 2,
+	baseURL: 'https://api.example.com',
+	timeout: 5000,
+	retries: 2,
 });
 
 // GET request
@@ -109,8 +109,8 @@ const users = await httpClient.get<User[]>('/users');
 
 // POST request
 const newUser = await httpClient.post<User>('/users', {
-  name: 'John Doe',
-  email: 'john@example.com',
+	name: 'John Doe',
+	email: 'john@example.com',
 });
 ```
 
@@ -128,16 +128,16 @@ import { MongoClient, createMongoClient } from '@/clients/mongo.client';
 
 ```typescript
 interface MongoClientInterface {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  findOne<T>(collection: string, filter: object): Promise<T | null>;
-  findMany<T>(collection: string, filter: object): Promise<T[]>;
-  insertOne<T>(collection: string, document: T): Promise<InsertResult>;
-  insertMany<T>(collection: string, documents: T[]): Promise<InsertManyResult>;
-  updateOne(collection: string, filter: object, update: object): Promise<UpdateResult>;
-  updateMany(collection: string, filter: object, update: object): Promise<UpdateResult>;
-  deleteOne(collection: string, filter: object): Promise<DeleteResult>;
-  deleteMany(collection: string, filter: object): Promise<DeleteResult>;
+	connect(): Promise<void>;
+	disconnect(): Promise<void>;
+	findOne<T>(collection: string, filter: object): Promise<T | null>;
+	findMany<T>(collection: string, filter: object): Promise<T[]>;
+	insertOne<T>(collection: string, document: T): Promise<InsertResult>;
+	insertMany<T>(collection: string, documents: T[]): Promise<InsertManyResult>;
+	updateOne(collection: string, filter: object, update: object): Promise<UpdateResult>;
+	updateMany(collection: string, filter: object, update: object): Promise<UpdateResult>;
+	deleteOne(collection: string, filter: object): Promise<DeleteResult>;
+	deleteMany(collection: string, filter: object): Promise<DeleteResult>;
 }
 ```
 
@@ -150,21 +150,21 @@ const mongoClient = await createMongoClient();
 
 // Insertar documento
 const result = await mongoClient.insertOne('users', {
-  name: 'John Doe',
-  email: 'john@example.com',
-  createdAt: new Date(),
+	name: 'John Doe',
+	email: 'john@example.com',
+	createdAt: new Date(),
 });
 
 // Buscar documentos
 const users = await mongoClient.findMany('users', {
-  active: true,
+	active: true,
 });
 
 // Actualizar documento
 const updateResult = await mongoClient.updateOne(
-  'users',
-  { email: 'john@example.com' },
-  { $set: { lastLogin: new Date() } }
+	'users',
+	{ email: 'john@example.com' },
+	{ $set: { lastLogin: new Date() } }
 );
 ```
 
@@ -182,16 +182,16 @@ import { PostgresClient, createPostgresClient } from '@/clients/postgres.client'
 
 ```typescript
 interface PostgresClientInterface {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  query<T>(text: string, params?: any[]): Promise<QueryResult<T>>;
-  transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T>;
+	connect(): Promise<void>;
+	disconnect(): Promise<void>;
+	query<T>(text: string, params?: any[]): Promise<QueryResult<T>>;
+	transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T>;
 }
 
 interface QueryResult<T> {
-  rows: T[];
-  rowCount: number;
-  command: string;
+	rows: T[];
+	rowCount: number;
+	command: string;
 }
 ```
 
@@ -207,9 +207,9 @@ const result = await pgClient.query<User>('SELECT * FROM users WHERE active = $1
 
 // Transacción
 const transferResult = await pgClient.transaction(async (client) => {
-  await client.query('UPDATE accounts SET balance = balance - $1 WHERE id = $2', [100, fromAccountId]);
-  await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [100, toAccountId]);
-  return { success: true };
+	await client.query('UPDATE accounts SET balance = balance - $1 WHERE id = $2', [100, fromAccountId]);
+	await client.query('UPDATE accounts SET balance = balance + $1 WHERE id = $2', [100, toAccountId]);
+	return { success: true };
 });
 ```
 
@@ -227,25 +227,25 @@ import { S3Client, createS3Client } from '@/clients/s3.client';
 
 ```typescript
 interface S3ClientInterface {
-  uploadFile(bucket: string, key: string, body: Buffer | Uint8Array | string): Promise<UploadResult>;
-  downloadFile(bucket: string, key: string): Promise<Buffer>;
-  deleteFile(bucket: string, key: string): Promise<void>;
-  listObjects(bucket: string, prefix?: string): Promise<S3Object[]>;
-  getPresignedUrl(bucket: string, key: string, expiresIn?: number): Promise<string>;
+	uploadFile(bucket: string, key: string, body: Buffer | Uint8Array | string): Promise<UploadResult>;
+	downloadFile(bucket: string, key: string): Promise<Buffer>;
+	deleteFile(bucket: string, key: string): Promise<void>;
+	listObjects(bucket: string, prefix?: string): Promise<S3Object[]>;
+	getPresignedUrl(bucket: string, key: string, expiresIn?: number): Promise<string>;
 }
 
 interface UploadResult {
-  ETag: string;
-  Location: string;
-  Key: string;
-  Bucket: string;
+	ETag: string;
+	Location: string;
+	Key: string;
+	Bucket: string;
 }
 
 interface S3Object {
-  Key: string;
-  LastModified: Date;
-  Size: number;
-  ETag: string;
+	Key: string;
+	LastModified: Date;
+	Size: number;
+	ETag: string;
 }
 ```
 
@@ -261,9 +261,9 @@ const uploadResult = await s3Client.uploadFile('my-bucket', 'documents/report.pd
 
 // Generar URL presignada
 const presignedUrl = await s3Client.getPresignedUrl(
-  'my-bucket',
-  'documents/report.pdf',
-  3600 // 1 hora
+	'my-bucket',
+	'documents/report.pdf',
+	3600 // 1 hora
 );
 
 // Listar objetos
@@ -284,10 +284,10 @@ import { BigQueryClient, createBigQueryClient } from '@/clients/bigquery.client'
 
 ```typescript
 interface BigQueryClientInterface {
-  query<T>(sql: string, params?: any[]): Promise<T[]>;
-  insertRows(datasetId: string, tableId: string, rows: any[]): Promise<void>;
-  createTable(datasetId: string, tableId: string, schema: TableSchema): Promise<void>;
-  getTableMetadata(datasetId: string, tableId: string): Promise<TableMetadata>;
+	query<T>(sql: string, params?: any[]): Promise<T[]>;
+	insertRows(datasetId: string, tableId: string, rows: any[]): Promise<void>;
+	createTable(datasetId: string, tableId: string, schema: TableSchema): Promise<void>;
+	getTableMetadata(datasetId: string, tableId: string): Promise<TableMetadata>;
 }
 ```
 
@@ -300,7 +300,7 @@ const bqClient = createBigQueryClient();
 
 // Ejecutar consulta
 const results = await bqClient.query<FinancialReport>(
-  `
+	`
   SELECT 
     date,
     SUM(amount) as total_amount,
@@ -310,15 +310,15 @@ const results = await bqClient.query<FinancialReport>(
   GROUP BY date
   ORDER BY date
 `,
-  {
-    start_date: '2024-01-01',
-  }
+	{
+		start_date: '2024-01-01',
+	}
 );
 
 // Insertar datos
 const rows = [
-  { id: 1, name: 'Transaction 1', amount: 100.5 },
-  { id: 2, name: 'Transaction 2', amount: 250.75 },
+	{ id: 1, name: 'Transaction 1', amount: 100.5 },
+	{ id: 2, name: 'Transaction 2', amount: 250.75 },
 ];
 
 await bqClient.insertRows('financial_data', 'transactions', rows);
@@ -340,28 +340,28 @@ import { FinanceService, createFinanceService } from '@/services/finance.service
 
 ```typescript
 interface FinanceServiceInterface {
-  processTransaction(transaction: Transaction): Promise<TransactionResult>;
-  calculateExchangeRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate>;
-  validatePayment(payment: Payment): Promise<ValidationResult>;
-  generateFinancialReport(params: ReportParams): Promise<FinancialReport>;
+	processTransaction(transaction: Transaction): Promise<TransactionResult>;
+	calculateExchangeRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate>;
+	validatePayment(payment: Payment): Promise<ValidationResult>;
+	generateFinancialReport(params: ReportParams): Promise<FinancialReport>;
 }
 
 interface Transaction {
-  id: string;
-  amount: number;
-  currency: string;
-  fromAccount: string;
-  toAccount: string;
-  type: 'transfer' | 'payment' | 'refund';
-  metadata?: Record<string, any>;
+	id: string;
+	amount: number;
+	currency: string;
+	fromAccount: string;
+	toAccount: string;
+	type: 'transfer' | 'payment' | 'refund';
+	metadata?: Record<string, any>;
 }
 
 interface TransactionResult {
-  success: boolean;
-  transactionId: string;
-  status: 'pending' | 'completed' | 'failed';
-  fees?: number;
-  exchangeRate?: number;
+	success: boolean;
+	transactionId: string;
+	status: 'pending' | 'completed' | 'failed';
+	fees?: number;
+	exchangeRate?: number;
 }
 ```
 
@@ -374,12 +374,12 @@ const financeService = createFinanceService();
 
 // Procesar transacción
 const result = await financeService.processTransaction({
-  id: 'txn_123',
-  amount: 1000.0,
-  currency: 'USD',
-  fromAccount: 'acc_sender',
-  toAccount: 'acc_receiver',
-  type: 'transfer',
+	id: 'txn_123',
+	amount: 1000.0,
+	currency: 'USD',
+	fromAccount: 'acc_sender',
+	toAccount: 'acc_receiver',
+	type: 'transfer',
 });
 
 // Calcular tasa de cambio
@@ -387,10 +387,10 @@ const exchangeRate = await financeService.calculateExchangeRate('USD', 'COP');
 
 // Generar reporte financiero
 const report = await financeService.generateFinancialReport({
-  startDate: '2024-01-01',
-  endDate: '2024-01-31',
-  currency: 'USD',
-  includeDetails: true,
+	startDate: '2024-01-01',
+	endDate: '2024-01-31',
+	currency: 'USD',
+	includeDetails: true,
 });
 ```
 
@@ -410,18 +410,18 @@ import { createLogger, Logger } from '@/utils/logger.util';
 
 ```typescript
 interface Logger {
-  debug(message: string, meta?: object): void;
-  info(message: string, meta?: object): void;
-  warn(message: string, meta?: object): void;
-  error(message: string, error?: Error, meta?: object): void;
-  setContext(context: LogContext): void;
+	debug(message: string, meta?: object): void;
+	info(message: string, meta?: object): void;
+	warn(message: string, meta?: object): void;
+	error(message: string, error?: Error, meta?: object): void;
+	setContext(context: LogContext): void;
 }
 
 interface LogContext {
-  requestId?: string;
-  userId?: string;
-  operation?: string;
-  [key: string]: any;
+	requestId?: string;
+	userId?: string;
+	operation?: string;
+	[key: string]: any;
 }
 ```
 
@@ -449,12 +449,12 @@ Funciones auxiliares reutilizables para operaciones comunes.
 
 ```typescript
 import {
-  retryWithBackoff,
-  validateEmail,
-  formatCurrency,
-  generateId,
-  parseDate,
-  sanitizeInput,
+	retryWithBackoff,
+	validateEmail,
+	formatCurrency,
+	generateId,
+	parseDate,
+	sanitizeInput,
 } from '@/utils/helpers.util';
 ```
 
@@ -506,46 +506,46 @@ const transactionId = generateId('txn'); // "txn_abc123def456"
 ```typescript
 // Lambda Event Types
 interface LambdaEvent {
-  httpMethod?: string;
-  path?: string;
-  headers?: Record<string, string>;
-  body?: string;
-  queryStringParameters?: Record<string, string>;
+	httpMethod?: string;
+	path?: string;
+	headers?: Record<string, string>;
+	body?: string;
+	queryStringParameters?: Record<string, string>;
 }
 
 interface LambdaResponse {
-  statusCode: number;
-  headers?: Record<string, string>;
-  body: string;
+	statusCode: number;
+	headers?: Record<string, string>;
+	body: string;
 }
 
 // S3 Event Types
 interface S3Event {
-  Records: S3Record[];
+	Records: S3Record[];
 }
 
 interface S3Record {
-  s3: {
-    bucket: { name: string };
-    object: { key: string; size: number };
-  };
+	s3: {
+		bucket: { name: string };
+		object: { key: string; size: number };
+	};
 }
 
 // Custom Event Types
 interface CustomEvent {
-  type: string;
-  data: Record<string, any>;
-  timestamp: string;
-  source: string;
+	type: string;
+	data: Record<string, any>;
+	timestamp: string;
+	source: string;
 }
 
 // Handler Context
 interface HandlerContext {
-  requestId: string;
-  functionName: string;
-  functionVersion: string;
-  memoryLimitInMB: string;
-  remainingTimeInMillis: number;
+	requestId: string;
+	functionName: string;
+	functionVersion: string;
+	memoryLimitInMB: string;
+	remainingTimeInMillis: number;
 }
 ```
 
@@ -553,40 +553,40 @@ interface HandlerContext {
 
 ```typescript
 interface Transaction {
-  id: string;
-  amount: number;
-  currency: string;
-  fromAccount: string;
-  toAccount: string;
-  type: TransactionType;
-  status: TransactionStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  metadata?: Record<string, any>;
+	id: string;
+	amount: number;
+	currency: string;
+	fromAccount: string;
+	toAccount: string;
+	type: TransactionType;
+	status: TransactionStatus;
+	createdAt: Date;
+	updatedAt: Date;
+	metadata?: Record<string, any>;
 }
 
 type TransactionType = 'transfer' | 'payment' | 'refund' | 'fee';
 type TransactionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
 
 interface ExchangeRate {
-  fromCurrency: string;
-  toCurrency: string;
-  rate: number;
-  timestamp: Date;
-  provider: string;
+	fromCurrency: string;
+	toCurrency: string;
+	rate: number;
+	timestamp: Date;
+	provider: string;
 }
 
 interface FinancialReport {
-  period: {
-    start: Date;
-    end: Date;
-  };
-  summary: {
-    totalTransactions: number;
-    totalAmount: number;
-    currency: string;
-  };
-  breakdown: ReportBreakdown[];
+	period: {
+		start: Date;
+		end: Date;
+	};
+	summary: {
+		totalTransactions: number;
+		totalAmount: number;
+		currency: string;
+	};
+	breakdown: ReportBreakdown[];
 }
 ```
 
@@ -596,31 +596,31 @@ interface FinancialReport {
 
 ```typescript
 interface EnvironmentConfig {
-  NODE_ENV: 'development' | 'staging' | 'production' | 'test';
-  LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
+	NODE_ENV: 'development' | 'staging' | 'production' | 'test';
+	LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
 
-  // Database Configuration
-  MONGODB_URI: string;
-  MONGODB_DATABASE: string;
-  POSTGRES_HOST: string;
-  POSTGRES_PORT: number;
-  POSTGRES_DATABASE: string;
-  POSTGRES_USER: string;
-  POSTGRES_PASSWORD: string;
+	// Database Configuration
+	MONGODB_URI: string;
+	MONGODB_DATABASE: string;
+	POSTGRES_HOST: string;
+	POSTGRES_PORT: number;
+	POSTGRES_DATABASE: string;
+	POSTGRES_USER: string;
+	POSTGRES_PASSWORD: string;
 
-  // AWS Configuration
-  AWS_REGION: string;
-  AWS_ACCESS_KEY_ID?: string;
-  AWS_SECRET_ACCESS_KEY?: string;
-  S3_BUCKET_NAME: string;
+	// AWS Configuration
+	AWS_REGION: string;
+	AWS_ACCESS_KEY_ID?: string;
+	AWS_SECRET_ACCESS_KEY?: string;
+	S3_BUCKET_NAME: string;
 
-  // External APIs
-  FINANCE_API_URL: string;
-  FINANCE_API_KEY: string;
+	// External APIs
+	FINANCE_API_URL: string;
+	FINANCE_API_KEY: string;
 
-  // BigQuery
-  GOOGLE_CLOUD_PROJECT_ID: string;
-  GOOGLE_CLOUD_KEY_FILE?: string;
+	// BigQuery
+	GOOGLE_CLOUD_PROJECT_ID: string;
+	GOOGLE_CLOUD_KEY_FILE?: string;
 }
 ```
 
@@ -628,22 +628,22 @@ interface EnvironmentConfig {
 
 ```typescript
 interface AppConfig {
-  server: {
-    port: number;
-    timeout: number;
-  };
-  database: {
-    mongodb: MongoConfig;
-    postgres: PostgresConfig;
-  };
-  aws: {
-    region: string;
-    s3: S3Config;
-  };
-  logging: {
-    level: string;
-    format: 'json' | 'text';
-  };
+	server: {
+		port: number;
+		timeout: number;
+	};
+	database: {
+		mongodb: MongoConfig;
+		postgres: PostgresConfig;
+	};
+	aws: {
+		region: string;
+		s3: S3Config;
+	};
+	logging: {
+		level: string;
+		format: 'json' | 'text';
+	};
 }
 ```
 
@@ -663,10 +663,10 @@ import { handler } from '@/handlers';
 
 ```typescript
 export const handler = async (
-  event: LambdaEvent | S3Event | CustomEvent,
-  context: Context
+	event: LambdaEvent | S3Event | CustomEvent,
+	context: Context
 ): Promise<LambdaResponse> => {
-  // Implementation
+	// Implementation
 };
 ```
 
@@ -692,43 +692,43 @@ functions:
 
 ```typescript
 class ValidationError extends Error {
-  constructor(
-    message: string,
-    public field?: string
-  ) {
-    super(message);
-    this.name = 'ValidationError';
-  }
+	constructor(
+		message: string,
+		public field?: string
+	) {
+		super(message);
+		this.name = 'ValidationError';
+	}
 }
 
 class NetworkError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number
-  ) {
-    super(message);
-    this.name = 'NetworkError';
-  }
+	constructor(
+		message: string,
+		public statusCode?: number
+	) {
+		super(message);
+		this.name = 'NetworkError';
+	}
 }
 
 class DatabaseError extends Error {
-  constructor(
-    message: string,
-    public operation?: string
-  ) {
-    super(message);
-    this.name = 'DatabaseError';
-  }
+	constructor(
+		message: string,
+		public operation?: string
+	) {
+		super(message);
+		this.name = 'DatabaseError';
+	}
 }
 
 class BusinessLogicError extends Error {
-  constructor(
-    message: string,
-    public code?: string
-  ) {
-    super(message);
-    this.name = 'BusinessLogicError';
-  }
+	constructor(
+		message: string,
+		public code?: string
+	) {
+		super(message);
+		this.name = 'BusinessLogicError';
+	}
 }
 ```
 
@@ -739,8 +739,8 @@ import { createErrorResponse, createSuccessResponse } from '@/utils';
 
 // Error response
 const errorResponse = createErrorResponse(400, 'Validation failed', {
-  field: 'email',
-  message: 'Invalid email format',
+	field: 'email',
+	message: 'Invalid email format',
 });
 
 // Success response

@@ -101,14 +101,14 @@ tests/
 
 ```json
 {
-  "strict": true,
-  "noImplicitAny": true,
-  "noImplicitReturns": true,
-  "noUnusedLocals": true,
-  "noUnusedParameters": true,
-  "exactOptionalPropertyTypes": true,
-  "noUncheckedIndexedAccess": true,
-  "noImplicitOverride": true
+	"strict": true,
+	"noImplicitAny": true,
+	"noImplicitReturns": true,
+	"noUnusedLocals": true,
+	"noUnusedParameters": true,
+	"exactOptionalPropertyTypes": true,
+	"noUncheckedIndexedAccess": true,
+	"noImplicitOverride": true
 }
 ```
 

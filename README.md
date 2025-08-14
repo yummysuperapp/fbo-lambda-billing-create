@@ -55,12 +55,12 @@ Esta documentación incluye:
 ```typescript
 // ✅ CORRECTO: Código en inglés
 const calculateTransactionFee = (amount: number): number => {
-  return amount * 0.025;
+	return amount * 0.025;
 };
 
 // ❌ INCORRECTO: Código en español
 const calcularComisionTransaccion = (monto: number): number => {
-  return monto * 0.025;
+	return monto * 0.025;
 };
 ```
 

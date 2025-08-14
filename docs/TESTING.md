@@ -61,58 +61,58 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 
 export default defineConfig({
-  test: {
-    // Entorno de testing
-    environment: 'node',
+	test: {
+		// Entorno de testing
+		environment: 'node',
 
-    // Archivos de configuración
-    setupFiles: ['./src/test/setup.ts'],
+		// Archivos de configuración
+		setupFiles: ['./src/test/setup.ts'],
 
-    // Patrones de archivos de prueba
-    include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.{test,spec}.{js,ts}'],
+		// Patrones de archivos de prueba
+		include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.{test,spec}.{js,ts}'],
 
-    // Archivos a excluir
-    exclude: ['node_modules', 'dist', '.git', 'coverage'],
+		// Archivos a excluir
+		exclude: ['node_modules', 'dist', '.git', 'coverage'],
 
-    // Configuración de cobertura
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      reportsDirectory: './coverage',
-      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.{js,ts}', '**/index.ts'],
-      thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80,
-        },
-      },
-    },
+		// Configuración de cobertura
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'json', 'html', 'lcov'],
+			reportsDirectory: './coverage',
+			exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.{js,ts}', '**/index.ts'],
+			thresholds: {
+				global: {
+					branches: 80,
+					functions: 80,
+					lines: 80,
+					statements: 80,
+				},
+			},
+		},
 
-    // Configuración de reporters
-    reporters: ['verbose', 'junit'],
-    outputFile: {
-      junit: './test-results/junit.xml',
-    },
+		// Configuración de reporters
+		reporters: ['verbose', 'junit'],
+		outputFile: {
+			junit: './test-results/junit.xml',
+		},
 
-    // Timeout para pruebas
-    testTimeout: 10000,
-    hookTimeout: 10000,
+		// Timeout para pruebas
+		testTimeout: 10000,
+		hookTimeout: 10000,
 
-    // Configuración de mocks
-    globals: true,
-    mockReset: true,
-    restoreMocks: true,
-  },
+		// Configuración de mocks
+		globals: true,
+		mockReset: true,
+		restoreMocks: true,
+	},
 
-  // Resolución de paths
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@test': path.resolve(__dirname, './src/test'),
-    },
-  },
+	// Resolución de paths
+	resolve: {
+		alias: {
+			'@': path.resolve(__dirname, './src'),
+			'@test': path.resolve(__dirname, './src/test'),
+		},
+	},
 });
 ```
 
@@ -134,45 +134,45 @@ let mongoServer: MongoMemoryServer;
 let mongoClient: MongoClient;
 
 beforeAll(async () => {
-  // Inicializar MongoDB en memoria
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
+	// Inicializar MongoDB en memoria
+	mongoServer = await MongoMemoryServer.create();
+	const mongoUri = mongoServer.getUri();
 
-  // Configurar cliente de MongoDB
-  mongoClient = new MongoClient(mongoUri);
-  await mongoClient.connect();
+	// Configurar cliente de MongoDB
+	mongoClient = new MongoClient(mongoUri);
+	await mongoClient.connect();
 
-  // Configurar variables de entorno para testing
-  process.env.MONGODB_URI = mongoUri;
-  process.env.NODE_ENV = 'test';
-  process.env.LOG_LEVEL = 'silent';
+	// Configurar variables de entorno para testing
+	process.env.MONGODB_URI = mongoUri;
+	process.env.NODE_ENV = 'test';
+	process.env.LOG_LEVEL = 'silent';
 });
 
 afterAll(async () => {
-  // Limpiar recursos
-  if (mongoClient) {
-    await mongoClient.close();
-  }
-  if (mongoServer) {
-    await mongoServer.stop();
-  }
+	// Limpiar recursos
+	if (mongoClient) {
+		await mongoClient.close();
+	}
+	if (mongoServer) {
+		await mongoServer.stop();
+	}
 });
 
 beforeEach(async () => {
-  // Limpiar base de datos antes de cada prueba
-  if (mongoClient) {
-    const db = mongoClient.db();
-    const collections = await db.listCollections().toArray();
+	// Limpiar base de datos antes de cada prueba
+	if (mongoClient) {
+		const db = mongoClient.db();
+		const collections = await db.listCollections().toArray();
 
-    for (const collection of collections) {
-      await db.collection(collection.name).deleteMany({});
-    }
-  }
+		for (const collection of collections) {
+			await db.collection(collection.name).deleteMany({});
+		}
+	}
 });
 
 afterEach(() => {
-  // Limpiar mocks después de cada prueba
-  vi.clearAllMocks();
+	// Limpiar mocks después de cada prueba
+	vi.clearAllMocks();
 });
 ```
 
@@ -222,22 +222,22 @@ src/
 ```typescript
 // ✅ Buena práctica
 describe('PaymentService', () => {
-  describe('processPayment', () => {
-    it('should process valid payment successfully', () => {
-      // Test implementation
-    });
+	describe('processPayment', () => {
+		it('should process valid payment successfully', () => {
+			// Test implementation
+		});
 
-    it('should throw error when payment amount is negative', () => {
-      // Test implementation
-    });
-  });
+		it('should throw error when payment amount is negative', () => {
+			// Test implementation
+		});
+	});
 });
 
 // ❌ Mala práctica
 describe('Payment tests', () => {
-  it('test payment', () => {
-    // Test implementation
-  });
+	it('test payment', () => {
+		// Test implementation
+	});
 });
 ```
 
@@ -259,77 +259,77 @@ vi.mock('../repositories/payment.repository');
 vi.mock('./notification.service');
 
 describe('PaymentService', () => {
-  let paymentService: PaymentService;
-  let mockPaymentRepository: vi.Mocked<PaymentRepository>;
-  let mockNotificationService: vi.Mocked<NotificationService>;
+	let paymentService: PaymentService;
+	let mockPaymentRepository: vi.Mocked<PaymentRepository>;
+	let mockNotificationService: vi.Mocked<NotificationService>;
 
-  beforeEach(() => {
-    mockPaymentRepository = vi.mocked(new PaymentRepository());
-    mockNotificationService = vi.mocked(new NotificationService());
-    paymentService = new PaymentService(mockPaymentRepository, mockNotificationService);
-  });
+	beforeEach(() => {
+		mockPaymentRepository = vi.mocked(new PaymentRepository());
+		mockNotificationService = vi.mocked(new NotificationService());
+		paymentService = new PaymentService(mockPaymentRepository, mockNotificationService);
+	});
 
-  describe('processPayment', () => {
-    it('should process valid payment successfully', async () => {
-      // Arrange
-      const paymentData = {
-        amount: 100.0,
-        currency: 'USD',
-        paymentMethod: 'credit_card',
-        customerId: 'cust_123',
-      };
+	describe('processPayment', () => {
+		it('should process valid payment successfully', async () => {
+			// Arrange
+			const paymentData = {
+				amount: 100.0,
+				currency: 'USD',
+				paymentMethod: 'credit_card',
+				customerId: 'cust_123',
+			};
 
-      const expectedPayment = {
-        id: 'pay_123',
-        ...paymentData,
-        status: 'completed',
-        createdAt: new Date(),
-      };
+			const expectedPayment = {
+				id: 'pay_123',
+				...paymentData,
+				status: 'completed',
+				createdAt: new Date(),
+			};
 
-      mockPaymentRepository.create.mockResolvedValue(expectedPayment);
-      mockNotificationService.sendPaymentConfirmation.mockResolvedValue(true);
+			mockPaymentRepository.create.mockResolvedValue(expectedPayment);
+			mockNotificationService.sendPaymentConfirmation.mockResolvedValue(true);
 
-      // Act
-      const result = await paymentService.processPayment(paymentData);
+			// Act
+			const result = await paymentService.processPayment(paymentData);
 
-      // Assert
-      expect(result).toEqual(expectedPayment);
-      expect(mockPaymentRepository.create).toHaveBeenCalledWith(paymentData);
-      expect(mockNotificationService.sendPaymentConfirmation).toHaveBeenCalledWith(expectedPayment);
-    });
+			// Assert
+			expect(result).toEqual(expectedPayment);
+			expect(mockPaymentRepository.create).toHaveBeenCalledWith(paymentData);
+			expect(mockNotificationService.sendPaymentConfirmation).toHaveBeenCalledWith(expectedPayment);
+		});
 
-    it('should throw error when payment amount is negative', async () => {
-      // Arrange
-      const invalidPaymentData = {
-        amount: -50.0,
-        currency: 'USD',
-        paymentMethod: 'credit_card',
-        customerId: 'cust_123',
-      };
+		it('should throw error when payment amount is negative', async () => {
+			// Arrange
+			const invalidPaymentData = {
+				amount: -50.0,
+				currency: 'USD',
+				paymentMethod: 'credit_card',
+				customerId: 'cust_123',
+			};
 
-      // Act & Assert
-      await expect(paymentService.processPayment(invalidPaymentData)).rejects.toThrow(
-        'Payment amount must be positive'
-      );
+			// Act & Assert
+			await expect(paymentService.processPayment(invalidPaymentData)).rejects.toThrow(
+				'Payment amount must be positive'
+			);
 
-      expect(mockPaymentRepository.create).not.toHaveBeenCalled();
-    });
+			expect(mockPaymentRepository.create).not.toHaveBeenCalled();
+		});
 
-    it('should handle repository errors gracefully', async () => {
-      // Arrange
-      const paymentData = {
-        amount: 100.0,
-        currency: 'USD',
-        paymentMethod: 'credit_card',
-        customerId: 'cust_123',
-      };
+		it('should handle repository errors gracefully', async () => {
+			// Arrange
+			const paymentData = {
+				amount: 100.0,
+				currency: 'USD',
+				paymentMethod: 'credit_card',
+				customerId: 'cust_123',
+			};
 
-      mockPaymentRepository.create.mockRejectedValue(new Error('Database connection failed'));
+			mockPaymentRepository.create.mockRejectedValue(new Error('Database connection failed'));
 
-      // Act & Assert
-      await expect(paymentService.processPayment(paymentData)).rejects.toThrow('Failed to process payment');
-    });
-  });
+			// Act & Assert
+			await expect(paymentService.processPayment(paymentData)).rejects.toThrow('Failed to process payment');
+		});
+	});
 });
 ```
 
@@ -341,50 +341,50 @@ import { describe, it, expect } from 'vitest';
 import { validateEmail, validatePaymentAmount, sanitizeInput } from './validation.util';
 
 describe('ValidationUtil', () => {
-  describe('validateEmail', () => {
-    it('should return true for valid email addresses', () => {
-      const validEmails = ['user@example.com', 'test.email+tag@domain.co.uk', 'user123@test-domain.com'];
+	describe('validateEmail', () => {
+		it('should return true for valid email addresses', () => {
+			const validEmails = ['user@example.com', 'test.email+tag@domain.co.uk', 'user123@test-domain.com'];
 
-      validEmails.forEach((email) => {
-        expect(validateEmail(email)).toBe(true);
-      });
-    });
+			validEmails.forEach((email) => {
+				expect(validateEmail(email)).toBe(true);
+			});
+		});
 
-    it('should return false for invalid email addresses', () => {
-      const invalidEmails = ['invalid-email', '@domain.com', 'user@', 'user..double.dot@domain.com'];
+		it('should return false for invalid email addresses', () => {
+			const invalidEmails = ['invalid-email', '@domain.com', 'user@', 'user..double.dot@domain.com'];
 
-      invalidEmails.forEach((email) => {
-        expect(validateEmail(email)).toBe(false);
-      });
-    });
-  });
+			invalidEmails.forEach((email) => {
+				expect(validateEmail(email)).toBe(false);
+			});
+		});
+	});
 
-  describe('validatePaymentAmount', () => {
-    it('should return true for valid payment amounts', () => {
-      expect(validatePaymentAmount(10.5)).toBe(true);
-      expect(validatePaymentAmount(1000)).toBe(true);
-      expect(validatePaymentAmount(0.01)).toBe(true);
-    });
+	describe('validatePaymentAmount', () => {
+		it('should return true for valid payment amounts', () => {
+			expect(validatePaymentAmount(10.5)).toBe(true);
+			expect(validatePaymentAmount(1000)).toBe(true);
+			expect(validatePaymentAmount(0.01)).toBe(true);
+		});
 
-    it('should return false for invalid payment amounts', () => {
-      expect(validatePaymentAmount(-10)).toBe(false);
-      expect(validatePaymentAmount(0)).toBe(false);
-      expect(validatePaymentAmount(NaN)).toBe(false);
-      expect(validatePaymentAmount(Infinity)).toBe(false);
-    });
-  });
+		it('should return false for invalid payment amounts', () => {
+			expect(validatePaymentAmount(-10)).toBe(false);
+			expect(validatePaymentAmount(0)).toBe(false);
+			expect(validatePaymentAmount(NaN)).toBe(false);
+			expect(validatePaymentAmount(Infinity)).toBe(false);
+		});
+	});
 
-  describe('sanitizeInput', () => {
-    it('should remove dangerous characters from input', () => {
-      expect(sanitizeInput('<script>alert("xss")</script>test')).toBe('test');
-      expect(sanitizeInput('normal text')).toBe('normal text');
-    });
+	describe('sanitizeInput', () => {
+		it('should remove dangerous characters from input', () => {
+			expect(sanitizeInput('<script>alert("xss")</script>test')).toBe('test');
+			expect(sanitizeInput('normal text')).toBe('normal text');
+		});
 
-    it('should handle null and undefined inputs', () => {
-      expect(sanitizeInput(null)).toBe('');
-      expect(sanitizeInput(undefined)).toBe('');
-    });
-  });
+		it('should handle null and undefined inputs', () => {
+			expect(sanitizeInput(null)).toBe('');
+			expect(sanitizeInput(undefined)).toBe('');
+		});
+	});
 });
 ```
 
@@ -400,66 +400,66 @@ import { PaymentRepository } from '../../repositories/payment.repository';
 import { createTestPayment } from '../../test/fixtures/payment.fixture';
 
 describe('PaymentRepository Integration', () => {
-  let db: Db;
-  let paymentRepository: PaymentRepository;
+	let db: Db;
+	let paymentRepository: PaymentRepository;
 
-  beforeEach(async () => {
-    // La configuración de MongoDB en memoria se maneja en setup.ts
-    const client = new MongoClient(process.env.MONGODB_URI!);
-    await client.connect();
-    db = client.db();
-    paymentRepository = new PaymentRepository(db);
-  });
+	beforeEach(async () => {
+		// La configuración de MongoDB en memoria se maneja en setup.ts
+		const client = new MongoClient(process.env.MONGODB_URI!);
+		await client.connect();
+		db = client.db();
+		paymentRepository = new PaymentRepository(db);
+	});
 
-  describe('create', () => {
-    it('should create payment in database', async () => {
-      // Arrange
-      const paymentData = createTestPayment();
+	describe('create', () => {
+		it('should create payment in database', async () => {
+			// Arrange
+			const paymentData = createTestPayment();
 
-      // Act
-      const createdPayment = await paymentRepository.create(paymentData);
+			// Act
+			const createdPayment = await paymentRepository.create(paymentData);
 
-      // Assert
-      expect(createdPayment).toMatchObject(paymentData);
-      expect(createdPayment.id).toBeDefined();
-      expect(createdPayment.createdAt).toBeInstanceOf(Date);
+			// Assert
+			expect(createdPayment).toMatchObject(paymentData);
+			expect(createdPayment.id).toBeDefined();
+			expect(createdPayment.createdAt).toBeInstanceOf(Date);
 
-      // Verificar que se guardó en la base de datos
-      const savedPayment = await db.collection('payments').findOne({ _id: createdPayment.id });
-      expect(savedPayment).toBeTruthy();
-    });
+			// Verificar que se guardó en la base de datos
+			const savedPayment = await db.collection('payments').findOne({ _id: createdPayment.id });
+			expect(savedPayment).toBeTruthy();
+		});
 
-    it('should throw error when creating duplicate payment', async () => {
-      // Arrange
-      const paymentData = createTestPayment({ externalId: 'unique_123' });
-      await paymentRepository.create(paymentData);
+		it('should throw error when creating duplicate payment', async () => {
+			// Arrange
+			const paymentData = createTestPayment({ externalId: 'unique_123' });
+			await paymentRepository.create(paymentData);
 
-      // Act & Assert
-      await expect(paymentRepository.create(paymentData)).rejects.toThrow('Payment with external ID already exists');
-    });
-  });
+			// Act & Assert
+			await expect(paymentRepository.create(paymentData)).rejects.toThrow('Payment with external ID already exists');
+		});
+	});
 
-  describe('findById', () => {
-    it('should find payment by ID', async () => {
-      // Arrange
-      const paymentData = createTestPayment();
-      const createdPayment = await paymentRepository.create(paymentData);
+	describe('findById', () => {
+		it('should find payment by ID', async () => {
+			// Arrange
+			const paymentData = createTestPayment();
+			const createdPayment = await paymentRepository.create(paymentData);
 
-      // Act
-      const foundPayment = await paymentRepository.findById(createdPayment.id);
+			// Act
+			const foundPayment = await paymentRepository.findById(createdPayment.id);
 
-      // Assert
-      expect(foundPayment).toEqual(createdPayment);
-    });
+			// Assert
+			expect(foundPayment).toEqual(createdPayment);
+		});
 
-    it('should return null when payment not found', async () => {
-      // Act
-      const foundPayment = await paymentRepository.findById('non_existent_id');
+		it('should return null when payment not found', async () => {
+			// Act
+			const foundPayment = await paymentRepository.findById('non_existent_id');
 
-      // Assert
-      expect(foundPayment).toBeNull();
-    });
-  });
+			// Assert
+			expect(foundPayment).toBeNull();
+		});
+	});
 });
 ```
 
@@ -475,113 +475,113 @@ import { app } from '../../app';
 import { createTestUser, createTestPayment } from '../../test/fixtures';
 
 describe('Payment API E2E', () => {
-  let authToken: string;
-  let testUser: any;
+	let authToken: string;
+	let testUser: any;
 
-  beforeAll(async () => {
-    // Configurar usuario de prueba y autenticación
-    testUser = await createTestUser();
-    const loginResponse = await request(app).post('/auth/login').send({
-      email: testUser.email,
-      password: 'test_password',
-    });
+	beforeAll(async () => {
+		// Configurar usuario de prueba y autenticación
+		testUser = await createTestUser();
+		const loginResponse = await request(app).post('/auth/login').send({
+			email: testUser.email,
+			password: 'test_password',
+		});
 
-    authToken = loginResponse.body.token;
-  });
+		authToken = loginResponse.body.token;
+	});
 
-  describe('POST /api/payments', () => {
-    it('should create payment successfully', async () => {
-      // Arrange
-      const paymentData = {
-        amount: 100.0,
-        currency: 'USD',
-        paymentMethod: 'credit_card',
-        description: 'Test payment',
-      };
+	describe('POST /api/payments', () => {
+		it('should create payment successfully', async () => {
+			// Arrange
+			const paymentData = {
+				amount: 100.0,
+				currency: 'USD',
+				paymentMethod: 'credit_card',
+				description: 'Test payment',
+			};
 
-      // Act
-      const response = await request(app)
-        .post('/api/payments')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(paymentData)
-        .expect(201);
+			// Act
+			const response = await request(app)
+				.post('/api/payments')
+				.set('Authorization', `Bearer ${authToken}`)
+				.send(paymentData)
+				.expect(201);
 
-      // Assert
-      expect(response.body).toMatchObject({
-        id: expect.any(String),
-        amount: paymentData.amount,
-        currency: paymentData.currency,
-        status: 'pending',
-        createdAt: expect.any(String),
-      });
-    });
+			// Assert
+			expect(response.body).toMatchObject({
+				id: expect.any(String),
+				amount: paymentData.amount,
+				currency: paymentData.currency,
+				status: 'pending',
+				createdAt: expect.any(String),
+			});
+		});
 
-    it('should return 400 for invalid payment data', async () => {
-      // Arrange
-      const invalidPaymentData = {
-        amount: -50, // Invalid negative amount
-        currency: 'INVALID',
-        paymentMethod: '',
-      };
+		it('should return 400 for invalid payment data', async () => {
+			// Arrange
+			const invalidPaymentData = {
+				amount: -50, // Invalid negative amount
+				currency: 'INVALID',
+				paymentMethod: '',
+			};
 
-      // Act
-      const response = await request(app)
-        .post('/api/payments')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(invalidPaymentData)
-        .expect(400);
+			// Act
+			const response = await request(app)
+				.post('/api/payments')
+				.set('Authorization', `Bearer ${authToken}`)
+				.send(invalidPaymentData)
+				.expect(400);
 
-      // Assert
-      expect(response.body).toMatchObject({
-        error: 'Validation failed',
-        details: expect.arrayContaining([
-          expect.objectContaining({
-            field: 'amount',
-            message: expect.stringContaining('must be positive'),
-          }),
-        ]),
-      });
-    });
+			// Assert
+			expect(response.body).toMatchObject({
+				error: 'Validation failed',
+				details: expect.arrayContaining([
+					expect.objectContaining({
+						field: 'amount',
+						message: expect.stringContaining('must be positive'),
+					}),
+				]),
+			});
+		});
 
-    it('should return 401 for unauthenticated requests', async () => {
-      // Arrange
-      const paymentData = createTestPayment();
+		it('should return 401 for unauthenticated requests', async () => {
+			// Arrange
+			const paymentData = createTestPayment();
 
-      // Act & Assert
-      await request(app).post('/api/payments').send(paymentData).expect(401);
-    });
-  });
+			// Act & Assert
+			await request(app).post('/api/payments').send(paymentData).expect(401);
+		});
+	});
 
-  describe('GET /api/payments/:id', () => {
-    it('should retrieve payment by ID', async () => {
-      // Arrange
-      const paymentData = createTestPayment();
-      const createResponse = await request(app)
-        .post('/api/payments')
-        .set('Authorization', `Bearer ${authToken}`)
-        .send(paymentData);
+	describe('GET /api/payments/:id', () => {
+		it('should retrieve payment by ID', async () => {
+			// Arrange
+			const paymentData = createTestPayment();
+			const createResponse = await request(app)
+				.post('/api/payments')
+				.set('Authorization', `Bearer ${authToken}`)
+				.send(paymentData);
 
-      const paymentId = createResponse.body.id;
+			const paymentId = createResponse.body.id;
 
-      // Act
-      const response = await request(app)
-        .get(`/api/payments/${paymentId}`)
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(200);
+			// Act
+			const response = await request(app)
+				.get(`/api/payments/${paymentId}`)
+				.set('Authorization', `Bearer ${authToken}`)
+				.expect(200);
 
-      // Assert
-      expect(response.body).toMatchObject({
-        id: paymentId,
-        amount: paymentData.amount,
-        currency: paymentData.currency,
-      });
-    });
+			// Assert
+			expect(response.body).toMatchObject({
+				id: paymentId,
+				amount: paymentData.amount,
+				currency: paymentData.currency,
+			});
+		});
 
-    it('should return 404 for non-existent payment', async () => {
-      // Act & Assert
-      await request(app).get('/api/payments/non_existent_id').set('Authorization', `Bearer ${authToken}`).expect(404);
-    });
-  });
+		it('should return 404 for non-existent payment', async () => {
+			// Act & Assert
+			await request(app).get('/api/payments/non_existent_id').set('Authorization', `Bearer ${authToken}`).expect(404);
+		});
+	});
 });
 ```
 
@@ -666,21 +666,21 @@ All files              |   85.23 |    78.45 |   89.12 |   85.67 |
 ```typescript
 // ✅ Buena práctica
 it('should calculate total with tax correctly', () => {
-  // Arrange
-  const baseAmount = 100;
-  const taxRate = 0.08;
-  const calculator = new TaxCalculator();
+	// Arrange
+	const baseAmount = 100;
+	const taxRate = 0.08;
+	const calculator = new TaxCalculator();
 
-  // Act
-  const result = calculator.calculateTotal(baseAmount, taxRate);
+	// Act
+	const result = calculator.calculateTotal(baseAmount, taxRate);
 
-  // Assert
-  expect(result).toBe(108);
+	// Assert
+	expect(result).toBe(108);
 });
 
 // ❌ Mala práctica
 it('tax calculation', () => {
-  expect(new TaxCalculator().calculateTotal(100, 0.08)).toBe(108);
+	expect(new TaxCalculator().calculateTotal(100, 0.08)).toBe(108);
 });
 ```
 
@@ -689,30 +689,30 @@ it('tax calculation', () => {
 ```typescript
 // ✅ Buena práctica
 describe('PaymentValidator', () => {
-  describe('validateCreditCard', () => {
-    it('should return true when credit card number is valid', () => {
-      // Test implementation
-    });
+	describe('validateCreditCard', () => {
+		it('should return true when credit card number is valid', () => {
+			// Test implementation
+		});
 
-    it('should return false when credit card number has invalid checksum', () => {
-      // Test implementation
-    });
+		it('should return false when credit card number has invalid checksum', () => {
+			// Test implementation
+		});
 
-    it('should throw error when credit card number is null', () => {
-      // Test implementation
-    });
-  });
+		it('should throw error when credit card number is null', () => {
+			// Test implementation
+		});
+	});
 });
 
 // ❌ Mala práctica
 describe('Validator', () => {
-  it('test1', () => {
-    // Test implementation
-  });
+	it('test1', () => {
+		// Test implementation
+	});
 
-  it('test2', () => {
-    // Test implementation
-  });
+	it('test2', () => {
+		// Test implementation
+	});
 });
 ```
 
@@ -726,28 +726,28 @@ import { vi } from 'vitest';
 
 // Mock de AWS SDK
 export const mockAWSS3 = {
-  upload: vi.fn().mockResolvedValue({ Location: 'https://s3.amazonaws.com/bucket/file.jpg' }),
-  deleteObject: vi.fn().mockResolvedValue({}),
-  getObject: vi.fn().mockResolvedValue({ Body: Buffer.from('file content') }),
+	upload: vi.fn().mockResolvedValue({ Location: 'https://s3.amazonaws.com/bucket/file.jpg' }),
+	deleteObject: vi.fn().mockResolvedValue({}),
+	getObject: vi.fn().mockResolvedValue({ Body: Buffer.from('file content') }),
 };
 
 // Mock de servicios HTTP
 export const mockHttpClient = {
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  delete: vi.fn(),
+	get: vi.fn(),
+	post: vi.fn(),
+	put: vi.fn(),
+	delete: vi.fn(),
 };
 
 // Mock de base de datos
 export const mockDatabase = {
-  collection: vi.fn().mockReturnValue({
-    findOne: vi.fn(),
-    find: vi.fn(),
-    insertOne: vi.fn(),
-    updateOne: vi.fn(),
-    deleteOne: vi.fn(),
-  }),
+	collection: vi.fn().mockReturnValue({
+		findOne: vi.fn(),
+		find: vi.fn(),
+		insertOne: vi.fn(),
+		updateOne: vi.fn(),
+		deleteOne: vi.fn(),
+	}),
 };
 ```
 
@@ -760,37 +760,37 @@ import { mockAWSS3 } from '../test/helpers/mock.helper';
 
 // Mock del módulo AWS
 vi.mock('aws-sdk', () => ({
-  S3: vi.fn().mockImplementation(() => mockAWSS3),
+	S3: vi.fn().mockImplementation(() => mockAWSS3),
 }));
 
 describe('FileUploadService', () => {
-  let fileUploadService: FileUploadService;
+	let fileUploadService: FileUploadService;
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    fileUploadService = new FileUploadService();
-  });
+	beforeEach(() => {
+		vi.clearAllMocks();
+		fileUploadService = new FileUploadService();
+	});
 
-  it('should upload file to S3 successfully', async () => {
-    // Arrange
-    const fileBuffer = Buffer.from('test file content');
-    const fileName = 'test-file.txt';
-    const expectedUrl = 'https://s3.amazonaws.com/bucket/test-file.txt';
+	it('should upload file to S3 successfully', async () => {
+		// Arrange
+		const fileBuffer = Buffer.from('test file content');
+		const fileName = 'test-file.txt';
+		const expectedUrl = 'https://s3.amazonaws.com/bucket/test-file.txt';
 
-    mockAWSS3.upload.mockResolvedValue({ Location: expectedUrl });
+		mockAWSS3.upload.mockResolvedValue({ Location: expectedUrl });
 
-    // Act
-    const result = await fileUploadService.uploadFile(fileBuffer, fileName);
+		// Act
+		const result = await fileUploadService.uploadFile(fileBuffer, fileName);
 
-    // Assert
-    expect(result).toBe(expectedUrl);
-    expect(mockAWSS3.upload).toHaveBeenCalledWith({
-      Bucket: expect.any(String),
-      Key: fileName,
-      Body: fileBuffer,
-      ContentType: 'text/plain',
-    });
-  });
+		// Assert
+		expect(result).toBe(expectedUrl);
+		expect(mockAWSS3.upload).toHaveBeenCalledWith({
+			Bucket: expect.any(String),
+			Key: fileName,
+			Body: fileBuffer,
+			ContentType: 'text/plain',
+		});
+	});
 });
 ```
 
@@ -804,46 +804,46 @@ import { faker } from '@faker-js/faker';
 import { Payment, PaymentStatus } from '../../types/payment.types';
 
 export interface PaymentFixtureOptions {
-  amount?: number;
-  currency?: string;
-  status?: PaymentStatus;
-  customerId?: string;
-  paymentMethod?: string;
+	amount?: number;
+	currency?: string;
+	status?: PaymentStatus;
+	customerId?: string;
+	paymentMethod?: string;
 }
 
 export const createTestPayment = (options: PaymentFixtureOptions = {}): Partial<Payment> => {
-  return {
-    id: options.id || faker.string.uuid(),
-    amount: options.amount || faker.number.float({ min: 1, max: 1000, precision: 0.01 }),
-    currency: options.currency || 'USD',
-    status: options.status || 'pending',
-    customerId: options.customerId || faker.string.uuid(),
-    paymentMethod: options.paymentMethod || 'credit_card',
-    description: faker.commerce.productDescription(),
-    createdAt: faker.date.recent(),
-    updatedAt: faker.date.recent(),
-  };
+	return {
+		id: options.id || faker.string.uuid(),
+		amount: options.amount || faker.number.float({ min: 1, max: 1000, precision: 0.01 }),
+		currency: options.currency || 'USD',
+		status: options.status || 'pending',
+		customerId: options.customerId || faker.string.uuid(),
+		paymentMethod: options.paymentMethod || 'credit_card',
+		description: faker.commerce.productDescription(),
+		createdAt: faker.date.recent(),
+		updatedAt: faker.date.recent(),
+	};
 };
 
 export const createTestPaymentList = (count: number = 5): Partial<Payment>[] => {
-  return Array.from({ length: count }, () => createTestPayment());
+	return Array.from({ length: count }, () => createTestPayment());
 };
 
 // Fixtures específicos
 export const createCompletedPayment = (options: PaymentFixtureOptions = {}) => {
-  return createTestPayment({
-    ...options,
-    status: 'completed',
-    completedAt: faker.date.recent(),
-  });
+	return createTestPayment({
+		...options,
+		status: 'completed',
+		completedAt: faker.date.recent(),
+	});
 };
 
 export const createFailedPayment = (options: PaymentFixtureOptions = {}) => {
-  return createTestPayment({
-    ...options,
-    status: 'failed',
-    failureReason: faker.lorem.sentence(),
-  });
+	return createTestPayment({
+		...options,
+		status: 'failed',
+		failureReason: faker.lorem.sentence(),
+	});
 };
 ```
 
@@ -853,27 +853,27 @@ export const createFailedPayment = (options: PaymentFixtureOptions = {}) => {
 
 ```typescript
 describe('AsyncPaymentService', () => {
-  it('should process payment asynchronously', async () => {
-    // Arrange
-    const paymentData = createTestPayment();
-    const paymentService = new AsyncPaymentService();
+	it('should process payment asynchronously', async () => {
+		// Arrange
+		const paymentData = createTestPayment();
+		const paymentService = new AsyncPaymentService();
 
-    // Act
-    const result = await paymentService.processPaymentAsync(paymentData);
+		// Act
+		const result = await paymentService.processPaymentAsync(paymentData);
 
-    // Assert
-    expect(result.status).toBe('completed');
-    expect(result.processedAt).toBeInstanceOf(Date);
-  });
+		// Assert
+		expect(result.status).toBe('completed');
+		expect(result.processedAt).toBeInstanceOf(Date);
+	});
 
-  it('should handle async errors properly', async () => {
-    // Arrange
-    const invalidPaymentData = createTestPayment({ amount: -100 });
-    const paymentService = new AsyncPaymentService();
+	it('should handle async errors properly', async () => {
+		// Arrange
+		const invalidPaymentData = createTestPayment({ amount: -100 });
+		const paymentService = new AsyncPaymentService();
 
-    // Act & Assert
-    await expect(paymentService.processPaymentAsync(invalidPaymentData)).rejects.toThrow('Invalid payment amount');
-  });
+		// Act & Assert
+		await expect(paymentService.processPaymentAsync(invalidPaymentData)).rejects.toThrow('Invalid payment amount');
+	});
 });
 ```
 
@@ -881,12 +881,12 @@ describe('AsyncPaymentService', () => {
 
 ```typescript
 it('should timeout after specified duration', async () => {
-  // Arrange
-  const slowService = new SlowPaymentService();
-  const paymentData = createTestPayment();
+	// Arrange
+	const slowService = new SlowPaymentService();
+	const paymentData = createTestPayment();
 
-  // Act & Assert
-  await expect(slowService.processWithTimeout(paymentData, 1000)).rejects.toThrow('Operation timed out');
+	// Act & Assert
+	await expect(slowService.processWithTimeout(paymentData, 1000)).rejects.toThrow('Operation timed out');
 }, 2000); // Test timeout de 2 segundos
 ```
 
@@ -901,38 +901,38 @@ import { formatApiResponse, formatErrorResponse } from './response.util';
 import { createTestPayment } from '../test/fixtures/payment.fixture';
 
 describe('ResponseUtil', () => {
-  describe('formatApiResponse', () => {
-    it('should format successful payment response correctly', () => {
-      // Arrange
-      const payment = createTestPayment({
-        id: 'pay_123',
-        amount: 100.0,
-        currency: 'USD',
-        status: 'completed',
-      });
+	describe('formatApiResponse', () => {
+		it('should format successful payment response correctly', () => {
+			// Arrange
+			const payment = createTestPayment({
+				id: 'pay_123',
+				amount: 100.0,
+				currency: 'USD',
+				status: 'completed',
+			});
 
-      // Act
-      const response = formatApiResponse(payment, 'Payment processed successfully');
+			// Act
+			const response = formatApiResponse(payment, 'Payment processed successfully');
 
-      // Assert
-      expect(response).toMatchSnapshot();
-    });
+			// Assert
+			expect(response).toMatchSnapshot();
+		});
 
-    it('should format error response correctly', () => {
-      // Arrange
-      const error = new Error('Payment validation failed');
-      const details = {
-        field: 'amount',
-        code: 'INVALID_AMOUNT',
-      };
+		it('should format error response correctly', () => {
+			// Arrange
+			const error = new Error('Payment validation failed');
+			const details = {
+				field: 'amount',
+				code: 'INVALID_AMOUNT',
+			};
 
-      // Act
-      const response = formatErrorResponse(error, 400, details);
+			// Act
+			const response = formatErrorResponse(error, 400, details);
 
-      // Assert
-      expect(response).toMatchSnapshot();
-    });
-  });
+			// Assert
+			expect(response).toMatchSnapshot();
+		});
+	});
 });
 ```
 
@@ -1017,18 +1017,18 @@ jobs:
 
 ```json
 {
-  "scripts": {
-    "test": "vitest",
-    "test:unit": "vitest run --reporter=verbose",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts",
-    "test:watch": "vitest --watch",
-    "test:coverage": "vitest run --coverage",
-    "test:coverage:html": "vitest run --coverage --reporter=html",
-    "test:coverage:open": "npm run test:coverage:html && open coverage/index.html",
-    "test:ui": "vitest --ui",
-    "test:debug": "vitest --inspect-brk --no-coverage"
-  }
+	"scripts": {
+		"test": "vitest",
+		"test:unit": "vitest run --reporter=verbose",
+		"test:integration": "vitest run --config vitest.integration.config.ts",
+		"test:e2e": "vitest run --config vitest.e2e.config.ts",
+		"test:watch": "vitest --watch",
+		"test:coverage": "vitest run --coverage",
+		"test:coverage:html": "vitest run --coverage --reporter=html",
+		"test:coverage:open": "npm run test:coverage:html && open coverage/index.html",
+		"test:ui": "vitest --ui",
+		"test:debug": "vitest --inspect-brk --no-coverage"
+	}
 }
 ```
 
@@ -1064,34 +1064,34 @@ sonar.coverage.exclusions=**/*.test.ts,**/*.spec.ts,**/test/**,**/*.config.ts
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Debug Vitest Tests",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": ["run", "--no-coverage", "--reporter=verbose"],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "env": {
-        "NODE_ENV": "test"
-      },
-      "skipFiles": ["<node_internals>/**"]
-    },
-    {
-      "name": "Debug Current Test File",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": ["run", "${relativeFile}", "--no-coverage"],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "env": {
-        "NODE_ENV": "test"
-      }
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Vitest Tests",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+			"args": ["run", "--no-coverage", "--reporter=verbose"],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"env": {
+				"NODE_ENV": "test"
+			},
+			"skipFiles": ["<node_internals>/**"]
+		},
+		{
+			"name": "Debug Current Test File",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+			"args": ["run", "${relativeFile}", "--no-coverage"],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"env": {
+				"NODE_ENV": "test"
+			}
+		}
+	]
 }
 ```
 
@@ -1118,15 +1118,15 @@ npm run test:debug -- --reporter=verbose
 ```typescript
 // Debugging temporal en pruebas
 it('should debug payment processing', async () => {
-  const paymentData = createTestPayment();
+	const paymentData = createTestPayment();
 
-  console.log('Payment data:', JSON.stringify(paymentData, null, 2));
+	console.log('Payment data:', JSON.stringify(paymentData, null, 2));
 
-  const result = await paymentService.processPayment(paymentData);
+	const result = await paymentService.processPayment(paymentData);
 
-  console.log('Result:', JSON.stringify(result, null, 2));
+	console.log('Result:', JSON.stringify(result, null, 2));
 
-  expect(result.status).toBe('completed');
+	expect(result.status).toBe('completed');
 });
 ```
 
@@ -1152,47 +1152,47 @@ import { PaymentService } from '../../services/payment.service';
 import { createTestPayment } from '../../test/fixtures/payment.fixture';
 
 describe('Payment Performance Tests', () => {
-  const paymentService = new PaymentService();
+	const paymentService = new PaymentService();
 
-  it('should process 100 payments within acceptable time', async () => {
-    // Arrange
-    const payments = Array.from({ length: 100 }, () => createTestPayment());
-    const maxExecutionTime = 5000; // 5 segundos
+	it('should process 100 payments within acceptable time', async () => {
+		// Arrange
+		const payments = Array.from({ length: 100 }, () => createTestPayment());
+		const maxExecutionTime = 5000; // 5 segundos
 
-    // Act
-    const startTime = performance.now();
+		// Act
+		const startTime = performance.now();
 
-    const results = await Promise.all(payments.map((payment) => paymentService.processPayment(payment)));
+		const results = await Promise.all(payments.map((payment) => paymentService.processPayment(payment)));
 
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
+		const endTime = performance.now();
+		const executionTime = endTime - startTime;
 
-    // Assert
-    expect(results).toHaveLength(100);
-    expect(executionTime).toBeLessThan(maxExecutionTime);
-    expect(results.every((result) => result.status === 'completed')).toBe(true);
+		// Assert
+		expect(results).toHaveLength(100);
+		expect(executionTime).toBeLessThan(maxExecutionTime);
+		expect(results.every((result) => result.status === 'completed')).toBe(true);
 
-    console.log(`Processed 100 payments in ${executionTime.toFixed(2)}ms`);
-  });
+		console.log(`Processed 100 payments in ${executionTime.toFixed(2)}ms`);
+	});
 
-  it('should handle concurrent payment processing efficiently', async () => {
-    // Arrange
-    const concurrentPayments = 50;
-    const payments = Array.from({ length: concurrentPayments }, () => createTestPayment());
+	it('should handle concurrent payment processing efficiently', async () => {
+		// Arrange
+		const concurrentPayments = 50;
+		const payments = Array.from({ length: concurrentPayments }, () => createTestPayment());
 
-    // Act
-    const startTime = performance.now();
+		// Act
+		const startTime = performance.now();
 
-    const results = await Promise.allSettled(payments.map((payment) => paymentService.processPayment(payment)));
+		const results = await Promise.allSettled(payments.map((payment) => paymentService.processPayment(payment)));
 
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
+		const endTime = performance.now();
+		const executionTime = endTime - startTime;
 
-    // Assert
-    const successfulResults = results.filter((result) => result.status === 'fulfilled');
-    expect(successfulResults.length).toBeGreaterThan(concurrentPayments * 0.95); // 95% success rate
-    expect(executionTime).toBeLessThan(3000); // 3 segundos máximo
-  });
+		// Assert
+		const successfulResults = results.filter((result) => result.status === 'fulfilled');
+		expect(successfulResults.length).toBeGreaterThan(concurrentPayments * 0.95); // 95% success rate
+		expect(executionTime).toBeLessThan(3000); // 3 segundos máximo
+	});
 });
 ```
 
@@ -1205,29 +1205,29 @@ import { PaymentProcessor } from '../../services/payment-processor.service';
 import { createTestPaymentList } from '../../test/fixtures/payment.fixture';
 
 describe('Memory Usage Tests', () => {
-  it('should not exceed memory limits when processing large datasets', async () => {
-    // Arrange
-    const largePaymentList = createTestPaymentList(10000);
-    const processor = new PaymentProcessor();
-    const initialMemory = process.memoryUsage().heapUsed;
-    const maxMemoryIncrease = 100 * 1024 * 1024; // 100MB
+	it('should not exceed memory limits when processing large datasets', async () => {
+		// Arrange
+		const largePaymentList = createTestPaymentList(10000);
+		const processor = new PaymentProcessor();
+		const initialMemory = process.memoryUsage().heapUsed;
+		const maxMemoryIncrease = 100 * 1024 * 1024; // 100MB
 
-    // Act
-    await processor.processBatch(largePaymentList);
+		// Act
+		await processor.processBatch(largePaymentList);
 
-    // Force garbage collection if available
-    if (global.gc) {
-      global.gc();
-    }
+		// Force garbage collection if available
+		if (global.gc) {
+			global.gc();
+		}
 
-    const finalMemory = process.memoryUsage().heapUsed;
-    const memoryIncrease = finalMemory - initialMemory;
+		const finalMemory = process.memoryUsage().heapUsed;
+		const memoryIncrease = finalMemory - initialMemory;
 
-    // Assert
-    expect(memoryIncrease).toBeLessThan(maxMemoryIncrease);
+		// Assert
+		expect(memoryIncrease).toBeLessThan(maxMemoryIncrease);
 
-    console.log(`Memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)}MB`);
-  });
+		console.log(`Memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)}MB`);
+	});
 });
 ```
 
@@ -1242,77 +1242,77 @@ import { PaymentController } from '../../controllers/payment.controller';
 import { createMockRequest, createMockResponse } from '../../test/helpers/express.helper';
 
 describe('Input Validation Security Tests', () => {
-  const paymentController = new PaymentController();
+	const paymentController = new PaymentController();
 
-  describe('SQL Injection Prevention', () => {
-    it('should reject SQL injection attempts in payment description', async () => {
-      // Arrange
-      const maliciousPayload = {
-        amount: 100,
-        currency: 'USD',
-        description: "'; DROP TABLE payments; --",
-      };
+	describe('SQL Injection Prevention', () => {
+		it('should reject SQL injection attempts in payment description', async () => {
+			// Arrange
+			const maliciousPayload = {
+				amount: 100,
+				currency: 'USD',
+				description: "'; DROP TABLE payments; --",
+			};
 
-      const req = createMockRequest({ body: maliciousPayload });
-      const res = createMockResponse();
+			const req = createMockRequest({ body: maliciousPayload });
+			const res = createMockResponse();
 
-      // Act
-      await paymentController.createPayment(req, res);
+			// Act
+			await paymentController.createPayment(req, res);
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: 'Invalid input detected',
-        })
-      );
-    });
-  });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error: 'Invalid input detected',
+				})
+			);
+		});
+	});
 
-  describe('XSS Prevention', () => {
-    it('should sanitize script tags in input fields', async () => {
-      // Arrange
-      const xssPayload = {
-        amount: 100,
-        currency: 'USD',
-        description: '<script>alert("XSS")</script>',
-      };
+	describe('XSS Prevention', () => {
+		it('should sanitize script tags in input fields', async () => {
+			// Arrange
+			const xssPayload = {
+				amount: 100,
+				currency: 'USD',
+				description: '<script>alert("XSS")</script>',
+			};
 
-      const req = createMockRequest({ body: xssPayload });
-      const res = createMockResponse();
+			const req = createMockRequest({ body: xssPayload });
+			const res = createMockResponse();
 
-      // Act
-      await paymentController.createPayment(req, res);
+			// Act
+			await paymentController.createPayment(req, res);
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
-  });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(400);
+		});
+	});
 
-  describe('Input Size Limits', () => {
-    it('should reject oversized input fields', async () => {
-      // Arrange
-      const oversizedPayload = {
-        amount: 100,
-        currency: 'USD',
-        description: 'A'.repeat(10000), // 10KB description
-      };
+	describe('Input Size Limits', () => {
+		it('should reject oversized input fields', async () => {
+			// Arrange
+			const oversizedPayload = {
+				amount: 100,
+				currency: 'USD',
+				description: 'A'.repeat(10000), // 10KB description
+			};
 
-      const req = createMockRequest({ body: oversizedPayload });
-      const res = createMockResponse();
+			const req = createMockRequest({ body: oversizedPayload });
+			const res = createMockResponse();
 
-      // Act
-      await paymentController.createPayment(req, res);
+			// Act
+			await paymentController.createPayment(req, res);
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: 'Input size exceeds limit',
-        })
-      );
-    });
-  });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error: 'Input size exceeds limit',
+				})
+			);
+		});
+	});
 });
 ```
 
@@ -1325,83 +1325,83 @@ import { AuthMiddleware } from '../../middleware/auth.middleware';
 import { createMockRequest, createMockResponse } from '../../test/helpers/express.helper';
 
 describe('Authentication Security Tests', () => {
-  let authMiddleware: AuthMiddleware;
+	let authMiddleware: AuthMiddleware;
 
-  beforeEach(() => {
-    authMiddleware = new AuthMiddleware();
-  });
+	beforeEach(() => {
+		authMiddleware = new AuthMiddleware();
+	});
 
-  describe('JWT Token Validation', () => {
-    it('should reject invalid JWT tokens', async () => {
-      // Arrange
-      const req = createMockRequest({
-        headers: {
-          authorization: 'Bearer invalid.jwt.token',
-        },
-      });
-      const res = createMockResponse();
-      const next = vi.fn();
+	describe('JWT Token Validation', () => {
+		it('should reject invalid JWT tokens', async () => {
+			// Arrange
+			const req = createMockRequest({
+				headers: {
+					authorization: 'Bearer invalid.jwt.token',
+				},
+			});
+			const res = createMockResponse();
+			const next = vi.fn();
 
-      // Act
-      await authMiddleware.validateToken(req, res, next);
+			// Act
+			await authMiddleware.validateToken(req, res, next);
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(next).not.toHaveBeenCalled();
-    });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(401);
+			expect(next).not.toHaveBeenCalled();
+		});
 
-    it('should reject expired JWT tokens', async () => {
-      // Arrange
-      const expiredToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid';
+		it('should reject expired JWT tokens', async () => {
+			// Arrange
+			const expiredToken =
+				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid';
 
-      const req = createMockRequest({
-        headers: {
-          authorization: `Bearer ${expiredToken}`,
-        },
-      });
-      const res = createMockResponse();
-      const next = vi.fn();
+			const req = createMockRequest({
+				headers: {
+					authorization: `Bearer ${expiredToken}`,
+				},
+			});
+			const res = createMockResponse();
+			const next = vi.fn();
 
-      // Act
-      await authMiddleware.validateToken(req, res, next);
+			// Act
+			await authMiddleware.validateToken(req, res, next);
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: 'Token expired',
-        })
-      );
-    });
-  });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(401);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error: 'Token expired',
+				})
+			);
+		});
+	});
 
-  describe('Rate Limiting', () => {
-    it('should block requests exceeding rate limit', async () => {
-      // Arrange
-      const req = createMockRequest({
-        ip: '192.168.1.1',
-        headers: {
-          authorization: 'Bearer valid.jwt.token',
-        },
-      });
-      const res = createMockResponse();
-      const next = vi.fn();
+	describe('Rate Limiting', () => {
+		it('should block requests exceeding rate limit', async () => {
+			// Arrange
+			const req = createMockRequest({
+				ip: '192.168.1.1',
+				headers: {
+					authorization: 'Bearer valid.jwt.token',
+				},
+			});
+			const res = createMockResponse();
+			const next = vi.fn();
 
-      // Simular múltiples requests
-      for (let i = 0; i < 101; i++) {
-        await authMiddleware.rateLimit(req, res, next);
-      }
+			// Simular múltiples requests
+			for (let i = 0; i < 101; i++) {
+				await authMiddleware.rateLimit(req, res, next);
+			}
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(429);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: 'Rate limit exceeded',
-        })
-      );
-    });
-  });
+			// Assert
+			expect(res.status).toHaveBeenCalledWith(429);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error: 'Rate limit exceeded',
+				})
+			);
+		});
+	});
 });
 ```
 
@@ -1422,32 +1422,32 @@ describe('Authentication Security Tests', () => {
 ```typescript
 // Optimizar setup de base de datos
 beforeEach(async () => {
-  // ❌ Lento: Recrear toda la base de datos
-  // await recreateDatabase();
+	// ❌ Lento: Recrear toda la base de datos
+	// await recreateDatabase();
 
-  // ✅ Rápido: Solo limpiar datos
-  await clearTestData();
+	// ✅ Rápido: Solo limpiar datos
+	await clearTestData();
 });
 
 // Usar mocks para servicios externos
 vi.mock('../services/external-api.service', () => ({
-  ExternalApiService: vi.fn().mockImplementation(() => ({
-    fetchData: vi.fn().mockResolvedValue({ data: 'mocked' }),
-  })),
+	ExternalApiService: vi.fn().mockImplementation(() => ({
+		fetchData: vi.fn().mockResolvedValue({ data: 'mocked' }),
+	})),
 }));
 
 // Paralelizar pruebas independientes
 // vitest.config.ts
 export default defineConfig({
-  test: {
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        maxThreads: 4,
-        minThreads: 2,
-      },
-    },
-  },
+	test: {
+		pool: 'threads',
+		poolOptions: {
+			threads: {
+				maxThreads: 4,
+				minThreads: 2,
+			},
+		},
+	},
 });
 ```
 
@@ -1464,37 +1464,37 @@ export default defineConfig({
 ```typescript
 // ❌ Problemático: Dependencia de timing
 it('should process payment after delay', async () => {
-  paymentService.processWithDelay(paymentData);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  expect(paymentService.isProcessed()).toBe(true);
+	paymentService.processWithDelay(paymentData);
+	await new Promise((resolve) => setTimeout(resolve, 1000));
+	expect(paymentService.isProcessed()).toBe(true);
 });
 
 // ✅ Mejor: Usar waitFor o polling
 it('should process payment after delay', async () => {
-  paymentService.processWithDelay(paymentData);
+	paymentService.processWithDelay(paymentData);
 
-  await waitFor(
-    () => {
-      expect(paymentService.isProcessed()).toBe(true);
-    },
-    { timeout: 5000 }
-  );
+	await waitFor(
+		() => {
+			expect(paymentService.isProcessed()).toBe(true);
+		},
+		{ timeout: 5000 }
+	);
 });
 
 // Helper para waitFor
 const waitFor = async (condition: () => void, options = { timeout: 5000, interval: 100 }) => {
-  const start = Date.now();
+	const start = Date.now();
 
-  while (Date.now() - start < options.timeout) {
-    try {
-      condition();
-      return;
-    } catch (error) {
-      await new Promise((resolve) => setTimeout(resolve, options.interval));
-    }
-  }
+	while (Date.now() - start < options.timeout) {
+		try {
+			condition();
+			return;
+		} catch (error) {
+			await new Promise((resolve) => setTimeout(resolve, options.interval));
+		}
+	}
 
-  condition(); // Último intento que lanzará el error
+	condition(); // Último intento que lanzará el error
 };
 ```
 
@@ -1511,33 +1511,33 @@ const waitFor = async (condition: () => void, options = { timeout: 5000, interva
 ```typescript
 // Limpiar recursos después de cada prueba
 afterEach(async () => {
-  // Cerrar conexiones de base de datos
-  await mongoClient?.close();
+	// Cerrar conexiones de base de datos
+	await mongoClient?.close();
 
-  // Limpiar caches
-  cache.clear();
+	// Limpiar caches
+	cache.clear();
 
-  // Limpiar timers
-  vi.clearAllTimers();
+	// Limpiar timers
+	vi.clearAllTimers();
 
-  // Force garbage collection en desarrollo
-  if (process.env.NODE_ENV === 'test' && global.gc) {
-    global.gc();
-  }
+	// Force garbage collection en desarrollo
+	if (process.env.NODE_ENV === 'test' && global.gc) {
+		global.gc();
+	}
 });
 
 // Procesar datos en chunks para datasets grandes
 it('should process large dataset efficiently', async () => {
-  const largeDataset = createLargeTestDataset(10000);
-  const chunkSize = 100;
+	const largeDataset = createLargeTestDataset(10000);
+	const chunkSize = 100;
 
-  for (let i = 0; i < largeDataset.length; i += chunkSize) {
-    const chunk = largeDataset.slice(i, i + chunkSize);
-    await processChunk(chunk);
+	for (let i = 0; i < largeDataset.length; i += chunkSize) {
+		const chunk = largeDataset.slice(i, i + chunkSize);
+		await processChunk(chunk);
 
-    // Permitir garbage collection entre chunks
-    await new Promise((resolve) => setImmediate(resolve));
-  }
+		// Permitir garbage collection entre chunks
+		await new Promise((resolve) => setImmediate(resolve));
+	}
 });
 ```
 
@@ -1574,17 +1574,17 @@ npx clinic doctor -- npm run test
 ```typescript
 // Verificar llamadas a mocks
 it('should debug mock calls', () => {
-  const mockFn = vi.fn();
+	const mockFn = vi.fn();
 
-  // Ejecutar código que usa el mock
-  serviceUnderTest.methodThatCallsMock();
+	// Ejecutar código que usa el mock
+	serviceUnderTest.methodThatCallsMock();
 
-  // Debug información del mock
-  console.log('Mock calls:', mockFn.mock.calls);
-  console.log('Mock results:', mockFn.mock.results);
-  console.log('Mock instances:', mockFn.mock.instances);
+	// Debug información del mock
+	console.log('Mock calls:', mockFn.mock.calls);
+	console.log('Mock results:', mockFn.mock.results);
+	console.log('Mock instances:', mockFn.mock.instances);
 
-  expect(mockFn).toHaveBeenCalledTimes(1);
+	expect(mockFn).toHaveBeenCalledTimes(1);
 });
 ```
 

@@ -87,17 +87,17 @@ Incluye la siguiente información en tu reporte:
 ```typescript
 // ✅ Correcto: Validación de JWT
 const validateToken = (token: string): Promise<UserPayload> => {
-  return jwt.verify(token, process.env.JWT_SECRET!);
+	return jwt.verify(token, process.env.JWT_SECRET!);
 };
 
 // ✅ Correcto: Autorización basada en roles
 const requireRole = (requiredRole: UserRole) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || req.user.role !== requiredRole) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
-    }
-    next();
-  };
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (!req.user || req.user.role !== requiredRole) {
+			return res.status(403).json({ error: 'Insufficient permissions' });
+		}
+		next();
+	};
 };
 ```
 
@@ -108,17 +108,17 @@ const requireRole = (requiredRole: UserRole) => {
 import Joi from 'joi';
 
 const userSchema = Joi.object({
-  email: Joi.string().email().required(),
-  amount: Joi.number().positive().max(1000000).required(),
-  currency: Joi.string().valid('COP', 'USD').required(),
+	email: Joi.string().email().required(),
+	amount: Joi.number().positive().max(1000000).required(),
+	currency: Joi.string().valid('COP', 'USD').required(),
 });
 
 const validateInput = (data: unknown) => {
-  const { error, value } = userSchema.validate(data);
-  if (error) {
-    throw new ValidationError(error.details[0].message);
-  }
-  return value;
+	const { error, value } = userSchema.validate(data);
+	if (error) {
+		throw new ValidationError(error.details[0].message);
+	}
+	return value;
 };
 ```
 
@@ -127,15 +127,15 @@ const validateInput = (data: unknown) => {
 ```typescript
 // ✅ Correcto: Uso de variables de entorno
 const config = {
-  dbPassword: process.env.DB_PASSWORD!,
-  apiKey: process.env.API_KEY!,
-  jwtSecret: process.env.JWT_SECRET!,
+	dbPassword: process.env.DB_PASSWORD!,
+	apiKey: process.env.API_KEY!,
+	jwtSecret: process.env.JWT_SECRET!,
 };
 
 // ❌ Incorrecto: Hardcoded secrets
 const config = {
-  dbPassword: 'mypassword123',
-  apiKey: 'sk-1234567890abcdef',
+	dbPassword: 'mypassword123',
+	apiKey: 'sk-1234567890abcdef',
 };
 ```
 
@@ -144,15 +144,15 @@ const config = {
 ```typescript
 // ✅ Correcto: No logear información sensible
 logger.info('User login attempt', {
-  userId: user.id,
-  timestamp: new Date().toISOString(),
-  ip: req.ip,
+	userId: user.id,
+	timestamp: new Date().toISOString(),
+	ip: req.ip,
 });
 
 // ❌ Incorrecto: Logear información sensible
 logger.info('User login', {
-  password: user.password,
-  creditCard: user.creditCard,
+	password: user.password,
+	creditCard: user.creditCard,
 });
 ```
 
@@ -199,10 +199,10 @@ AWS_REGION=us-east-1
 ```typescript
 // ✅ Correcto: Configuración segura
 const awsConfig = {
-  region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  sessionToken: process.env.AWS_SESSION_TOKEN,
+	region: process.env.AWS_REGION || 'us-east-1',
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+	sessionToken: process.env.AWS_SESSION_TOKEN,
 };
 ```
 
@@ -213,20 +213,20 @@ const awsConfig = {
 ```typescript
 // Eventos a monitorear
 const securityEvents = {
-  FAILED_LOGIN: 'security.auth.failed_login',
-  UNAUTHORIZED_ACCESS: 'security.access.unauthorized',
-  SUSPICIOUS_ACTIVITY: 'security.activity.suspicious',
-  DATA_ACCESS: 'security.data.access',
-  PRIVILEGE_ESCALATION: 'security.privilege.escalation',
+	FAILED_LOGIN: 'security.auth.failed_login',
+	UNAUTHORIZED_ACCESS: 'security.access.unauthorized',
+	SUSPICIOUS_ACTIVITY: 'security.activity.suspicious',
+	DATA_ACCESS: 'security.data.access',
+	PRIVILEGE_ESCALATION: 'security.privilege.escalation',
 };
 
 // Implementación de logging
 const logSecurityEvent = (event: string, details: SecurityEventDetails) => {
-  logger.warn(event, {
-    ...details,
-    timestamp: new Date().toISOString(),
-    severity: 'security',
-  });
+	logger.warn(event, {
+		...details,
+		timestamp: new Date().toISOString(),
+		severity: 'security',
+	});
 };
 ```
 
