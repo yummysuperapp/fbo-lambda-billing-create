@@ -26,5 +26,8 @@ export * from './responses';
 // Http response and methods
 export * from './http';
 
+// Billing type definitions
+export * from './bill';
+
 // Global types are automatically available via global.d.ts
 // No need to re-export them here

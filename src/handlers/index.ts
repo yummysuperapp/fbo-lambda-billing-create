@@ -23,3 +23,5 @@
 // Handlers will be exported here as they are created
 // Example: export * from './finance.handler';
 // Example: export * from './file-processing.handler';
+
+export * from './get-billing.handler';

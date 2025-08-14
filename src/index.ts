@@ -1,18 +1,14 @@
 import { APIGatewayProxyEventV2, Context, APIGatewayProxyResult } from 'aws-lambda';
 import { getHttpEventMethod, createResponse } from '@/utils';
 import { HttpStatus, HttpStatusMessage } from '@/constants';
+import { GetBillingHandler } from '@/handlers';
 
 export const handler = async (event: APIGatewayProxyEventV2, _context: Context): Promise<APIGatewayProxyResult> => {
 	const method = getHttpEventMethod(event);
 
 	switch (method) {
 		case 'GET':
-			return createResponse(HttpStatus.OK, HttpStatusMessage[HttpStatus.OK], {
-				message: 'GET method received',
-				method,
-				context: _context,
-				body: event,
-			});
+			return GetBillingHandler(event.body);
 		case 'POST':
 			return createResponse(HttpStatus.OK, HttpStatusMessage[HttpStatus.OK], {
 				message: 'POST method received',
