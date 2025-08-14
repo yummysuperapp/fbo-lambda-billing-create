@@ -1,4 +1,4 @@
-import type { LambdaResponse, ApiResponse, ErrorResponse, LambdaEvent, HttpEvent, HttpMethod } from '@/types';
+import type { LambdaResponse, ApiResponse, ErrorResponse, LambdaEvent, HttpEvent, HttpMethod, HttpStatusType, HttpStatusMessageType } from '@/types';
 
 /**
  * Creates a standardized Lambda response
@@ -202,3 +202,25 @@ export const getHttpEventMethod = (event: LambdaEvent): HttpMethod | null => {
   }
   return null;
 };
+
+/**
+ * HTTP Response with all content
+ */
+export const createHttpResponse = (
+  statusCode: HttpStatusType,
+  statusMessage?: HttpStatusMessageType,
+  body?: FBOLambda.UnknownRecord,
+  headers?: Record<string, string>,
+  isBase64Encoded = false,
+): LambdaResponse => ({
+    statusCode,
+    isBase64Encoded,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(headers || {}),
+    },
+    body: JSON.stringify({
+      message: statusMessage,
+      ...(body || {}),
+    }),
+});

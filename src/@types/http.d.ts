@@ -88,6 +88,9 @@ export const HttpStatus = {
   NETWORK_AUTHENTICATION_REQUIRED: 511
 } as const;
 
+// Type for HTTP status codes
+export type HttpStatusType = typeof HttpStatus[keyof typeof HttpStatus];
+
 // Http status message http response
 export const HttpStatusMessage = {
   // 1xx Informational
@@ -162,3 +165,6 @@ export const HttpStatusMessage = {
   510: 'Not Extended',
   511: 'Network Authentication Required'
 } as const;
+
+// Type for HTTP status message
+export type HttpStatusMessageType = typeof HttpStatusMessage[keyof typeof HttpStatusMessage];
