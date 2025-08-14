@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
-import { BigQuery, Dataset, Table, Job } from '@google-cloud/bigquery';
-import { BigQueryClient, createBigQueryClient, getBigQueryClient } from '../../src/clients/bigquery.client';
-import { BigQueryError } from '../../src/interfaces/exceptions';
-import { config } from '../../src/config/app.config';
-import { logger, createLogger } from '../../src/utils/logger.util';
+import { BigQuery } from '@google-cloud/bigquery';
+import { BigQueryClient, createBigQueryClient, getBigQueryClient } from '@/clients/bigquery.client';
+import { BigQueryError } from '@/interfaces/exceptions';
+import { config } from '@/config/app.config';
+import { logger, createLogger } from '@/utils/logger.util';
 
 // Mock dependencies
 vi.mock('@google-cloud/bigquery');
-vi.mock('../../src/config/app.config');
-vi.mock('../../src/utils/logger.util');
+vi.mock('@/config/app.config');
+vi.mock('@/utils/logger.util');
 
 const mockBigQuery = vi.mocked(BigQuery);
 const mockConfig = vi.mocked(config);
@@ -113,6 +113,18 @@ describe('BigQueryClient', () => {
       // BigQuery instance is not created until connect() is called
       expect(mockBigQuery).not.toHaveBeenCalled();
     });
+    
+    it('should create BigQueryClient instance with credentials config', () => {
+      const customConfig = {
+        projectId: 'custom-project',
+        location: 'EU',
+        credentials: { client_email: 'test@test.com', private_key: 'key' }
+      };
+      
+      const client = new BigQueryClient(customConfig);
+      expect(client).toBeInstanceOf(BigQueryClient);
+      expect(mockBigQuery).not.toHaveBeenCalled();
+    });
   });
 
   describe('connect', () => {
@@ -135,13 +147,98 @@ describe('BigQueryClient', () => {
       await expect(bigQueryClient.connect()).rejects.toThrow(BigQueryError);
       expect(mockLogger.error).toHaveBeenCalledWith('Failed to connect to BigQuery:', error);
     });
+    
+    it('should return early if already connected', async () => {
+      // First connection
+      mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+      await bigQueryClient.connect();
+      
+      // Clear mock calls
+      vi.clearAllMocks();
+      
+      // Second connection should return early
+      await bigQueryClient.connect();
+      
+      expect(mockLogger.debug).toHaveBeenCalledWith('BigQuery connection already exists');
+       expect(mockBigQueryInstance.getDatasets).not.toHaveBeenCalled();
+     });
+     
+     it('should connect with keyFilename authentication', async () => {
+       const customConfig = {
+         projectId: 'test-project',
+         keyFilename: '/path/to/key.json'
+       };
+       const client = new BigQueryClient(customConfig);
+       mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+       
+       await client.connect();
+       
+       expect(mockBigQuery).toHaveBeenCalledWith({
+         projectId: 'test-project',
+         location: 'US',
+         maxRetries: 3,
+         autoRetry: true,
+         keyFilename: '/path/to/key.json'
+       });
+     });
+     
+     it('should connect with credentials authentication', async () => {
+       const customConfig = {
+         projectId: 'test-project',
+         credentials: { client_email: 'test@test.com', private_key: 'key' }
+       };
+       const client = new BigQueryClient(customConfig);
+       mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+       
+       await client.connect();
+       
+       expect(mockBigQuery).toHaveBeenCalledWith({
+         projectId: 'test-project',
+         location: 'US',
+         maxRetries: 3,
+         autoRetry: true,
+         credentials: { client_email: 'test@test.com', private_key: 'key' }
+       });
+     });
   });
 
   describe('disconnect', () => {
-    it('should disconnect successfully', async () => {
+    it('should disconnect successfully when no client exists', async () => {
       await bigQueryClient.disconnect();
       
       // El método disconnect no registra mensaje cuando no hay conexión activa
+    });
+    
+    it('should disconnect successfully when client exists', async () => {
+      // First connect to have an active client
+      mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+      await bigQueryClient.connect();
+      
+      // Now disconnect
+      await bigQueryClient.disconnect();
+      
+      expect(mockLogger.info).toHaveBeenCalledWith('BigQuery client disconnected');
+    });
+    
+    it('should throw BigQueryError when disconnect fails', async () => {
+      // First connect to have an active client
+      mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+      await bigQueryClient.connect();
+      
+      // Mock an error during disconnect by making the client property access throw
+      const error = new Error('Disconnect failed');
+      
+      // We need to simulate an error in the disconnect process
+      // Let's override the client property to throw when accessed
+      Object.defineProperty(bigQueryClient, 'client', {
+        get: () => {
+          throw error;
+        },
+        configurable: true
+      });
+      
+      await expect(bigQueryClient.disconnect()).rejects.toThrow(BigQueryError);
+      expect(mockLogger.error).toHaveBeenCalledWith('BigQuery disconnect failed', expect.any(BigQueryError));
     });
   });
 
