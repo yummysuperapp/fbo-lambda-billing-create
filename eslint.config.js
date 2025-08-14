@@ -1,5 +1,5 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+const eslint = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
 /**
  * ESLint Configuration for FBO Lambda Template
@@ -11,7 +11,7 @@ import tseslint from 'typescript-eslint';
  * 
  * For complete documentation see: https://www.notion.so/yummy/financial-backoffice
  */
-export default [
+module.exports = [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {

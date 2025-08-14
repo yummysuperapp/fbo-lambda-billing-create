@@ -10,26 +10,6 @@ export interface LambdaResponse {
   isBase64Encoded?: boolean;
 }
 
-// API Response Types
-export interface SuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  message?: string;
-  timestamp: string;
-}
-
-export interface ErrorResponse {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-    details?: FBOLambda.UnknownRecord;
-  };
-  timestamp: string;
-}
-
-export type ApiResponse<T = unknown> = SuccessResponse<T> | ErrorResponse;
-
 // File Operation Types
 export interface FileMetadata {
   bucket: string;

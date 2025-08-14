@@ -1,61 +1,73 @@
-import type { LambdaResponse, ApiResponse, ErrorResponse, LambdaEvent, HttpEvent, HttpMethod, HttpStatusType, HttpStatusMessageType } from '@/types';
+import { LambdaResponse, LambdaEvent, HttpEvent, HttpStatusType, HttpMethodType } from '@/types';
 
 /**
  * Creates a standardized Lambda response
  */
-export function createResponse<T = unknown>(
-  statusCode: number,
-  data: ApiResponse<T>,
-  headers?: Record<string, string>
-): LambdaResponse {
-  return {
+export const createResponse = (
+  statusCode: HttpStatusType,
+  body?: FBOLambda.UnknownRecord,
+  headers?: Record<string, string>,
+  isBase64Encoded = false,
+): LambdaResponse => ({
     statusCode,
-    body: JSON.stringify(data),
+    isBase64Encoded,
     headers: {
       'Content-Type': 'application/json',
       'X-Powered-By': 'Yummy-FBO-Lambda',
-      ...headers,
+      ...(headers || {}),
     },
-  };
-}
+    body: JSON.stringify(body || {}),
+});
 
 /**
- * Creates a success response
+ * Creates a standardized success response
  */
-export function createSuccessResponse<T = unknown>(
-  data: T,
+export const createSuccessResponse = (
+  data?: FBOLambda.UnknownRecord,
   message?: string,
-  statusCode: number = 200
-): LambdaResponse {
-  return createResponse(statusCode, {
+  statusCode: HttpStatusType = 200,
+  headers?: Record<string, string>
+): LambdaResponse => ({
+  statusCode,
+  isBase64Encoded: false,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Powered-By': 'Yummy-FBO-Lambda',
+    ...(headers || {}),
+  },
+  body: JSON.stringify({
     success: true,
     data,
-    timestamp: new Date().toISOString(),
     ...(message && { message }),
-  });
-}
+  }),
+});
 
 /**
- * Creates an error response
+ * Creates a standardized error response
  */
-export function createErrorResponse(
-  error: string,
-  statusCode: number = 500,
-  code?: string,
-  details?: unknown
-): LambdaResponse {
-  const errorData: ErrorResponse = {
+export const createErrorResponse = (
+  message: string,
+  statusCode: HttpStatusType = 500,
+  errorCode: string = 'INTERNAL_ERROR',
+  details?: FBOLambda.UnknownRecord | null,
+  headers?: Record<string, string>
+): LambdaResponse => ({
+  statusCode,
+  isBase64Encoded: false,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Powered-By': 'Yummy-FBO-Lambda',
+    ...(headers || {}),
+  },
+  body: JSON.stringify({
     success: false,
-    timestamp: new Date().toISOString(),
     error: {
-      code: code || 'INTERNAL_ERROR',
-      message: error,
-      ...(details !== undefined && { details: details as Record<string, unknown> }),
+      message,
+      code: errorCode,
+      ...(details !== undefined && { details }),
     },
-  };
-
-  return createResponse(statusCode, errorData);
-}
+  }),
+});
 
 /**
  * Safely parses JSON with error handling
@@ -196,31 +208,9 @@ export const isHttpEvent = (event: LambdaEvent): event is HttpEvent => {
 /**
  * Check if event is HttpEvent and get HTTP method
  */
-export const getHttpEventMethod = (event: LambdaEvent): HttpMethod | null => {
+export const getHttpEventMethod = (event: LambdaEvent): HttpMethodType | null => {
   if (isHttpEvent(event)) {
     return event.requestContext.http.method;
   }
   return null;
 };
-
-/**
- * HTTP Response with all content
- */
-export const createHttpResponse = (
-  statusCode: HttpStatusType,
-  statusMessage?: HttpStatusMessageType,
-  body?: FBOLambda.UnknownRecord,
-  headers?: Record<string, string>,
-  isBase64Encoded = false,
-): LambdaResponse => ({
-    statusCode,
-    isBase64Encoded,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(headers || {}),
-    },
-    body: JSON.stringify({
-      message: statusMessage,
-      ...(body || {}),
-    }),
-});
