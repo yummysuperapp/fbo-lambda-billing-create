@@ -1,26 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    ":dependencyDashboard",
-    ":semanticCommits",
-    ":automergeDigest",
-    ":automergeBranch"
-  ],
+  "extends": ["config:base", ":dependencyDashboard", ":semanticCommits", ":automergeDigest", ":automergeBranch"],
   "timezone": "America/Caracas",
-  "schedule": [
-    "before 6am on monday"
-  ],
-  "labels": [
-    "dependencies",
-    "renovate"
-  ],
-  "assignees": [
-    "jose.carrillo"
-  ],
-  "reviewers": [
-    "jose.carrillo"
-  ],
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies", "renovate"],
+  "assignees": ["jose.carrillo"],
+  "reviewers": ["jose.carrillo"],
   "prConcurrentLimit": 3,
   "prHourlyLimit": 2,
   "commitMessagePrefix": "chore(deps):",
@@ -32,39 +17,20 @@
     {
       "description": "Group AWS SDK updates",
       "groupName": "AWS SDK",
-      "matchPackagePatterns": [
-        "^@aws-sdk/",
-        "^aws-"
-      ],
-      "schedule": [
-        "before 6am on monday"
-      ]
+      "matchPackagePatterns": ["^@aws-sdk/", "^aws-"],
+      "schedule": ["before 6am on monday"]
     },
     {
       "description": "Group TypeScript and related packages",
       "groupName": "TypeScript",
-      "matchPackageNames": [
-        "typescript",
-        "@types/node",
-        "ts-node",
-        "tsx"
-      ],
-      "schedule": [
-        "before 6am on monday"
-      ]
+      "matchPackageNames": ["typescript", "@types/node", "ts-node", "tsx"],
+      "schedule": ["before 6am on monday"]
     },
     {
       "description": "Group testing packages",
       "groupName": "Testing",
-      "matchPackageNames": [
-        "vitest",
-        "@vitest/ui",
-        "@vitest/coverage-v8",
-        "jsdom"
-      ],
-      "schedule": [
-        "before 6am on monday"
-      ]
+      "matchPackageNames": ["vitest", "@vitest/ui", "@vitest/coverage-v8", "jsdom"],
+      "schedule": ["before 6am on monday"]
     },
     {
       "description": "Group ESLint and Prettier packages",
@@ -77,103 +43,59 @@
         "eslint-config-prettier",
         "eslint-plugin-prettier"
       ],
-      "schedule": [
-        "before 6am on monday"
-      ]
+      "schedule": ["before 6am on monday"]
     },
     {
       "description": "Auto-merge patch updates for non-major dependencies",
-      "matchUpdateTypes": [
-        "patch"
-      ],
+      "matchUpdateTypes": ["patch"],
       "automerge": true,
       "automergeType": "branch",
       "requiredStatusChecks": null
     },
     {
       "description": "Auto-merge minor updates for dev dependencies",
-      "matchDepTypes": [
-        "devDependencies"
-      ],
-      "matchUpdateTypes": [
-        "minor"
-      ],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor"],
       "automerge": true,
       "automergeType": "branch"
     },
     {
       "description": "Require manual approval for major updates",
-      "matchUpdateTypes": [
-        "major"
-      ],
+      "matchUpdateTypes": ["major"],
       "automerge": false,
-      "labels": [
-        "dependencies",
-        "major-update",
-        "requires-review"
-      ],
-      "reviewers": [
-        "jose.carrillo"
-      ]
+      "labels": ["dependencies", "major-update", "requires-review"],
+      "reviewers": ["jose.carrillo"]
     },
     {
       "description": "Pin Docker digests",
-      "matchDatasources": [
-        "docker"
-      ],
+      "matchDatasources": ["docker"],
       "pinDigests": true
     },
     {
       "description": "Separate major Node.js updates",
-      "matchPackageNames": [
-        "node"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "labels": [
-        "node-major",
-        "requires-review"
-      ],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "labels": ["node-major", "requires-review"],
       "automerge": false
     }
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": [
-      "security",
-      "vulnerability"
-    ],
-    "assignees": [
-      "jose.carrillo"
-    ],
-    "reviewers": [
-      "jose.carrillo"
-    ],
-    "schedule": [
-      "at any time"
-    ],
+    "labels": ["security", "vulnerability"],
+    "assignees": ["jose.carrillo"],
+    "reviewers": ["jose.carrillo"],
+    "schedule": ["at any time"],
     "prPriority": 10
   },
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": [
-      "before 6am on monday"
-    ],
+    "schedule": ["before 6am on monday"],
     "commitMessageAction": "update",
     "commitMessageTopic": "lock file",
-    "labels": [
-      "dependencies",
-      "lock-file"
-    ]
+    "labels": ["dependencies", "lock-file"]
   },
   "ignoreDeps": [],
-  "ignorePaths": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/coverage/**"
-  ],
+  "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
   "platformAutomerge": true,
   "rebaseWhen": "conflicted",
   "dependencyDashboard": true,

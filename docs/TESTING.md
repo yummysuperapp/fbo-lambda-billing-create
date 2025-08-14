@@ -28,9 +28,9 @@ Seguimos la pirámide de testing tradicional con énfasis en pruebas unitarias:
 
 ```mermaid
 graph TD
-    A["🔺 E2E Tests (5%)"] --> B["🔸 Integration Tests (25%)"] 
+    A["🔺 E2E Tests (5%)"] --> B["🔸 Integration Tests (25%)"]
     B --> C["🔹 Unit Tests (70%)"]
-    
+
     style A fill:#ff6b6b
     style B fill:#4ecdc4
     style C fill:#45b7d1
@@ -64,69 +64,55 @@ export default defineConfig({
   test: {
     // Entorno de testing
     environment: 'node',
-    
+
     // Archivos de configuración
     setupFiles: ['./src/test/setup.ts'],
-    
+
     // Patrones de archivos de prueba
-    include: [
-      'src/**/*.{test,spec}.{js,ts}',
-      'tests/**/*.{test,spec}.{js,ts}'
-    ],
-    
+    include: ['src/**/*.{test,spec}.{js,ts}', 'tests/**/*.{test,spec}.{js,ts}'],
+
     // Archivos a excluir
-    exclude: [
-      'node_modules',
-      'dist',
-      '.git',
-      'coverage'
-    ],
-    
+    exclude: ['node_modules', 'dist', '.git', 'coverage'],
+
     // Configuración de cobertura
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        '**/*.config.{js,ts}',
-        '**/index.ts'
-      ],
+      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.{js,ts}', '**/index.ts'],
       thresholds: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
-    
+
     // Configuración de reporters
     reporters: ['verbose', 'junit'],
     outputFile: {
-      junit: './test-results/junit.xml'
+      junit: './test-results/junit.xml',
     },
-    
+
     // Timeout para pruebas
     testTimeout: 10000,
     hookTimeout: 10000,
-    
+
     // Configuración de mocks
     globals: true,
     mockReset: true,
-    restoreMocks: true
+    restoreMocks: true,
   },
-  
+
   // Resolución de paths
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@test': path.resolve(__dirname, './src/test')
-    }
-  }
+      '@test': path.resolve(__dirname, './src/test'),
+    },
+  },
 });
 ```
 
@@ -151,11 +137,11 @@ beforeAll(async () => {
   // Inicializar MongoDB en memoria
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  
+
   // Configurar cliente de MongoDB
   mongoClient = new MongoClient(mongoUri);
   await mongoClient.connect();
-  
+
   // Configurar variables de entorno para testing
   process.env.MONGODB_URI = mongoUri;
   process.env.NODE_ENV = 'test';
@@ -177,7 +163,7 @@ beforeEach(async () => {
   if (mongoClient) {
     const db = mongoClient.db();
     const collections = await db.listCollections().toArray();
-    
+
     for (const collection of collections) {
       await db.collection(collection.name).deleteMany({});
     }
@@ -224,6 +210,7 @@ src/
 ### Convenciones de Nombres
 
 #### Archivos de Prueba
+
 - **Pruebas Unitarias**: `*.test.ts` (co-ubicadas con el código)
 - **Pruebas de Integración**: `*.integration.test.ts`
 - **Pruebas E2E**: `*.e2e.test.ts`
@@ -231,6 +218,7 @@ src/
 - **Helpers**: `*.helper.ts`
 
 #### Nombres de Pruebas
+
 ```typescript
 // ✅ Buena práctica
 describe('PaymentService', () => {
@@ -238,7 +226,7 @@ describe('PaymentService', () => {
     it('should process valid payment successfully', () => {
       // Test implementation
     });
-    
+
     it('should throw error when payment amount is negative', () => {
       // Test implementation
     });
@@ -285,19 +273,19 @@ describe('PaymentService', () => {
     it('should process valid payment successfully', async () => {
       // Arrange
       const paymentData = {
-        amount: 100.00,
+        amount: 100.0,
         currency: 'USD',
         paymentMethod: 'credit_card',
-        customerId: 'cust_123'
+        customerId: 'cust_123',
       };
-      
+
       const expectedPayment = {
         id: 'pay_123',
         ...paymentData,
         status: 'completed',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
-      
+
       mockPaymentRepository.create.mockResolvedValue(expectedPayment);
       mockNotificationService.sendPaymentConfirmation.mockResolvedValue(true);
 
@@ -313,35 +301,33 @@ describe('PaymentService', () => {
     it('should throw error when payment amount is negative', async () => {
       // Arrange
       const invalidPaymentData = {
-        amount: -50.00,
+        amount: -50.0,
         currency: 'USD',
         paymentMethod: 'credit_card',
-        customerId: 'cust_123'
+        customerId: 'cust_123',
       };
 
       // Act & Assert
-      await expect(paymentService.processPayment(invalidPaymentData))
-        .rejects
-        .toThrow('Payment amount must be positive');
-      
+      await expect(paymentService.processPayment(invalidPaymentData)).rejects.toThrow(
+        'Payment amount must be positive'
+      );
+
       expect(mockPaymentRepository.create).not.toHaveBeenCalled();
     });
 
     it('should handle repository errors gracefully', async () => {
       // Arrange
       const paymentData = {
-        amount: 100.00,
+        amount: 100.0,
         currency: 'USD',
         paymentMethod: 'credit_card',
-        customerId: 'cust_123'
+        customerId: 'cust_123',
       };
-      
+
       mockPaymentRepository.create.mockRejectedValue(new Error('Database connection failed'));
 
       // Act & Assert
-      await expect(paymentService.processPayment(paymentData))
-        .rejects
-        .toThrow('Failed to process payment');
+      await expect(paymentService.processPayment(paymentData)).rejects.toThrow('Failed to process payment');
     });
   });
 });
@@ -357,26 +343,17 @@ import { validateEmail, validatePaymentAmount, sanitizeInput } from './validatio
 describe('ValidationUtil', () => {
   describe('validateEmail', () => {
     it('should return true for valid email addresses', () => {
-      const validEmails = [
-        'user@example.com',
-        'test.email+tag@domain.co.uk',
-        'user123@test-domain.com'
-      ];
+      const validEmails = ['user@example.com', 'test.email+tag@domain.co.uk', 'user123@test-domain.com'];
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(validateEmail(email)).toBe(true);
       });
     });
 
     it('should return false for invalid email addresses', () => {
-      const invalidEmails = [
-        'invalid-email',
-        '@domain.com',
-        'user@',
-        'user..double.dot@domain.com'
-      ];
+      const invalidEmails = ['invalid-email', '@domain.com', 'user@', 'user..double.dot@domain.com'];
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(validateEmail(email)).toBe(false);
       });
     });
@@ -384,7 +361,7 @@ describe('ValidationUtil', () => {
 
   describe('validatePaymentAmount', () => {
     it('should return true for valid payment amounts', () => {
-      expect(validatePaymentAmount(10.50)).toBe(true);
+      expect(validatePaymentAmount(10.5)).toBe(true);
       expect(validatePaymentAmount(1000)).toBe(true);
       expect(validatePaymentAmount(0.01)).toBe(true);
     });
@@ -399,10 +376,8 @@ describe('ValidationUtil', () => {
 
   describe('sanitizeInput', () => {
     it('should remove dangerous characters from input', () => {
-      expect(sanitizeInput('<script>alert("xss")</script>test'))
-        .toBe('test');
-      expect(sanitizeInput('normal text'))
-        .toBe('normal text');
+      expect(sanitizeInput('<script>alert("xss")</script>test')).toBe('test');
+      expect(sanitizeInput('normal text')).toBe('normal text');
     });
 
     it('should handle null and undefined inputs', () => {
@@ -460,9 +435,7 @@ describe('PaymentRepository Integration', () => {
       await paymentRepository.create(paymentData);
 
       // Act & Assert
-      await expect(paymentRepository.create(paymentData))
-        .rejects
-        .toThrow('Payment with external ID already exists');
+      await expect(paymentRepository.create(paymentData)).rejects.toThrow('Payment with external ID already exists');
     });
   });
 
@@ -508,13 +481,11 @@ describe('Payment API E2E', () => {
   beforeAll(async () => {
     // Configurar usuario de prueba y autenticación
     testUser = await createTestUser();
-    const loginResponse = await request(app)
-      .post('/auth/login')
-      .send({
-        email: testUser.email,
-        password: 'test_password'
-      });
-    
+    const loginResponse = await request(app).post('/auth/login').send({
+      email: testUser.email,
+      password: 'test_password',
+    });
+
     authToken = loginResponse.body.token;
   });
 
@@ -522,10 +493,10 @@ describe('Payment API E2E', () => {
     it('should create payment successfully', async () => {
       // Arrange
       const paymentData = {
-        amount: 100.00,
+        amount: 100.0,
         currency: 'USD',
         paymentMethod: 'credit_card',
-        description: 'Test payment'
+        description: 'Test payment',
       };
 
       // Act
@@ -541,7 +512,7 @@ describe('Payment API E2E', () => {
         amount: paymentData.amount,
         currency: paymentData.currency,
         status: 'pending',
-        createdAt: expect.any(String)
+        createdAt: expect.any(String),
       });
     });
 
@@ -550,7 +521,7 @@ describe('Payment API E2E', () => {
       const invalidPaymentData = {
         amount: -50, // Invalid negative amount
         currency: 'INVALID',
-        paymentMethod: ''
+        paymentMethod: '',
       };
 
       // Act
@@ -566,9 +537,9 @@ describe('Payment API E2E', () => {
         details: expect.arrayContaining([
           expect.objectContaining({
             field: 'amount',
-            message: expect.stringContaining('must be positive')
-          })
-        ])
+            message: expect.stringContaining('must be positive'),
+          }),
+        ]),
       });
     });
 
@@ -577,10 +548,7 @@ describe('Payment API E2E', () => {
       const paymentData = createTestPayment();
 
       // Act & Assert
-      await request(app)
-        .post('/api/payments')
-        .send(paymentData)
-        .expect(401);
+      await request(app).post('/api/payments').send(paymentData).expect(401);
     });
   });
 
@@ -592,7 +560,7 @@ describe('Payment API E2E', () => {
         .post('/api/payments')
         .set('Authorization', `Bearer ${authToken}`)
         .send(paymentData);
-      
+
       const paymentId = createResponse.body.id;
 
       // Act
@@ -605,16 +573,13 @@ describe('Payment API E2E', () => {
       expect(response.body).toMatchObject({
         id: paymentId,
         amount: paymentData.amount,
-        currency: paymentData.currency
+        currency: paymentData.currency,
       });
     });
 
     it('should return 404 for non-existent payment', async () => {
       // Act & Assert
-      await request(app)
-        .get('/api/payments/non_existent_id')
-        .set('Authorization', `Bearer ${authToken}`)
-        .expect(404);
+      await request(app).get('/api/payments/non_existent_id').set('Authorization', `Bearer ${authToken}`).expect(404);
     });
   });
 });
@@ -660,7 +625,7 @@ coverage: {
     'text-summary' // Resumen en consola
   ],
   reportsDirectory: './coverage',
-  
+
   // Archivos a excluir de cobertura
   exclude: [
     'node_modules/',
@@ -680,15 +645,15 @@ coverage: {
 # Ejemplo de salida de cobertura
 % Coverage report from v8
 -----------------------|---------|----------|---------|---------|-------------------
-File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -----------------------|---------|----------|---------|---------|-------------------
-All files              |   85.23 |    78.45 |   89.12 |   85.67 |                   
- controllers/           |   92.15 |    85.71 |   95.00 |   92.30 |                   
-  payment.controller.ts |   92.15 |    85.71 |   95.00 |   92.30 | 45-47,52          
- services/              |   88.76 |    82.35 |   90.00 |   89.12 |                   
-  payment.service.ts    |   88.76 |    82.35 |   90.00 |   89.12 | 78,95-98          
- utils/                 |   75.45 |    65.22 |   80.00 |   76.12 |                   
-  validation.util.ts    |   75.45 |    65.22 |   80.00 |   76.12 | 23-25,45-50       
+All files              |   85.23 |    78.45 |   89.12 |   85.67 |
+ controllers/           |   92.15 |    85.71 |   95.00 |   92.30 |
+  payment.controller.ts |   92.15 |    85.71 |   95.00 |   92.30 | 45-47,52
+ services/              |   88.76 |    82.35 |   90.00 |   89.12 |
+  payment.service.ts    |   88.76 |    82.35 |   90.00 |   89.12 | 78,95-98
+ utils/                 |   75.45 |    65.22 |   80.00 |   76.12 |
+  validation.util.ts    |   75.45 |    65.22 |   80.00 |   76.12 | 23-25,45-50
 -----------------------|---------|----------|---------|---------|-------------------
 ```
 
@@ -728,11 +693,11 @@ describe('PaymentValidator', () => {
     it('should return true when credit card number is valid', () => {
       // Test implementation
     });
-    
+
     it('should return false when credit card number has invalid checksum', () => {
       // Test implementation
     });
-    
+
     it('should throw error when credit card number is null', () => {
       // Test implementation
     });
@@ -744,7 +709,7 @@ describe('Validator', () => {
   it('test1', () => {
     // Test implementation
   });
-  
+
   it('test2', () => {
     // Test implementation
   });
@@ -763,7 +728,7 @@ import { vi } from 'vitest';
 export const mockAWSS3 = {
   upload: vi.fn().mockResolvedValue({ Location: 'https://s3.amazonaws.com/bucket/file.jpg' }),
   deleteObject: vi.fn().mockResolvedValue({}),
-  getObject: vi.fn().mockResolvedValue({ Body: Buffer.from('file content') })
+  getObject: vi.fn().mockResolvedValue({ Body: Buffer.from('file content') }),
 };
 
 // Mock de servicios HTTP
@@ -771,7 +736,7 @@ export const mockHttpClient = {
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),
-  delete: vi.fn()
+  delete: vi.fn(),
 };
 
 // Mock de base de datos
@@ -781,8 +746,8 @@ export const mockDatabase = {
     find: vi.fn(),
     insertOne: vi.fn(),
     updateOne: vi.fn(),
-    deleteOne: vi.fn()
-  })
+    deleteOne: vi.fn(),
+  }),
 };
 ```
 
@@ -795,7 +760,7 @@ import { mockAWSS3 } from '../test/helpers/mock.helper';
 
 // Mock del módulo AWS
 vi.mock('aws-sdk', () => ({
-  S3: vi.fn().mockImplementation(() => mockAWSS3)
+  S3: vi.fn().mockImplementation(() => mockAWSS3),
 }));
 
 describe('FileUploadService', () => {
@@ -811,7 +776,7 @@ describe('FileUploadService', () => {
     const fileBuffer = Buffer.from('test file content');
     const fileName = 'test-file.txt';
     const expectedUrl = 'https://s3.amazonaws.com/bucket/test-file.txt';
-    
+
     mockAWSS3.upload.mockResolvedValue({ Location: expectedUrl });
 
     // Act
@@ -823,7 +788,7 @@ describe('FileUploadService', () => {
       Bucket: expect.any(String),
       Key: fileName,
       Body: fileBuffer,
-      ContentType: 'text/plain'
+      ContentType: 'text/plain',
     });
   });
 });
@@ -856,7 +821,7 @@ export const createTestPayment = (options: PaymentFixtureOptions = {}): Partial<
     paymentMethod: options.paymentMethod || 'credit_card',
     description: faker.commerce.productDescription(),
     createdAt: faker.date.recent(),
-    updatedAt: faker.date.recent()
+    updatedAt: faker.date.recent(),
   };
 };
 
@@ -869,7 +834,7 @@ export const createCompletedPayment = (options: PaymentFixtureOptions = {}) => {
   return createTestPayment({
     ...options,
     status: 'completed',
-    completedAt: faker.date.recent()
+    completedAt: faker.date.recent(),
   });
 };
 
@@ -877,7 +842,7 @@ export const createFailedPayment = (options: PaymentFixtureOptions = {}) => {
   return createTestPayment({
     ...options,
     status: 'failed',
-    failureReason: faker.lorem.sentence()
+    failureReason: faker.lorem.sentence(),
   });
 };
 ```
@@ -907,9 +872,7 @@ describe('AsyncPaymentService', () => {
     const paymentService = new AsyncPaymentService();
 
     // Act & Assert
-    await expect(paymentService.processPaymentAsync(invalidPaymentData))
-      .rejects
-      .toThrow('Invalid payment amount');
+    await expect(paymentService.processPaymentAsync(invalidPaymentData)).rejects.toThrow('Invalid payment amount');
   });
 });
 ```
@@ -923,9 +886,7 @@ it('should timeout after specified duration', async () => {
   const paymentData = createTestPayment();
 
   // Act & Assert
-  await expect(slowService.processWithTimeout(paymentData, 1000))
-    .rejects
-    .toThrow('Operation timed out');
+  await expect(slowService.processWithTimeout(paymentData, 1000)).rejects.toThrow('Operation timed out');
 }, 2000); // Test timeout de 2 segundos
 ```
 
@@ -945,9 +906,9 @@ describe('ResponseUtil', () => {
       // Arrange
       const payment = createTestPayment({
         id: 'pay_123',
-        amount: 100.00,
+        amount: 100.0,
         currency: 'USD',
-        status: 'completed'
+        status: 'completed',
       });
 
       // Act
@@ -962,7 +923,7 @@ describe('ResponseUtil', () => {
       const error = new Error('Payment validation failed');
       const details = {
         field: 'amount',
-        code: 'INVALID_AMOUNT'
+        code: 'INVALID_AMOUNT',
       };
 
       // Act
@@ -993,48 +954,48 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run linting
         run: npm run lint
-      
+
       - name: Run type checking
         run: npm run type-check
-      
+
       - name: Run unit tests
         run: npm run test:unit
-      
+
       - name: Run integration tests
         run: npm run test:integration
         env:
           NODE_ENV: test
-      
+
       - name: Run coverage
         run: npm run test:coverage
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -1043,7 +1004,7 @@ jobs:
           path: |
             test-results/
             coverage/
-      
+
       - name: Comment PR with coverage
         if: github.event_name == 'pull_request'
         uses: romeovs/lcov-reporter-action@v0.3.1
@@ -1116,9 +1077,7 @@ sonar.coverage.exclusions=**/*.test.ts,**/*.spec.ts,**/test/**,**/*.config.ts
       "env": {
         "NODE_ENV": "test"
       },
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     },
     {
       "name": "Debug Current Test File",
@@ -1160,13 +1119,13 @@ npm run test:debug -- --reporter=verbose
 // Debugging temporal en pruebas
 it('should debug payment processing', async () => {
   const paymentData = createTestPayment();
-  
+
   console.log('Payment data:', JSON.stringify(paymentData, null, 2));
-  
+
   const result = await paymentService.processPayment(paymentData);
-  
+
   console.log('Result:', JSON.stringify(result, null, 2));
-  
+
   expect(result.status).toBe('completed');
 });
 ```
@@ -1202,19 +1161,17 @@ describe('Payment Performance Tests', () => {
 
     // Act
     const startTime = performance.now();
-    
-    const results = await Promise.all(
-      payments.map(payment => paymentService.processPayment(payment))
-    );
-    
+
+    const results = await Promise.all(payments.map((payment) => paymentService.processPayment(payment)));
+
     const endTime = performance.now();
     const executionTime = endTime - startTime;
 
     // Assert
     expect(results).toHaveLength(100);
     expect(executionTime).toBeLessThan(maxExecutionTime);
-    expect(results.every(result => result.status === 'completed')).toBe(true);
-    
+    expect(results.every((result) => result.status === 'completed')).toBe(true);
+
     console.log(`Processed 100 payments in ${executionTime.toFixed(2)}ms`);
   });
 
@@ -1225,16 +1182,14 @@ describe('Payment Performance Tests', () => {
 
     // Act
     const startTime = performance.now();
-    
-    const results = await Promise.allSettled(
-      payments.map(payment => paymentService.processPayment(payment))
-    );
-    
+
+    const results = await Promise.allSettled(payments.map((payment) => paymentService.processPayment(payment)));
+
     const endTime = performance.now();
     const executionTime = endTime - startTime;
 
     // Assert
-    const successfulResults = results.filter(result => result.status === 'fulfilled');
+    const successfulResults = results.filter((result) => result.status === 'fulfilled');
     expect(successfulResults.length).toBeGreaterThan(concurrentPayments * 0.95); // 95% success rate
     expect(executionTime).toBeLessThan(3000); // 3 segundos máximo
   });
@@ -1259,18 +1214,18 @@ describe('Memory Usage Tests', () => {
 
     // Act
     await processor.processBatch(largePaymentList);
-    
+
     // Force garbage collection if available
     if (global.gc) {
       global.gc();
     }
-    
+
     const finalMemory = process.memoryUsage().heapUsed;
     const memoryIncrease = finalMemory - initialMemory;
 
     // Assert
     expect(memoryIncrease).toBeLessThan(maxMemoryIncrease);
-    
+
     console.log(`Memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)}MB`);
   });
 });
@@ -1295,9 +1250,9 @@ describe('Input Validation Security Tests', () => {
       const maliciousPayload = {
         amount: 100,
         currency: 'USD',
-        description: "'; DROP TABLE payments; --"
+        description: "'; DROP TABLE payments; --",
       };
-      
+
       const req = createMockRequest({ body: maliciousPayload });
       const res = createMockResponse();
 
@@ -1308,7 +1263,7 @@ describe('Input Validation Security Tests', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Invalid input detected'
+          error: 'Invalid input detected',
         })
       );
     });
@@ -1320,9 +1275,9 @@ describe('Input Validation Security Tests', () => {
       const xssPayload = {
         amount: 100,
         currency: 'USD',
-        description: '<script>alert("XSS")</script>'
+        description: '<script>alert("XSS")</script>',
       };
-      
+
       const req = createMockRequest({ body: xssPayload });
       const res = createMockResponse();
 
@@ -1340,9 +1295,9 @@ describe('Input Validation Security Tests', () => {
       const oversizedPayload = {
         amount: 100,
         currency: 'USD',
-        description: 'A'.repeat(10000) // 10KB description
+        description: 'A'.repeat(10000), // 10KB description
       };
-      
+
       const req = createMockRequest({ body: oversizedPayload });
       const res = createMockResponse();
 
@@ -1353,7 +1308,7 @@ describe('Input Validation Security Tests', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Input size exceeds limit'
+          error: 'Input size exceeds limit',
         })
       );
     });
@@ -1381,8 +1336,8 @@ describe('Authentication Security Tests', () => {
       // Arrange
       const req = createMockRequest({
         headers: {
-          authorization: 'Bearer invalid.jwt.token'
-        }
+          authorization: 'Bearer invalid.jwt.token',
+        },
       });
       const res = createMockResponse();
       const next = vi.fn();
@@ -1397,12 +1352,13 @@ describe('Authentication Security Tests', () => {
 
     it('should reject expired JWT tokens', async () => {
       // Arrange
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid';
-      
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid';
+
       const req = createMockRequest({
         headers: {
-          authorization: `Bearer ${expiredToken}`
-        }
+          authorization: `Bearer ${expiredToken}`,
+        },
       });
       const res = createMockResponse();
       const next = vi.fn();
@@ -1414,7 +1370,7 @@ describe('Authentication Security Tests', () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Token expired'
+          error: 'Token expired',
         })
       );
     });
@@ -1426,8 +1382,8 @@ describe('Authentication Security Tests', () => {
       const req = createMockRequest({
         ip: '192.168.1.1',
         headers: {
-          authorization: 'Bearer valid.jwt.token'
-        }
+          authorization: 'Bearer valid.jwt.token',
+        },
       });
       const res = createMockResponse();
       const next = vi.fn();
@@ -1441,7 +1397,7 @@ describe('Authentication Security Tests', () => {
       expect(res.status).toHaveBeenCalledWith(429);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Rate limit exceeded'
+          error: 'Rate limit exceeded',
         })
       );
     });
@@ -1456,17 +1412,19 @@ describe('Authentication Security Tests', () => {
 #### 1. **Pruebas Lentas**
 
 **Síntomas:**
+
 - Tests que tardan más de 30 segundos
 - Timeouts frecuentes
 - CI/CD pipeline lento
 
 **Soluciones:**
+
 ```typescript
 // Optimizar setup de base de datos
 beforeEach(async () => {
   // ❌ Lento: Recrear toda la base de datos
   // await recreateDatabase();
-  
+
   // ✅ Rápido: Solo limpiar datos
   await clearTestData();
 });
@@ -1474,8 +1432,8 @@ beforeEach(async () => {
 // Usar mocks para servicios externos
 vi.mock('../services/external-api.service', () => ({
   ExternalApiService: vi.fn().mockImplementation(() => ({
-    fetchData: vi.fn().mockResolvedValue({ data: 'mocked' })
-  }))
+    fetchData: vi.fn().mockResolvedValue({ data: 'mocked' }),
+  })),
 }));
 
 // Paralelizar pruebas independientes
@@ -1486,51 +1444,56 @@ export default defineConfig({
     poolOptions: {
       threads: {
         maxThreads: 4,
-        minThreads: 2
-      }
-    }
-  }
+        minThreads: 2,
+      },
+    },
+  },
 });
 ```
 
 #### 2. **Pruebas Flaky (Inestables)**
 
 **Síntomas:**
+
 - Pruebas que fallan aleatoriamente
 - Resultados inconsistentes
 - Dependencia del timing
 
 **Soluciones:**
+
 ```typescript
 // ❌ Problemático: Dependencia de timing
 it('should process payment after delay', async () => {
   paymentService.processWithDelay(paymentData);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   expect(paymentService.isProcessed()).toBe(true);
 });
 
 // ✅ Mejor: Usar waitFor o polling
 it('should process payment after delay', async () => {
   paymentService.processWithDelay(paymentData);
-  
-  await waitFor(() => {
-    expect(paymentService.isProcessed()).toBe(true);
-  }, { timeout: 5000 });
+
+  await waitFor(
+    () => {
+      expect(paymentService.isProcessed()).toBe(true);
+    },
+    { timeout: 5000 }
+  );
 });
 
 // Helper para waitFor
 const waitFor = async (condition: () => void, options = { timeout: 5000, interval: 100 }) => {
   const start = Date.now();
-  
+
   while (Date.now() - start < options.timeout) {
     try {
       condition();
       return;
     } catch (error) {
-      await new Promise(resolve => setTimeout(resolve, options.interval));
+      await new Promise((resolve) => setTimeout(resolve, options.interval));
     }
   }
-  
+
   condition(); // Último intento que lanzará el error
 };
 ```
@@ -1538,23 +1501,25 @@ const waitFor = async (condition: () => void, options = { timeout: 5000, interva
 #### 3. **Problemas de Memoria**
 
 **Síntomas:**
+
 - Tests que fallan por falta de memoria
 - Proceso que se cuelga
 - Garbage collection excesivo
 
 **Soluciones:**
+
 ```typescript
 // Limpiar recursos después de cada prueba
 afterEach(async () => {
   // Cerrar conexiones de base de datos
   await mongoClient?.close();
-  
+
   // Limpiar caches
   cache.clear();
-  
+
   // Limpiar timers
   vi.clearAllTimers();
-  
+
   // Force garbage collection en desarrollo
   if (process.env.NODE_ENV === 'test' && global.gc) {
     global.gc();
@@ -1565,13 +1530,13 @@ afterEach(async () => {
 it('should process large dataset efficiently', async () => {
   const largeDataset = createLargeTestDataset(10000);
   const chunkSize = 100;
-  
+
   for (let i = 0; i < largeDataset.length; i += chunkSize) {
     const chunk = largeDataset.slice(i, i + chunkSize);
     await processChunk(chunk);
-    
+
     // Permitir garbage collection entre chunks
-    await new Promise(resolve => setImmediate(resolve));
+    await new Promise((resolve) => setImmediate(resolve));
   }
 });
 ```
@@ -1610,15 +1575,15 @@ npx clinic doctor -- npm run test
 // Verificar llamadas a mocks
 it('should debug mock calls', () => {
   const mockFn = vi.fn();
-  
+
   // Ejecutar código que usa el mock
   serviceUnderTest.methodThatCallsMock();
-  
+
   // Debug información del mock
   console.log('Mock calls:', mockFn.mock.calls);
   console.log('Mock results:', mockFn.mock.results);
   console.log('Mock instances:', mockFn.mock.instances);
-  
+
   expect(mockFn).toHaveBeenCalledTimes(1);
 });
 ```
@@ -1658,6 +1623,7 @@ it('should debug mock calls', () => {
 ## Soporte y Recursos
 
 Para preguntas sobre testing o problemas técnicos:
+
 - **Tech Lead:** José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Equipo:** Financial Backoffice
 - **Slack:** #fbo-team
@@ -1666,6 +1632,6 @@ Para preguntas sobre testing o problemas técnicos:
 
 ---
 
-*Última actualización: Agosto 2025*
-*Versión: 1.0.0*
-*Próxima revisión: Agosto 2025*
+_Última actualización: Agosto 2025_
+_Versión: 1.0.0_
+_Próxima revisión: Agosto 2025_

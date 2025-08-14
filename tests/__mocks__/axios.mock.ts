@@ -1,6 +1,6 @@
 /**
  * @fileoverview Axios Mock Configuration
- * 
+ *
  * Centralized mock configuration for Axios HTTP client.
  * This mock provides consistent behavior across all tests
  * that use HTTP client functionality.

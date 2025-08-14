@@ -1,6 +1,6 @@
 /**
  * @fileoverview Test Fixtures
- * 
+ *
  * Centralized test data fixtures used across multiple test files.
  * This ensures consistency and reduces duplication in test data.
  */
@@ -25,7 +25,7 @@ export const userFixtures = {
 export const financeFixtures = {
   validTransaction: {
     id: 'txn-123',
-    amount: 100.50,
+    amount: 100.5,
     currency: 'USD',
     type: 'credit',
     description: 'Test transaction',
@@ -61,7 +61,7 @@ export const httpFixtures = {
   },
   requestConfig: {
     timeout: 5000,
-    headers: { 'Authorization': 'Bearer token' },
+    headers: { Authorization: 'Bearer token' },
     retries: 3,
   },
 };

@@ -6,7 +6,7 @@ import type {
   ValidationResult,
   FieldValidationError,
   PaginationOptions,
-  PaginatedResult
+  PaginatedResult,
 } from '@/interfaces/base';
 
 describe('Base Interfaces', () => {
@@ -15,7 +15,7 @@ describe('Base Interfaces', () => {
       const entity: BaseEntity = {
         id: 'test-id',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       expect(entity.id).toBe('test-id');
@@ -28,7 +28,7 @@ describe('Base Interfaces', () => {
     it('should define correct structure for BaseService', () => {
       const service: BaseService = {
         initialize: async () => {},
-        cleanup: async () => {}
+        cleanup: async () => {},
       };
 
       expect(typeof service.initialize).toBe('function');
@@ -45,10 +45,10 @@ describe('Base Interfaces', () => {
           id: 'new-id',
           createdAt: new Date(),
           updatedAt: new Date(),
-          ...entity
+          ...entity,
         }),
         update: async (id: string, updates: Partial<Omit<BaseEntity, 'id' | 'createdAt' | 'updatedAt'>>) => null,
-        delete: async (id: string) => false
+        delete: async (id: string) => false,
       };
 
       expect(typeof repository.findById).toBe('function');
@@ -63,7 +63,7 @@ describe('Base Interfaces', () => {
     it('should define correct structure for ValidationResult', () => {
       const validResult: ValidationResult = {
         isValid: true,
-        errors: []
+        errors: [],
       };
 
       const invalidResult: ValidationResult = {
@@ -72,9 +72,9 @@ describe('Base Interfaces', () => {
           {
             field: 'email',
             message: 'Invalid email format',
-            code: 'INVALID_EMAIL'
-          }
-        ]
+            code: 'INVALID_EMAIL',
+          },
+        ],
       };
 
       expect(validResult.isValid).toBe(true);
@@ -89,7 +89,7 @@ describe('Base Interfaces', () => {
       const error: FieldValidationError = {
         field: 'username',
         message: 'Username is required',
-        code: 'REQUIRED_FIELD'
+        code: 'REQUIRED_FIELD',
       };
 
       expect(error.field).toBe('username');
@@ -104,7 +104,7 @@ describe('Base Interfaces', () => {
         page: 1,
         limit: 10,
         sortBy: 'createdAt',
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       };
 
       expect(options.page).toBe(1);
@@ -116,7 +116,7 @@ describe('Base Interfaces', () => {
     it('should work with minimal options', () => {
       const options: PaginationOptions = {
         page: 1,
-        limit: 20
+        limit: 20,
       };
 
       expect(options.page).toBe(1);
@@ -133,8 +133,8 @@ describe('Base Interfaces', () => {
           {
             id: 'entity-1',
             createdAt: new Date(),
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         ],
         pagination: {
           page: 1,
@@ -142,8 +142,8 @@ describe('Base Interfaces', () => {
           total: 1,
           totalPages: 1,
           hasNext: false,
-          hasPrev: false
-        }
+          hasPrev: false,
+        },
       };
 
       expect(result.data).toHaveLength(1);

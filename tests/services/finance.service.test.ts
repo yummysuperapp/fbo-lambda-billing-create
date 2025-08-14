@@ -54,17 +54,13 @@ describe('FinanceService', () => {
 
       const result = await financeService.sendDispersionData(dispersionData);
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        'https://api.finance.example.com/dispersion',
-        dispersionData,
-        {
-          headers: {
-            'X-API-Key': 'test-api-key',
-            'Content-Type': 'application/json',
-          },
-          timeout: 30000,
-        }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith('https://api.finance.example.com/dispersion', dispersionData, {
+        headers: {
+          'X-API-Key': 'test-api-key',
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000,
+      });
 
       expect(result).toEqual(expectedResponse);
     });
@@ -189,15 +185,12 @@ describe('FinanceService', () => {
 
       const result = await financeService.getHealthStatus();
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        'https://api.finance.example.com/health',
-        {
-          headers: {
-            'X-API-Key': 'test-api-key',
-          },
-          timeout: 5000,
-        }
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith('https://api.finance.example.com/health', {
+        headers: {
+          'X-API-Key': 'test-api-key',
+        },
+        timeout: 5000,
+      });
 
       expect(result.healthy).toBe(true);
       expect(result.responseTime).toBeGreaterThanOrEqual(0);

@@ -63,7 +63,7 @@ describe('MongoClient', () => {
 
     // Mock the MongoClient constructor
     (MongoDBClient as any).mockImplementation(() => mockMongoClient);
-    
+
     client = createMongoClient(mockConfig, mockLogger);
   });
 
@@ -184,14 +184,14 @@ describe('MongoClient', () => {
     });
 
     it('should insert multiple documents successfully', async () => {
-      const mockResult = { 
-        insertedCount: 2, 
+      const mockResult = {
+        insertedCount: 2,
         insertedIds: { 0: 'id1', 1: 'id2' },
-        acknowledged: true 
+        acknowledged: true,
       };
       const documents = [
         { name: 'User 1', email: 'user1@example.com' },
-        { name: 'User 2', email: 'user2@example.com' }
+        { name: 'User 2', email: 'user2@example.com' },
       ];
       mockCollection.insertMany.mockResolvedValue(mockResult);
 
@@ -351,7 +351,7 @@ describe('MongoClient', () => {
 
     it('should handle disconnect when client is null', async () => {
       const disconnectedClient = createMongoClient(mockConfig, mockLogger);
-      
+
       // Should not throw when client is null
       await expect(disconnectedClient.disconnect()).resolves.not.toThrow();
     });
@@ -359,35 +359,35 @@ describe('MongoClient', () => {
     it('should handle ensureConnection when not connected', async () => {
       const disconnectedClient = createMongoClient(mockConfig);
       // Don't call connect() to simulate disconnected state
-      
+
       await expect(disconnectedClient.findOne('users', { id: 1 })).rejects.toThrow(MongoError);
       // Note: The error is thrown directly from ensureConnection, not logged in findOne
     });
 
     it('should handle getCollection when db is null', () => {
       const client = createMongoClient(mockConfig, mockLogger);
-      
+
       expect(() => (client as any).getCollection('test')).toThrow('Database connection not established');
     });
 
     it('should handle findMany with all options', async () => {
       await client.connect(); // Ensure connection first
-      
+
       const mockCursor = {
         limit: vi.fn().mockReturnThis(),
         skip: vi.fn().mockReturnThis(),
         sort: vi.fn().mockReturnThis(),
         project: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValue([{ id: 1, name: 'test' }])
+        toArray: vi.fn().mockResolvedValue([{ id: 1, name: 'test' }]),
       };
-      
+
       mockCollection.find.mockReturnValue(mockCursor);
 
       const options = {
         limit: 10,
         skip: 5,
         sort: { name: 1 },
-        projection: { name: 1 }
+        projection: { name: 1 },
       };
 
       const result = await client.findMany('users', { active: true }, options);
@@ -401,19 +401,19 @@ describe('MongoClient', () => {
 
     it('should handle findMany with partial options', async () => {
       await client.connect(); // Ensure connection first
-      
+
       const mockCursor = {
         limit: vi.fn().mockReturnThis(),
         skip: vi.fn().mockReturnThis(),
         sort: vi.fn().mockReturnThis(),
         project: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValue([{ id: 1, name: 'test' }])
+        toArray: vi.fn().mockResolvedValue([{ id: 1, name: 'test' }]),
       };
-      
+
       mockCollection.find.mockReturnValue(mockCursor);
 
       const options = {
-        limit: 10
+        limit: 10,
         // Only limit, no skip, sort, or projection
       };
 
@@ -428,45 +428,42 @@ describe('MongoClient', () => {
 
     it('should handle insertMany with correct id mapping', async () => {
       await client.connect(); // Ensure connection first
-      
-      const documents = [
-        { name: 'user1' },
-        { name: 'user2' }
-      ];
-      
+
+      const documents = [{ name: 'user1' }, { name: 'user2' }];
+
       const insertResult = {
         acknowledged: true,
         insertedCount: 2,
         insertedIds: {
           0: 'id1',
-          1: 'id2'
-        }
+          1: 'id2',
+        },
       };
-      
+
       mockCollection.insertMany.mockResolvedValue(insertResult);
 
       const result = await client.insertMany('users', documents);
 
       expect(result).toEqual([
         { name: 'user1', _id: 'id1' },
-        { name: 'user2', _id: 'id2' }
+        { name: 'user2', _id: 'id2' },
       ]);
     });
 
     it('should handle connection already exists', async () => {
       // First connect
       await client.connect();
-      
+
       // Second connect should not create new connection
       await client.connect();
-      
+
       expect(mockLogger.debug).toHaveBeenCalledWith('MongoDB connection already exists');
     });
 
     it('should handle ping failure during connect', async () => {
       // Create a new client for this test
       const testClient = createMongoClient(mockConfig, mockLogger);
-      
+
       // Mock the ping to fail
       mockDb.admin().ping.mockRejectedValue(new Error('Ping failed'));
 
@@ -475,23 +472,20 @@ describe('MongoClient', () => {
         'MongoDB connection failed',
         expect.any(MongoError),
         expect.objectContaining({
-          database: mockConfig.database
+          database: mockConfig.database,
         })
       );
     });
 
     it('should handle disconnect error', async () => {
       await client.connect();
-      
+
       // Mock the client's close method to throw an error
       const mockClose = vi.fn().mockRejectedValue(new Error('Close failed'));
       (client as any).client = { close: mockClose };
-      
+
       await expect(client.disconnect()).rejects.toThrow(MongoError);
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'MongoDB disconnect failed',
-        expect.any(MongoError)
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('MongoDB disconnect failed', expect.any(MongoError));
     });
   });
 
@@ -546,12 +540,16 @@ describe('MongoClient', () => {
       const mockDocuments = [{ _id: '1', name: 'test1' }];
       mockCollection.find().toArray.mockResolvedValue(mockDocuments);
 
-      await client.findMany('users', {}, { 
-        limit: 10, 
-        skip: 5, 
-        sort: { name: 1 }, 
-        projection: { name: 1, email: 1 } 
-      });
+      await client.findMany(
+        'users',
+        {},
+        {
+          limit: 10,
+          skip: 5,
+          sort: { name: 1 },
+          projection: { name: 1, email: 1 },
+        }
+      );
 
       expect(mockCollection.find().limit).toHaveBeenCalledWith(10);
       expect(mockCollection.find().skip).toHaveBeenCalledWith(5);
@@ -646,7 +644,7 @@ describe('MongoClient', () => {
 
       expect(MongoDBClient).toHaveBeenCalledWith(configWithUndefinedValues.uri, {
         maxPoolSize: 10, // default value
-        minPoolSize: 1,  // default value
+        minPoolSize: 1, // default value
         maxIdleTimeMS: 30000, // default value
         serverSelectionTimeoutMS: 30000, // default value
       });
@@ -654,10 +652,10 @@ describe('MongoClient', () => {
 
     it('should handle disconnect when client is null', async () => {
       const disconnectedClient = createMongoClient(mockConfig, mockLogger);
-      
+
       // Call disconnect without connecting first (client should be null)
       await expect(disconnectedClient.disconnect()).resolves.not.toThrow();
-      
+
       // Verify that no close method was called since client is null
       expect(mockMongoClient.close).not.toHaveBeenCalled();
     });

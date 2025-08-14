@@ -1,6 +1,6 @@
 /**
  * @fileoverview Base Interfaces
- * 
+ *
  * This file contains base interfaces and common patterns
  * that are used throughout the application.
  */

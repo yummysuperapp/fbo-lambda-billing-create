@@ -129,7 +129,8 @@ describe('S3Client', () => {
       // Mock ReadableStream
       const mockStream = {
         getReader: () => ({
-          read: vi.fn()
+          read: vi
+            .fn()
             .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(testContent) })
             .mockResolvedValueOnce({ done: true, value: undefined }),
           releaseLock: vi.fn(),
@@ -220,8 +221,7 @@ describe('S3Client', () => {
 
       mockSend.mockResolvedValue(null);
 
-      await expect(client.getObjectMetadata(bucketName, key))
-        .rejects.toThrow('No response from S3');
+      await expect(client.getObjectMetadata(bucketName, key)).rejects.toThrow('No response from S3');
     });
 
     it('should handle metadata with default values', async () => {
@@ -322,7 +322,8 @@ describe('S3Client', () => {
       // Mock ReadableStream with multiple chunks
       const mockStream = {
         getReader: () => ({
-          read: vi.fn()
+          read: vi
+            .fn()
             .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(chunk1) })
             .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode(chunk2) })
             .mockResolvedValueOnce({ done: true, value: undefined }),

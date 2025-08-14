@@ -28,15 +28,9 @@ describe('Logger Utils', () => {
         const testLogger = new LambdaLogger('TestService');
         testLogger.info('Test info message');
 
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining('"level":"info"')
-        );
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining('"service":"TestService"')
-        );
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining('"message":"Test info message"')
-        );
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"info"'));
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"service":"TestService"'));
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"message":"Test info message"'));
       });
 
       it('should log info message with metadata', () => {
@@ -167,7 +161,7 @@ describe('Logger Utils', () => {
       it('should inherit request ID in child logger', () => {
         const parentLogger = new LambdaLogger('TestService', 'req-123');
         const childLogger = parentLogger.child('SubModule');
-        
+
         childLogger.info('Child message');
 
         const logCall = consoleSpy.mock.calls[0][0];
@@ -194,7 +188,7 @@ describe('Logger Utils', () => {
         testLogger.info('Test message', { complex: { nested: 'object' } });
 
         const logCall = consoleSpy.mock.calls[0][0];
-        
+
         expect(() => JSON.parse(logCall)).not.toThrow();
       });
     });
@@ -209,12 +203,12 @@ describe('Logger Utils', () => {
     it('should create logger with context and request ID', () => {
       const testLogger = createLogger('TestContext', 'req-456');
       expect(testLogger).toBeInstanceOf(LambdaLogger);
-      
+
       testLogger.info('Test message');
-      
+
       const logCall = consoleSpy.mock.calls[0][0];
       const logEntry = JSON.parse(logCall);
-      
+
       expect(logEntry.requestId).toBe('req-456');
     });
   });
@@ -230,10 +224,10 @@ describe('Logger Utils', () => {
 
     it('should use default service name', () => {
       logger.info('Default logger test');
-      
+
       const logCall = consoleSpy.mock.calls[0][0];
       const logEntry = JSON.parse(logCall);
-      
+
       expect(logEntry.service).toBe('FBO-Lambda');
     });
   });

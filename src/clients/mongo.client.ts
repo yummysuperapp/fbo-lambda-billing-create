@@ -1,10 +1,14 @@
-import { MongoClient, Db, Collection, InsertOneResult, InsertManyResult, UpdateResult, DeleteResult, MongoClientOptions } from 'mongodb';
-import type { 
-  MongoClientInterface, 
-  MongoConfig, 
-  Logger,
-  MongoFindOptions
-} from '@/types';
+import {
+  MongoClient,
+  Db,
+  Collection,
+  InsertOneResult,
+  InsertManyResult,
+  UpdateResult,
+  DeleteResult,
+  MongoClientOptions,
+} from 'mongodb';
+import type { MongoClientInterface, MongoConfig, Logger, MongoFindOptions } from '@/types';
 import { MongoError } from '@/interfaces/exceptions';
 
 /**
@@ -38,7 +42,7 @@ export class MongoDbClient implements MongoClientInterface {
         maxIdleTimeMS: this.config.maxIdleTimeMS ?? 30000,
         serverSelectionTimeoutMS: this.config.serverSelectionTimeoutMS ?? 30000,
       } as MongoClientOptions;
-      
+
       this.client = new MongoClient(this.config.uri, options);
 
       await this.client.connect();
@@ -52,10 +56,7 @@ export class MongoDbClient implements MongoClientInterface {
         maxPoolSize: this.config.maxPoolSize ?? 10,
       });
     } catch (error) {
-      const mongoError = new MongoError(
-        'Failed to connect to MongoDB',
-        { error }
-      );
+      const mongoError = new MongoError('Failed to connect to MongoDB', { error });
       this.logger.error('MongoDB connection failed', mongoError, {
         database: this.config.database,
       });
@@ -75,10 +76,7 @@ export class MongoDbClient implements MongoClientInterface {
         this.logger.info('MongoDB connection closed');
       }
     } catch (error) {
-      const mongoError = new MongoError(
-        'Failed to close MongoDB connection',
-        { error }
-      );
+      const mongoError = new MongoError('Failed to close MongoDB connection', { error });
       this.logger.error('MongoDB disconnect failed', mongoError);
       throw mongoError;
     }
@@ -89,11 +87,11 @@ export class MongoDbClient implements MongoClientInterface {
    */
   async findOne<T = unknown>(collection: string, filter: Record<string, unknown>): Promise<T | null> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
-      const result = await coll.findOne(filter) as T | null;
+      const result = (await coll.findOne(filter)) as T | null;
       const duration = Date.now() - start;
 
       this.logger.debug('MongoDB findOne executed', {
@@ -105,10 +103,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return result;
     } catch (error) {
-      const mongoError = new MongoError(
-        'DeleteOne operation failed',
-        { error, collection, filter }
-      );
+      const mongoError = new MongoError('DeleteOne operation failed', { error, collection, filter });
       this.logger.error('MongoDB findOne failed', mongoError, { collection });
       throw mongoError;
     }
@@ -118,24 +113,24 @@ export class MongoDbClient implements MongoClientInterface {
    * Finds multiple documents
    */
   async findMany<T = unknown>(
-    collection: string, 
-    filter: Record<string, unknown>, 
+    collection: string,
+    filter: Record<string, unknown>,
     options?: MongoFindOptions
   ): Promise<T[]> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
-      
+
       let cursor = coll.find(filter);
-      
+
       if (options?.limit) cursor = cursor.limit(options.limit);
       if (options?.skip) cursor = cursor.skip(options.skip);
       if (options?.sort) cursor = cursor.sort(options.sort);
       if (options?.projection) cursor = cursor.project(options.projection);
-      
-      const results = await cursor.toArray() as T[];
+
+      const results = (await cursor.toArray()) as T[];
       const duration = Date.now() - start;
 
       this.logger.debug('MongoDB findMany executed', {
@@ -148,10 +143,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return results;
     } catch (error) {
-      const mongoError = new MongoError(
-        'FindMany operation failed',
-        { error, collection, filter, options }
-      );
+      const mongoError = new MongoError('FindMany operation failed', { error, collection, filter, options });
       this.logger.error('MongoDB findMany failed', mongoError, { collection });
       throw mongoError;
     }
@@ -162,7 +154,7 @@ export class MongoDbClient implements MongoClientInterface {
    */
   async insertOne<T = unknown>(collection: string, document: Record<string, unknown>): Promise<T> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -181,10 +173,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return { ...document, _id: result.insertedId } as T;
     } catch (error) {
-      const mongoError = new MongoError(
-        'InsertOne operation failed',
-        { error, collection, document }
-      );
+      const mongoError = new MongoError('InsertOne operation failed', { error, collection, document });
       this.logger.error('MongoDB insertOne failed', mongoError, { collection });
       throw mongoError;
     }
@@ -195,7 +184,7 @@ export class MongoDbClient implements MongoClientInterface {
    */
   async insertMany<T = unknown>(collection: string, documents: Record<string, unknown>[]): Promise<T[]> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -217,10 +206,11 @@ export class MongoDbClient implements MongoClientInterface {
         _id: Object.values(result.insertedIds)[index],
       })) as T[];
     } catch (error) {
-      const mongoError = new MongoError(
-        'InsertMany operation failed',
-        { error, collection, documentCount: documents.length }
-      );
+      const mongoError = new MongoError('InsertMany operation failed', {
+        error,
+        collection,
+        documentCount: documents.length,
+      });
       this.logger.error('MongoDB insertMany failed', mongoError, { collection });
       throw mongoError;
     }
@@ -230,12 +220,12 @@ export class MongoDbClient implements MongoClientInterface {
    * Updates a single document
    */
   async updateOne(
-    collection: string, 
-    filter: Record<string, unknown>, 
+    collection: string,
+    filter: Record<string, unknown>,
     update: Record<string, unknown>
   ): Promise<boolean> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -256,10 +246,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return result.modifiedCount > 0;
     } catch (error) {
-      const mongoError = new MongoError(
-        'UpdateOne operation failed',
-        { error, collection, filter, update }
-      );
+      const mongoError = new MongoError('UpdateOne operation failed', { error, collection, filter, update });
       this.logger.error('MongoDB updateOne failed', mongoError, { collection });
       throw mongoError;
     }
@@ -269,12 +256,12 @@ export class MongoDbClient implements MongoClientInterface {
    * Updates multiple documents
    */
   async updateMany(
-    collection: string, 
-    filter: Record<string, unknown>, 
+    collection: string,
+    filter: Record<string, unknown>,
     update: Record<string, unknown>
   ): Promise<number> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -295,10 +282,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return result.modifiedCount;
     } catch (error) {
-      const mongoError = new MongoError(
-        'UpdateMany operation failed',
-        { error, collection, filter, update }
-      );
+      const mongoError = new MongoError('UpdateMany operation failed', { error, collection, filter, update });
       this.logger.error('MongoDB updateMany failed', mongoError, { collection });
       throw mongoError;
     }
@@ -309,7 +293,7 @@ export class MongoDbClient implements MongoClientInterface {
    */
   async deleteOne(collection: string, filter: Record<string, unknown>): Promise<boolean> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -329,10 +313,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return result.deletedCount > 0;
     } catch (error) {
-      const mongoError = new MongoError(
-        'FindOne operation failed',
-        { error, collection, filter }
-      );
+      const mongoError = new MongoError('FindOne operation failed', { error, collection, filter });
       this.logger.error('MongoDB deleteOne failed', mongoError, { collection });
       throw mongoError;
     }
@@ -343,7 +324,7 @@ export class MongoDbClient implements MongoClientInterface {
    */
   async deleteMany(collection: string, filter: Record<string, unknown>): Promise<number> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const coll = this.getCollection(collection);
@@ -363,10 +344,7 @@ export class MongoDbClient implements MongoClientInterface {
 
       return result.deletedCount;
     } catch (error) {
-      const mongoError = new MongoError(
-        'DeleteMany operation failed',
-        { error, collection, filter }
-      );
+      const mongoError = new MongoError('DeleteMany operation failed', { error, collection, filter });
       this.logger.error('MongoDB deleteMany failed', mongoError, { collection });
       throw mongoError;
     }

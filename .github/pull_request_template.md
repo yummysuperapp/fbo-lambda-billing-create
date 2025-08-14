@@ -3,6 +3,7 @@
 ## 📋 Información General
 
 ### Tipo de Cambio
+
 - [ ] 🐛 Bug fix (cambio que corrige un issue)
 - [ ] ✨ Nueva funcionalidad (cambio que añade funcionalidad)
 - [ ] 💥 Breaking change (fix o feature que causaría que funcionalidad existente no funcione como se espera)
@@ -13,18 +14,23 @@
 - [ ] 🔨 Chores (cambios en el proceso de build o herramientas auxiliares)
 
 ### Descripción
+
 <!-- Describe brevemente los cambios realizados -->
 
 ### Issue/Ticket Relacionado
+
 <!-- Enlaza el issue o ticket relacionado -->
+
 Closes #
 
 ### 🌿 Validación de Nomenclatura de Rama
+
 - [ ] La rama sigue la convención: `<tipo>/FB-<número>_<descripción-corta>`
 - [ ] El código de Jira (FB-XXX) corresponde al ticket relacionado
 - [ ] El tipo de rama coincide con el tipo de cambio seleccionado arriba
 
 Ejemplos válidos:
+
 - feat/FB-123_nueva-funcionalidad
 - fix/FB-456_correccion-bug
 - hotfix/FB-789_fallo-critico
@@ -33,6 +39,7 @@ Ejemplos válidos:
 ## ✅ Definition of Done (DoD) Checklist
 
 ### 🚀 Implementación
+
 - [ ] Implementación completa y demostrable
 - [ ] Código desplegado y funcionando correctamente en PROD sin errores críticos
 - [ ] La solución es auditable por Finanzas y otros equipos
@@ -40,6 +47,7 @@ Ejemplos válidos:
 - [ ] Se convierte en fuente de la verdad para las entidades dependientes
 
 ### 🧪 Testing y Calidad
+
 - [ ] Pruebas automatizadas ejecutadas y aprobadas
 - [ ] Cobertura de tests incrementada en al menos 3% (o mantenida si >80%)
 - [ ] Casos de uso y casos borde cubiertos
@@ -48,6 +56,7 @@ Ejemplos válidos:
 - [ ] Validación por Finanzas (si aplica)
 
 ### 📊 Evidencia y Documentación
+
 - [ ] Capturas de pantalla/videos (si aplica)
 - [ ] Logs de pruebas incluidos
 - [ ] Reportes de testing adjuntos
@@ -58,12 +67,14 @@ Ejemplos válidos:
 ## 🏗️ Dogmas del Equipo - Validación
 
 ### Escalabilidad y Eficiencia
+
 - [ ] La solución es escalable y elástica
 - [ ] Pensado en usos futuros sin trabajo innecesario
 - [ ] Solución eficiente implementada
 - [ ] Todo lo versionado es rastreable y documentado
 
 ### Responsabilidad y Proceso
+
 - [ ] Tarea asignada a responsable específico
 - [ ] Responsable ha velado por el cumplimiento
 - [ ] Solo errores documentados considerados como deuda técnica
@@ -72,12 +83,15 @@ Ejemplos válidos:
 ## 🔍 Testing
 
 ### Cobertura de Tests
+
 <!-- Incluir reporte de cobertura actual -->
-- Cobertura anterior: ___%
-- Cobertura actual: ___%
-- Incremento: ___%
+
+- Cobertura anterior: \_\_\_%
+- Cobertura actual: \_\_\_%
+- Incremento: \_\_\_%
 
 ### Tipos de Tests Ejecutados
+
 - [ ] Unit tests
 - [ ] Integration tests
 - [ ] E2E tests (si aplica)
@@ -88,9 +102,11 @@ Ejemplos válidos:
 <!-- Incluir capturas, videos, logs, etc. -->
 
 ### Screenshots/Videos
+
 <!-- Adjuntar evidencia visual si aplica -->
 
 ### Logs Relevantes
+
 ```
 <!-- Incluir logs importantes aquí -->
 ```

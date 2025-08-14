@@ -22,8 +22,15 @@ export class LambdaError extends Error {
     this.timestamp = new Date();
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if ('captureStackTrace' in Error && typeof (Error as { captureStackTrace?: (targetObject: object, constructorOpt?: object) => void }).captureStackTrace === 'function') {
-      (Error as { captureStackTrace: (targetObject: object, constructorOpt?: object) => void }).captureStackTrace(this, this.constructor);
+    if (
+      'captureStackTrace' in Error &&
+      typeof (Error as { captureStackTrace?: (targetObject: object, constructorOpt?: object) => void })
+        .captureStackTrace === 'function'
+    ) {
+      (Error as { captureStackTrace: (targetObject: object, constructorOpt?: object) => void }).captureStackTrace(
+        this,
+        this.constructor
+      );
     }
   }
 }
@@ -60,7 +67,7 @@ export class PostgresError extends DatabaseError {
       value: 'POSTGRES_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -73,7 +80,7 @@ export class MongoError extends DatabaseError {
       value: 'MONGO_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -86,7 +93,7 @@ export class BigQueryError extends DatabaseError {
       value: 'BIGQUERY_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }

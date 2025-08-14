@@ -130,11 +130,11 @@ describe('Exception Types', () => {
     });
 
     it('should create PostgresError with custom details', () => {
-      const details = { 
-        host: 'localhost', 
-        port: 5432, 
+      const details = {
+        host: 'localhost',
+        port: 5432,
         database: 'testdb',
-        sqlState: '08006'
+        sqlState: '08006',
       };
       const error = new PostgresError('Connection timeout', details);
 
@@ -154,10 +154,10 @@ describe('Exception Types', () => {
     });
 
     it('should create MongoError with custom details', () => {
-      const details = { 
-        collection: 'users', 
+      const details = {
+        collection: 'users',
         operation: 'insertOne',
-        mongoErrorCode: 11000
+        mongoErrorCode: 11000,
       };
       const error = new MongoError('Duplicate key error', details);
 
@@ -168,7 +168,7 @@ describe('Exception Types', () => {
   describe('Error inheritance chain', () => {
     it('should maintain proper inheritance for ValidationError', () => {
       const error = new ValidationError('Test');
-      
+
       expect(error instanceof ValidationError).toBe(true);
       expect(error instanceof LambdaError).toBe(true);
       expect(error instanceof Error).toBe(true);
@@ -176,7 +176,7 @@ describe('Exception Types', () => {
 
     it('should maintain proper inheritance for PostgresError', () => {
       const error = new PostgresError('Test');
-      
+
       expect(error instanceof PostgresError).toBe(true);
       expect(error instanceof DatabaseError).toBe(true);
       expect(error instanceof LambdaError).toBe(true);
@@ -185,7 +185,7 @@ describe('Exception Types', () => {
 
     it('should maintain proper inheritance for MongoError', () => {
       const error = new MongoError('Test');
-      
+
       expect(error instanceof MongoError).toBe(true);
       expect(error instanceof DatabaseError).toBe(true);
       expect(error instanceof LambdaError).toBe(true);

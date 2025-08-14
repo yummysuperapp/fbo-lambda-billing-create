@@ -16,6 +16,7 @@
 Template empresarial ultra-optimizado para el desarrollo de funciones AWS Lambda en el ecosistema del Financial Backoffice de Yummy Inc. Diseñado con las mejores prácticas de la industria, configuración TypeScript ultra-estricta, testing avanzado con Vitest, y pipelines de CI/CD inteligentes con quality gates automáticos.
 
 ### 🎯 Casos de Uso Principales
+
 - **Procesamiento de Transacciones Financieras**: Validación, transformación y enrutamiento
 - **Integración con APIs de Open Banking**: Conectores seguros y resilientes
 - **Analytics y Reporting**: Procesamiento de datos financieros para BigQuery
@@ -27,6 +28,7 @@ Template empresarial ultra-optimizado para el desarrollo de funciones AWS Lambda
 > **IMPORTANTE**: Este proyecto sigue estándares específicos de idioma para mantener consistencia y profesionalismo.
 
 ### 📝 Convenciones de Idioma
+
 - **Documentación Principal**: Escrita en **español** (README, guías, comentarios de documentación)
 - **Código Fuente**: Escrito completamente en **inglés** (variables, funciones, clases, comentarios de código)
 - **Fragmentos de Código en Documentación**: Todos los ejemplos de código en **inglés**
@@ -34,11 +36,13 @@ Template empresarial ultra-optimizado para el desarrollo de funciones AWS Lambda
 - **Commits y Pull Requests**: Títulos y descripciones en **español**, código en **inglés**
 
 ### 📚 Documentación Completa
+
 La documentación técnica completa y actualizada del proyecto se encuentra disponible en:
 
 **🔗 [Notion - Financial Backoffice Documentation](https://www.notion.so/yummy/financial-backoffice)**
 
 Esta documentación incluye:
+
 - Arquitectura detallada del sistema
 - Guías de implementación paso a paso
 - Diagramas de flujo y casos de uso
@@ -47,6 +51,7 @@ Esta documentación incluye:
 - Roadmap y planificación de features
 
 ### 🎯 Ejemplo de Aplicación
+
 ```typescript
 // ✅ CORRECTO: Código en inglés
 const calculateTransactionFee = (amount: number): number => {
@@ -61,17 +66,22 @@ const calcularComisionTransaccion = (monto: number): number => {
 
 ```markdown
 <!-- ✅ CORRECTO: Documentación en español -->
+
 ## Configuración de Base de Datos
+
 Esta sección explica cómo configurar la conexión a PostgreSQL.
 
 <!-- ❌ INCORRECTO: Documentación en inglés -->
+
 ## Database Configuration
+
 This section explains how to configure PostgreSQL connection.
 ```
 
 ## 🛠️ Stack Tecnológico
 
 ### Core Technologies
+
 - **Node.js 22.x**: Runtime LTS con ES Modules nativos y performance optimizada
 - **TypeScript 5.7+**: Configuración ultra-estricta con `strict: true` y opciones avanzadas
 - **AWS Lambda**: Serverless computing con handlers optimizados para event-driven architecture
@@ -79,12 +89,14 @@ This section explains how to configure PostgreSQL connection.
 - **ESLint v9**: Flat config con TypeScript ESLint v8 y reglas estrictas
 
 ### Bases de Datos y Storage
+
 - **PostgreSQL**: Cliente nativo `pg` con pool de conexiones, transacciones y tipos seguros
 - **MongoDB**: Driver oficial con conexiones optimizadas y validación de esquemas
 - **BigQuery**: SDK oficial de Google Cloud para analytics y consultas complejas
 - **AWS S3**: SDK v3 para almacenamiento de archivos y presigned URLs
 
 ### APIs y Servicios Externos
+
 - **Finance API**: Integración con servicios financieros multi-ambiente
 - **HTTP Client**: Axios con interceptors, retry logic y manejo robusto de errores
 - **X API**: Integración con servicios de terceros autenticados
@@ -94,6 +106,7 @@ This section explains how to configure PostgreSQL connection.
 ### 🚀 Características Principales
 
 #### 🏗️ Arquitectura y Desarrollo
+
 - **TypeScript Ultra-Estricto**: Configuración avanzada con `strict: true`, `noImplicitAny`, `exactOptionalPropertyTypes`
 - **ES Modules Nativos**: Soporte completo con `type: "module"` y archivos `.mjs`
 - **Path Aliases Avanzados**: Sistema completo de imports con `@/*`, `@/types`, `@/clients/*`, etc.
@@ -101,6 +114,7 @@ This section explains how to configure PostgreSQL connection.
 - **Hot Reload**: Desarrollo rápido con tsx y recarga automática
 
 #### 🧪 Testing y Calidad
+
 - **Vitest v2.1+**: Framework de testing moderno con configuración avanzada
 - **Cobertura 100%**: Thresholds obligatorios en branches, functions, lines y statements
 - **Mocks Centralizados**: Sistema organizado de mocks para AWS, Axios y bases de datos
@@ -108,6 +122,7 @@ This section explains how to configure PostgreSQL connection.
 - **Setup Avanzado**: Configuración global de tests con `globals: true`
 
 #### 🛠️ DevOps y CI/CD
+
 - **GitHub Actions**: Workflows inteligentes con jobs secuenciales y dependencias
 - **Multi-Environment**: Despliegue automático por rama (master→prod, develop→dev, testing→test)
 - **Quality Gates**: Validación automática entre jobs con fallos controlados
@@ -118,6 +133,7 @@ This section explains how to configure PostgreSQL connection.
 - **Rollback Ready**: Artifacts con retención de 7 días para rollbacks rápidos
 
 #### 📊 Observabilidad y Configuración
+
 - **Logging Estructurado**: Sistema de logs con niveles configurables y formato JSON
 - **Variables de Entorno**: Configuración flexible por ambiente con validación Zod
 - **Manejo de Errores**: Excepciones personalizadas y manejo centralizado
@@ -196,6 +212,7 @@ npm run dev
 ## 📋 Scripts Disponibles
 
 ### 🔧 Desarrollo Local
+
 ```bash
 npm run start:dev          # Ejecutar en modo desarrollo con tsx
 npm run start:local        # Ejecutar con NODE_ENV=local
@@ -204,6 +221,7 @@ npm run build:watch        # Build con watch mode automático
 ```
 
 ### 🧪 Testing y Quality Assurance
+
 ```bash
 npm test                   # Ejecutar suite completa de tests
 npm run test:cov           # Tests con cobertura detallada
@@ -215,6 +233,7 @@ npm run check-all          # Pipeline completo: types + lint + tests
 ```
 
 ### 🏗️ Build y Deployment
+
 ```bash
 npm run clean              # Limpiar directorio dist/
 npm run build              # Build completo con prebuild automático
@@ -229,6 +248,7 @@ npm run deploy             # Deploy genérico (requiere parámetro)
 ```
 
 ### 📋 Comandos de Utilidad
+
 ```bash
 # Verificación completa antes de commit
 npm run check-all && npm run build
@@ -248,6 +268,7 @@ npm run prepare-deploy
 ### 🔧 Variables de Entorno Requeridas
 
 #### Configuración Local (.env)
+
 ```bash
 # AWS Credentials
 AWS_ACCESS_KEY_ID=your_access_key
@@ -270,9 +291,11 @@ X_API_KEY=your_x_api_key
 ## ⚙️ Configuraciones Técnicas Avanzadas
 
 ### 🎯 TypeScript Ultra-Estricto
+
 Configuración más estricta disponible con `strict: true`, `noImplicitAny`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess` y más opciones avanzadas.
 
 ### 🛣️ Path Aliases Configurados
+
 Sistema de imports limpio con `@/*` para todos los módulos:
 
 ```typescript
@@ -283,6 +306,7 @@ import { validateSchema } from '@/interfaces/validation';
 ```
 
 ### 📦 ES Modules Nativos
+
 Configuración completa: `package.json` con `"type": "module"`, entry point `index.mjs` para Lambda, TypeScript con `"module": "ESNext"` e imports/exports nativos sin transpilación CommonJS.
 
 ## 🔄 Flujos de Trabajo
@@ -290,6 +314,7 @@ Configuración completa: `package.json` con `"type": "module"`, entry point `ind
 ### 1. Subida a SFTP Bancario (S3 → SFTP)
 
 Triggered por eventos S3:
+
 1. Detecta nuevos archivos en S3 con el prefijo configurado
 2. Valida el formato y tamaño del archivo
 3. Transfiere el archivo al SFTP bancario
@@ -299,6 +324,7 @@ Triggered por eventos S3:
 ### 2. Descarga desde SFTP Bancario (SFTP → S3)
 
 Triggered por eventos personalizados:
+
 1. Lista archivos disponibles en SFTP bancario
 2. Descarga archivos nuevos o específicos
 3. Sube archivos a S3 con el prefijo de respuesta
@@ -359,6 +385,7 @@ graph LR
 ```
 
 **Flujo de ejecución:**
+
 1. **Test Workflow** → Ejecuta tests, linting y quality gates
 2. **Deploy Workflow** → Se activa automáticamente solo si el test workflow es exitoso
 3. **Environment Detection** → Determina el ambiente basado en la rama
@@ -372,6 +399,7 @@ El proyecto incluye un pipeline completo de CI/CD con **GitHub Actions** dividid
 ### 📁 Workflows de CI/CD
 
 #### 🧪 Test & Quality Assurance (`.github/workflows/test.yml`)
+
 - ✅ **Tests automáticos** con Vitest (276 tests, 99.9% cobertura)
 - ✅ **Linting** con ESLint v9 y **Type checking** con TypeScript
 - ✅ **Comentarios automáticos** de cobertura en PRs con actualización inteligente
@@ -382,6 +410,7 @@ El proyecto incluye un pipeline completo de CI/CD con **GitHub Actions** dividid
 - 🎯 **Jobs**: `test` (ejecución) → `quality-gate` (validación)
 
 #### 🚀 Build & Deploy (`.github/workflows/deploy.yml`)
+
 - ✅ **Trigger inteligente** via `workflow_run` (solo si tests pasan)
 - ✅ **Validación de entorno** automática por rama (`master`→prod, `develop`→dev, `testing`→test)
 - ✅ **Build optimizado** con exclusión automática de archivos innecesarios
@@ -400,7 +429,7 @@ El pipeline automatiza completamente la preparación del paquete Lambda:
 2. **Limpieza**: Eliminación de `node_modules` de desarrollo
 3. **Dependencias de producción**: `npm ci --production --silent`
 4. **Creación del ZIP**: Incluye `dist/`, `node_modules/`, `package.json`
-5. **Exclusiones automáticas**: 
+5. **Exclusiones automáticas**:
    - Tests (`*.test.js`, `*.spec.js`)
    - Archivos de desarrollo (`.env*`, `tsconfig.json`)
    - Documentación (`README.md`, `docs/`)
@@ -410,23 +439,25 @@ El pipeline automatiza completamente la preparación del paquete Lambda:
 
 ### 🌍 Mapeo de Ramas a Ambientes
 
-| Rama | Ambiente | Descripción | Variables |
-|------|----------|-------------|----------|
-| `master` | **Production** 🏭 | Ambiente de producción | `*_PROD` |
-| `develop` | **Development** 🧪 | Ambiente de desarrollo | `*_DEV` |
-| `testing` | **Testing** 🔬 | Ambiente de testing | `*_DEV` |
-| Otras | **None** ❌ | Sin deployment automático | N/A |
+| Rama      | Ambiente           | Descripción               | Variables |
+| --------- | ------------------ | ------------------------- | --------- |
+| `master`  | **Production** 🏭  | Ambiente de producción    | `*_PROD`  |
+| `develop` | **Development** 🧪 | Ambiente de desarrollo    | `*_DEV`   |
+| `testing` | **Testing** 🔬     | Ambiente de testing       | `*_DEV`   |
+| Otras     | **None** ❌        | Sin deployment automático | N/A       |
 
 ### 🌿 Convenciones de Nomenclatura de Ramas
 
 Todas las ramas de desarrollo deben seguir la convención que incluye el código de Jira como prefijo:
 
 #### Formato Obligatorio
+
 ```
 <tipo>/FB-<número>_<descripción-corta>
 ```
 
 #### Tipos de Rama Permitidos
+
 - **`feat/`** - Nuevas funcionalidades
 - **`fix/`** - Corrección de bugs
 - **`hotfix/`** - Correcciones urgentes en producción
@@ -436,6 +467,7 @@ Todas las ramas de desarrollo deben seguir la convención que incluye el código
 - **`chore/`** - Tareas de mantenimiento
 
 #### Ejemplos Válidos
+
 ```bash
 feat/FB-123_integracion-bigquery
 fix/FB-456_error-conexion-mongodb
@@ -447,6 +479,7 @@ chore/FB-101_actualizacion-dependencias
 ```
 
 #### Validación Automática
+
 - ✅ **Workflow de validación** automática en PRs
 - ✅ **Comentarios automáticos** con instrucciones de corrección
 - ✅ **Bloqueo de merge** hasta cumplir la convención
@@ -460,7 +493,7 @@ git push origin develop
 # → Ejecuta tests → Deploy a Development Lambda
 
 # Testing
-git push origin testing  
+git push origin testing
 # → Ejecuta tests → Deploy a Testing Lambda
 
 # Producción
@@ -521,6 +554,7 @@ graph TD
 ### Configuración de Lambda
 
 #### Configuración Base
+
 - **Runtime**: Node.js 22.x
 - **Handler**: `dist/index.handler`
 - **Memory**: 512 MB (recomendado)
@@ -528,12 +562,14 @@ graph TD
 - **Architecture**: x86_64
 
 #### Deployment Automático
+
 - **Método**: `aws lambda update-function-code` via GitHub Actions
 - **Trigger**: Automático después de tests exitosos
 - **Validación**: Verificación de entorno y tamaño del paquete
 - **Rollback**: Manual via AWS Console si es necesario
 
 #### Variables de Entorno por Ambiente
+
 Configuradas automáticamente por el pipeline según el ambiente:
 
 ```bash
@@ -547,6 +583,7 @@ X_API_KEY               # Compartido
 ```
 
 #### Optimizaciones
+
 - **Bundle Size**: Validación automática (límite 50MB)
 - **Exclusiones**: Archivos de desarrollo y tests automáticamente excluidos
 - **Compresión**: Nivel 6 para balance óptimo tamaño/velocidad
@@ -575,12 +612,14 @@ X_API_KEY
 ## 🔄 Mejoras Recientes Implementadas
 
 ### ✅ Optimización de CI/CD
+
 - **Workflow Dependencies**: `deploy.yml` usa `workflow_run` para ejecutarse solo tras testing exitoso
 - **Quality Gates**: Eliminación de ejecución paralela no deseada entre testing y deployment
 - **Package Validation**: Validación automática de tamaño de paquete Lambda (límite 50MB)
 - **Environment Variables**: Validación robusta de variables requeridas antes del deployment
 
 ### ✅ Optimización de Testing y Código
+
 - **Reportes Optimizados**: Configuración Vitest para generar solo `json` y `lcov`
 - **Performance**: Reducción significativa en tiempo de ejecución de tests
 - **Test Suite**: 70 tests organizados en 4 archivos con 100% de cobertura
@@ -590,6 +629,7 @@ X_API_KEY
 ## 📋 GitHub Templates y Proceso
 
 ### Plantillas de Desarrollo
+
 Este template incluye plantillas completas para GitHub que implementan nuestros dogmas del equipo:
 
 - [📋 Pull Request Template](.github/pull_request_template.md) - Validación completa de DoD
@@ -599,6 +639,7 @@ Este template incluye plantillas completas para GitHub que implementan nuestros 
 - [📊 Technical Debt Template](.github/ISSUE_TEMPLATE/technical_debt.md) - Documentación de deuda técnica
 
 ### Dogmas del Equipo Implementados
+
 - ✅ **Escalabilidad**: Todo debe ser escalable, elástico y pensado en usos futuros
 - ✅ **Testing**: Incremento mínimo de 3% en cobertura (excepción: >80%)
 - ✅ **Responsabilidad**: Toda tarea asignada a responsable específico
@@ -607,7 +648,9 @@ Este template incluye plantillas completas para GitHub que implementan nuestros 
 - ✅ **Deuda Técnica**: Bugs documentados y despriorizados son deuda técnica válida
 
 ### Definition of Ready (DoR) y Definition of Done (DoD)
+
 Todas las plantillas incorporan validación automática de:
+
 - 🎯 Claridad de objetivos y criterios de aceptación
 - 🔍 Identificación de dependencias y viabilidad técnica
 - 📊 Métricas de éxito y timeline establecidos
@@ -617,12 +660,14 @@ Todas las plantillas incorporan validación automática de:
 ## 🔒 Políticas y Gobernanza
 
 ### 📜 Licencia y Uso
+
 - **Licencia Privada** de Yummy Inc. con términos específicos
 - **Restricciones de uso** claramente definidas
 - **Contacto legal** para consultas de licencia
 - **Términos de terminación** y jurisdicción
 
 ### 🛡️ Seguridad
+
 - **Política de reporte** de vulnerabilidades con proceso estructurado
 - **Clasificación de severidad** (Critical, High, Medium, Low)
 - **Timeframes de respuesta** definidos (24h confirmación, 72h evaluación)
@@ -631,6 +676,7 @@ Todas las plantillas incorporan validación automática de:
 - **Plan de respuesta** a incidentes con contactos de emergencia
 
 ### 🤝 Código de Conducta
+
 - **Estándares de comportamiento** profesional
 - **Proceso de reporte** y investigación
 - **Consecuencias por incumplimiento** claramente definidas
@@ -638,6 +684,7 @@ Todas las plantillas incorporan validación automática de:
 - **Mejora continua** y reconocimiento
 
 ### 🚀 Guía de Contribución
+
 - **Proceso completo** de desarrollo y contribución
 - **Estándares de código** y naming conventions
 - **Flujo de trabajo** con Git y GitHub
@@ -645,6 +692,7 @@ Todas las plantillas incorporan validación automática de:
 - **Políticas de testing** y cobertura
 
 ### 🔄 Gestión de Dependencias
+
 - **Renovate Bot** configurado para actualizaciones automáticas
 - **Agrupación inteligente** de dependencias relacionadas
 - **Auto-merge** para patches y minor updates
@@ -653,6 +701,7 @@ Todas las plantillas incorporan validación automática de:
 - **Programación semanal** (lunes antes de 6 AM COT)
 
 ### 📝 Documentación de Cambios
+
 - **Changelog** estructurado siguiendo Keep a Changelog
 - **Semantic Versioning** implementado
 - **Proceso de release** documentado
@@ -661,37 +710,44 @@ Todas las plantillas incorporan validación automática de:
 ## 📚 Documentación Adicional
 
 ### 📋 Plantillas y Procesos
+
 - [📋 Plantillas de GitHub](.github/README.md) - Guía completa de plantillas para PRs e Issues
 - [🚀 Guía de Contribución](CONTRIBUTING.md) - Proceso completo de desarrollo y contribución
 - [🤝 Código de Conducta](CODE_OF_CONDUCT.md) - Estándares de comportamiento del equipo
 
 ### 🔒 Políticas y Seguridad
+
 - [🛡️ Política de Seguridad](SECURITY.md) - Reporte de vulnerabilidades y estándares
 - [📜 Licencia](LICENSE) - Términos de uso y restricciones
 - [📝 Changelog](CHANGELOG.md) - Historial de cambios y versiones
 
 ### 🏗️ Documentación Técnica
+
 - [🏗️ Arquitectura del Sistema](docs/ARCHITECTURE.md) - Diseño y patrones arquitectónicos
 - [⚙️ Guía de Configuración](docs/CONFIGURATION.md) - Configuración completa por ambiente
 - [📈 Log de Mejoras](docs/IMPROVEMENTS.md) - Historial detallado de optimizaciones
 
 ### 🧪 Testing y CI/CD
+
 - [🧪 Suite de Testing](tests/) - 70 tests con cobertura del 100%
 - [🚀 Workflows CI/CD](.github/workflows/) - Pipelines optimizados con quality gates
 - [📋 GitHub Templates](.github/) - Plantillas de PR e Issues con dogmas del equipo
 
 ### 🔧 Configuración del Proyecto
+
 - [🔄 Renovate Config](renovate.json) - Configuración de actualizaciones automáticas
 - [📝 Editor Config](.editorconfig) - Configuración de formato de código
 - [🟢 Node Version](.nvmrc) - Versión de Node.js recomendada
 - [🚫 Git Ignore](.gitignore) - Archivos excluidos del control de versiones
 
 ### 💬 Comunicación
+
 - [💬 Discusiones del Equipo](https://github.com/yummysuperapp/fbo-lambda-template/discussions) - Espacio para ideas y feedback
 - [📧 Contacto de Seguridad](mailto:security@yummysuperapp.com) - Reporte de vulnerabilidades
 - [👨‍💻 Tech Lead](mailto:jose.carrillo@yummysuperapp.com) - José Carrillo
 
 ## 🔒 Seguridad
+
 - ✅ **Validación estricta** de entrada con Zod
 - ✅ **Sanitización** de nombres de archivo
 - ✅ **Manejo seguro** de credenciales

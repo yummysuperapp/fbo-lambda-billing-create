@@ -1,6 +1,6 @@
 /**
  * @fileoverview AWS SDK Mock Configuration
- * 
+ *
  * Centralized mock configuration for AWS SDK services.
  * This mock provides consistent behavior across all tests
  * that use AWS services like S3, DynamoDB, etc.

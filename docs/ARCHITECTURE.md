@@ -21,13 +21,17 @@ El FBO Lambda Template es una arquitectura serverless diseñada para el ecosiste
 ## Principios Arquitectónicos
 
 ### 1. **Separation of Concerns**
+
 Cada capa tiene una responsabilidad específica y bien definida:
+
 - **Presentation Layer**: Manejo de eventos Lambda y respuestas
 - **Business Logic Layer**: Lógica de negocio y reglas financieras
 - **Data Access Layer**: Acceso a bases de datos y servicios externos
 
 ### 2. **Dependency Inversion**
+
 Las capas superiores no dependen de implementaciones concretas sino de abstracciones:
+
 ```typescript
 // ✅ Correcto - Depende de abstracción
 interface PaymentService {
@@ -41,13 +45,17 @@ class PaymentHandler {
 ```
 
 ### 3. **Single Responsibility**
+
 Cada clase y módulo tiene una única razón para cambiar:
+
 - `HttpClient`: Solo manejo de comunicación HTTP
 - `MongoClient`: Solo operaciones MongoDB
 - `FinanceService`: Solo lógica financiera
 
 ### 4. **Open/Closed Principle**
+
 Abierto para extensión, cerrado para modificación:
+
 ```typescript
 // Extensible mediante factory pattern
 interface ClientFactory {
@@ -56,6 +64,7 @@ interface ClientFactory {
 ```
 
 ### 5. **Fail Fast & Graceful Degradation**
+
 - Validación temprana de inputs
 - Circuit breakers para servicios externos
 - Fallbacks para operaciones críticas
@@ -68,33 +77,33 @@ graph TB
         subgraph "Compute Layer"
             Lambda["AWS Lambda Functions"]
         end
-        
+
         subgraph "API Gateway"
             APIGW["API Gateway"]
         end
-        
+
         subgraph "Storage Layer"
             S3["S3 Buckets"]
             RDS["RDS PostgreSQL"]
         end
-        
+
         subgraph "Monitoring"
             CW["CloudWatch"]
             XRay["X-Ray"]
         end
     end
-    
+
     subgraph "External Services"
         MongoDB["MongoDB Atlas"]
         BigQuery["Google BigQuery"]
         FinanceAPI["Finance APIs"]
     end
-    
+
     subgraph "CI/CD"
         GitHub["GitHub Actions"]
         Deploy["Deployment Pipeline"]
     end
-    
+
     APIGW --> Lambda
     Lambda --> S3
     Lambda --> RDS
@@ -103,7 +112,7 @@ graph TB
     Lambda --> FinanceAPI
     Lambda --> CW
     Lambda --> XRay
-    
+
     GitHub --> Deploy
     Deploy --> Lambda
 ```
@@ -116,23 +125,19 @@ graph TB
 
 ```typescript
 // src/handlers/index.ts
-export const handler = async (
-  event: LambdaEvent,
-  context: Context
-): Promise<LambdaResponse> => {
+export const handler = async (event: LambdaEvent, context: Context): Promise<LambdaResponse> => {
   const logger = createLogger();
   logger.setContext({ requestId: context.awsRequestId });
-  
+
   try {
     // 1. Validar evento
     const validatedEvent = validateEvent(event);
-    
+
     // 2. Enrutar a servicio apropiado
     const result = await routeToService(validatedEvent);
-    
+
     // 3. Formatear respuesta
     return createSuccessResponse(result);
-    
   } catch (error) {
     logger.error('Handler error', error);
     return createErrorResponse(error);
@@ -141,6 +146,7 @@ export const handler = async (
 ```
 
 **Características**:
+
 - Stateless
 - Validación de entrada con Zod schemas
 - Logging estructurado
@@ -159,26 +165,27 @@ export class FinanceService implements FinanceServiceInterface {
     private readonly mongoClient: MongoClientInterface,
     private readonly logger: Logger
   ) {}
-  
+
   async processTransaction(transaction: Transaction): Promise<TransactionResult> {
     // 1. Validar transacción
     await this.validateTransaction(transaction);
-    
+
     // 2. Calcular fees
     const fees = await this.calculateFees(transaction);
-    
+
     // 3. Procesar con proveedor externo
     const result = await this.processWithProvider(transaction);
-    
+
     // 4. Guardar en base de datos
     await this.saveTransaction(transaction, result);
-    
+
     return result;
   }
 }
 ```
 
 **Características**:
+
 - Inyección de dependencias
 - Transacciones atómicas
 - Validación de reglas de negocio
@@ -193,7 +200,7 @@ export class FinanceService implements FinanceServiceInterface {
 // src/clients/mongo.client.ts
 export class MongoClient implements MongoClientInterface {
   private connection: MongoConnection;
-  
+
   async findOne<T>(collection: string, filter: object): Promise<T | null> {
     try {
       const db = await this.getDatabase();
@@ -206,6 +213,7 @@ export class MongoClient implements MongoClientInterface {
 ```
 
 **Características**:
+
 - Connection pooling
 - Retry logic con backoff exponencial
 - Circuit breakers
@@ -225,10 +233,10 @@ export class ClientFactory {
     return new HttpClient({
       timeout: config?.timeout ?? 30000,
       retries: config?.retries ?? 3,
-      ...config
+      ...config,
     });
   }
-  
+
   static async createMongoClient(): Promise<MongoClient> {
     const client = new MongoClient(process.env.MONGODB_URI!);
     await client.connect();
@@ -245,12 +253,12 @@ Para instancias compartidas como loggers y configuración:
 // src/utils/logger.util.ts
 class LoggerSingleton {
   private static instance: Logger;
-  
+
   static getInstance(): Logger {
     if (!LoggerSingleton.instance) {
       LoggerSingleton.instance = new Logger({
         level: process.env.LOG_LEVEL || 'info',
-        format: 'json'
+        format: 'json',
       });
     }
     return LoggerSingleton.instance;
@@ -289,16 +297,16 @@ Para eventos y notificaciones:
 // src/events/event.emitter.ts
 class EventEmitter {
   private listeners: Map<string, Function[]> = new Map();
-  
+
   on(event: string, listener: Function): void {
     const listeners = this.listeners.get(event) || [];
     listeners.push(listener);
     this.listeners.set(event, listeners);
   }
-  
+
   emit(event: string, data: any): void {
     const listeners = this.listeners.get(event) || [];
-    listeners.forEach(listener => listener(data));
+    listeners.forEach((listener) => listener(data));
   }
 }
 ```
@@ -317,7 +325,7 @@ interface TransactionRepository {
 
 class MongoTransactionRepository implements TransactionRepository {
   constructor(private mongoClient: MongoClient) {}
-  
+
   async save(transaction: Transaction): Promise<void> {
     await this.mongoClient.insertOne('transactions', transaction);
   }
@@ -341,7 +349,7 @@ classDiagram
         -setupInterceptors(): void
         -handleRetry(error): Promise~any~
     }
-    
+
     class HttpClientInterface {
         <<interface>>
         +get(url, config): Promise~T~
@@ -350,11 +358,12 @@ classDiagram
         +delete(url, config): Promise~T~
         +patch(url, data, config): Promise~T~
     }
-    
+
     HttpClient ..|> HttpClientInterface
 ```
 
 **Características**:
+
 - Retry automático con backoff exponencial
 - Interceptores para logging y autenticación
 - Timeout configurable
@@ -372,7 +381,7 @@ classDiagram
         +isConnected(): boolean
         #handleError(error): void
     }
-    
+
     class MongoClient {
         -connection: MongoConnection
         -pool: ConnectionPool
@@ -381,14 +390,14 @@ classDiagram
         +insertOne(collection, doc): Promise~InsertResult~
         +updateOne(collection, filter, update): Promise~UpdateResult~
     }
-    
+
     class PostgresClient {
         -pool: Pool
         +query(text, params): Promise~QueryResult~
         +transaction(callback): Promise~T~
         -createPool(): Pool
     }
-    
+
     BaseClient <|-- MongoClient
     BaseClient <|-- PostgresClient
 ```
@@ -402,7 +411,7 @@ sequenceDiagram
     participant HttpClient
     participant MongoClient
     participant ExternalAPI
-    
+
     Handler->>FinanceService: processTransaction(transaction)
     FinanceService->>FinanceService: validateTransaction()
     FinanceService->>HttpClient: calculateExchangeRate()
@@ -425,7 +434,7 @@ sequenceDiagram
     participant Lambda
     participant Service
     participant Database
-    
+
     Client->>APIGateway: HTTP Request
     APIGateway->>Lambda: Lambda Event
     Lambda->>Lambda: Validate Input
@@ -447,7 +456,7 @@ sequenceDiagram
     participant FinanceService
     participant BigQuery
     participant MongoDB
-    
+
     S3->>Lambda: S3 Event (Object Created)
     Lambda->>Lambda: Parse S3 Event
     Lambda->>S3: Download File
@@ -478,7 +487,7 @@ flowchart TD
     L -->|No| E
     L -->|Yes| M[NetworkError]
     H --> N[Service Unavailable]
-    
+
     D --> O[Error Response]
     K --> O
     M --> O
@@ -495,8 +504,8 @@ const awsConfig = {
   region: process.env.AWS_REGION || 'us-east-1',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 };
 
 // S3 Client
@@ -516,7 +525,7 @@ const mongoConfig = {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
-  }
+  },
 };
 
 // PostgreSQL RDS
@@ -540,11 +549,11 @@ const financeApiConfig = {
   baseURL: process.env.FINANCE_API_URL!,
   timeout: 10000,
   headers: {
-    'Authorization': `Bearer ${process.env.FINANCE_API_KEY!}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${process.env.FINANCE_API_KEY!}`,
+    'Content-Type': 'application/json',
   },
   retries: 3,
-  retryDelay: 1000
+  retryDelay: 1000,
 };
 ```
 
@@ -565,8 +574,8 @@ const validateToken = async (token: string): Promise<TokenPayload> => {
 
 // Role-based Access Control
 const checkPermissions = (user: User, resource: string, action: string): boolean => {
-  const permissions = user.roles.flatMap(role => role.permissions);
-  return permissions.some(p => p.resource === resource && p.actions.includes(action));
+  const permissions = user.roles.flatMap((role) => role.permissions);
+  return permissions.some((p) => p.resource === resource && p.actions.includes(action));
 };
 ```
 
@@ -580,7 +589,7 @@ const TransactionSchema = z.object({
   currency: z.enum(['USD', 'EUR', 'COP']),
   fromAccount: z.string().min(1),
   toAccount: z.string().min(1),
-  type: z.enum(['transfer', 'payment', 'refund'])
+  type: z.enum(['transfer', 'payment', 'refund']),
 });
 
 // Sanitización de inputs
@@ -598,23 +607,15 @@ const sanitizeInput = (input: string): string => {
 // AWS Secrets Manager
 const getSecret = async (secretName: string): Promise<string> => {
   const client = new SecretsManagerClient({ region: 'us-east-1' });
-  const response = await client.send(
-    new GetSecretValueCommand({ SecretId: secretName })
-  );
+  const response = await client.send(new GetSecretValueCommand({ SecretId: secretName }));
   return response.SecretString!;
 };
 
 // Environment Variables Validation
 const validateEnvironment = (): void => {
-  const required = [
-    'NODE_ENV',
-    'MONGODB_URI',
-    'POSTGRES_HOST',
-    'AWS_REGION',
-    'FINANCE_API_URL'
-  ];
-  
-  const missing = required.filter(key => !process.env[key]);
+  const required = ['NODE_ENV', 'MONGODB_URI', 'POSTGRES_HOST', 'AWS_REGION', 'FINANCE_API_URL'];
+
+  const missing = required.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new Error(`Missing environment variables: ${missing.join(', ')}`);
   }
@@ -632,23 +633,23 @@ const logger = createLogger({
   format: 'json',
   defaultMeta: {
     service: 'fbo-lambda-template',
-    version: process.env.APP_VERSION || '1.0.0'
+    version: process.env.APP_VERSION || '1.0.0',
   },
   transports: [
     new CloudWatchTransport({
       logGroupName: '/aws/lambda/fbo-lambda-template',
-      logStreamName: () => new Date().toISOString().split('T')[0]
-    })
-  ]
+      logStreamName: () => new Date().toISOString().split('T')[0],
+    }),
+  ],
 });
 
 // Structured Logging
 logger.info('Transaction processed', {
   transactionId: 'txn_123',
-  amount: 1000.00,
+  amount: 1000.0,
   currency: 'USD',
   duration: 1250,
-  status: 'completed'
+  status: 'completed',
 });
 ```
 
@@ -658,20 +659,26 @@ logger.info('Transaction processed', {
 // Custom Metrics
 const publishMetric = async (metricName: string, value: number, unit: string) => {
   const cloudWatch = new CloudWatchClient({ region: 'us-east-1' });
-  
-  await cloudWatch.send(new PutMetricDataCommand({
-    Namespace: 'FBO/Lambda',
-    MetricData: [{
-      MetricName: metricName,
-      Value: value,
-      Unit: unit,
-      Timestamp: new Date(),
-      Dimensions: [{
-        Name: 'Environment',
-        Value: process.env.NODE_ENV!
-      }]
-    }]
-  }));
+
+  await cloudWatch.send(
+    new PutMetricDataCommand({
+      Namespace: 'FBO/Lambda',
+      MetricData: [
+        {
+          MetricName: metricName,
+          Value: value,
+          Unit: unit,
+          Timestamp: new Date(),
+          Dimensions: [
+            {
+              Name: 'Environment',
+              Value: process.env.NODE_ENV!,
+            },
+          ],
+        },
+      ],
+    })
+  );
 };
 
 // Performance Monitoring
@@ -680,17 +687,17 @@ const measurePerformance = async <T>(operation: string, fn: () => Promise<T>): P
   try {
     const result = await fn();
     const duration = Date.now() - start;
-    
+
     await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
     await publishMetric(`${operation}.Success`, 1, 'Count');
-    
+
     return result;
   } catch (error) {
     const duration = Date.now() - start;
-    
+
     await publishMetric(`${operation}.Duration`, duration, 'Milliseconds');
     await publishMetric(`${operation}.Error`, 1, 'Count');
-    
+
     throw error;
   }
 };
@@ -712,7 +719,7 @@ const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 // Custom Subsegments
 const traceOperation = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
   const subsegment = AWSXRay.getSegment()?.addNewSubsegment(name);
-  
+
   try {
     const result = await fn();
     subsegment?.close();
@@ -755,14 +762,14 @@ const mongoPool = {
   maxPoolSize: 10,
   minPoolSize: 2,
   maxIdleTimeMS: 30000,
-  serverSelectionTimeoutMS: 5000
+  serverSelectionTimeoutMS: 5000,
 };
 
 const postgresPool = {
   max: 20,
   min: 5,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000
+  connectionTimeoutMillis: 2000,
 };
 ```
 
@@ -772,14 +779,14 @@ const postgresPool = {
 // In-Memory Cache
 class MemoryCache {
   private cache = new Map<string, { value: any; expiry: number }>();
-  
+
   set(key: string, value: any, ttlMs: number): void {
     this.cache.set(key, {
       value,
-      expiry: Date.now() + ttlMs
+      expiry: Date.now() + ttlMs,
     });
   }
-  
+
   get(key: string): any | null {
     const item = this.cache.get(key);
     if (!item || Date.now() > item.expiry) {
@@ -795,7 +802,7 @@ const redisClient = new Redis({
   host: process.env.REDIS_HOST,
   port: parseInt(process.env.REDIS_PORT!),
   retryDelayOnFailover: 100,
-  maxRetriesPerRequest: 3
+  maxRetriesPerRequest: 3,
 });
 ```
 
@@ -806,12 +813,14 @@ const redisClient = new Redis({
 **Decisión**: Usar AWS Lambda para compute
 
 **Razones**:
+
 - **Escalabilidad automática**: No necesidad de gestionar infraestructura
 - **Costo optimizado**: Pago por uso real
 - **Tiempo de desarrollo**: Enfoque en lógica de negocio
 - **Integración nativa**: Con servicios AWS
 
 **Trade-offs**:
+
 - ✅ Menor overhead operacional
 - ✅ Escalabilidad automática
 - ❌ Cold starts
@@ -822,12 +831,14 @@ const redisClient = new Redis({
 **Decisión**: TypeScript como lenguaje principal
 
 **Razones**:
+
 - **Type Safety**: Detección temprana de errores
 - **Developer Experience**: Mejor autocompletado e IntelliSense
 - **Refactoring**: Más seguro y eficiente
 - **Documentación**: Los tipos sirven como documentación
 
 **Trade-offs**:
+
 - ✅ Menos bugs en producción
 - ✅ Mejor mantenibilidad
 - ❌ Tiempo de compilación adicional
@@ -838,11 +849,13 @@ const redisClient = new Redis({
 **Decisión**: MongoDB + PostgreSQL + BigQuery
 
 **Razones**:
+
 - **MongoDB**: Documentos flexibles para datos transaccionales
 - **PostgreSQL**: Datos relacionales y transacciones ACID
 - **BigQuery**: Analytics y reporting de grandes volúmenes
 
 **Trade-offs**:
+
 - ✅ Optimización por caso de uso
 - ✅ Mejor performance
 - ❌ Complejidad adicional
@@ -853,12 +866,14 @@ const redisClient = new Redis({
 **Decisión**: Arquitectura en capas con separación clara
 
 **Razones**:
+
 - **Separation of Concerns**: Cada capa tiene responsabilidad específica
 - **Testabilidad**: Fácil mockear dependencias
 - **Mantenibilidad**: Cambios aislados por capa
 - **Reutilización**: Componentes reutilizables
 
 **Trade-offs**:
+
 - ✅ Código más organizado
 - ✅ Fácil testing
 - ❌ Más boilerplate
@@ -869,12 +884,14 @@ const redisClient = new Redis({
 **Decisión**: Factory pattern para creación de instancias
 
 **Razones**:
+
 - **Configuración centralizada**: Un lugar para configurar clientes
 - **Dependency Injection**: Fácil intercambio de implementaciones
 - **Testing**: Fácil mockear en tests
 - **Singleton cuando necesario**: Reutilización de conexiones
 
 **Trade-offs**:
+
 - ✅ Mejor testabilidad
 - ✅ Configuración centralizada
 - ❌ Complejidad adicional
@@ -883,18 +900,21 @@ const redisClient = new Redis({
 ## Roadmap Arquitectónico
 
 ### Corto Plazo (1-3 meses)
+
 - [ ] Implementar Circuit Breaker pattern
 - [ ] Agregar cache distribuido (Redis)
 - [ ] Métricas custom en CloudWatch
 - [ ] Health checks automatizados
 
 ### Medio Plazo (3-6 meses)
+
 - [ ] Event-driven architecture con SQS/SNS
 - [ ] API versioning strategy
 - [ ] Blue/Green deployments
 - [ ] Chaos engineering tests
 
 ### Largo Plazo (6-12 meses)
+
 - [ ] Microservices decomposition
 - [ ] Event sourcing para auditoría
 - [ ] Machine learning integration

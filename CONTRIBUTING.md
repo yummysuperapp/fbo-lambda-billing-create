@@ -18,22 +18,26 @@
 Antes de contribuir, es fundamental entender y seguir nuestros dogmas:
 
 ### Escalabilidad y Eficiencia
+
 - ✅ **Todo lo que se haga debe ser escalable, elástico y pensado en usos futuros** (sin hacer trabajo de más)
 - ✅ **Todo lo eficiente es escalable y elástico**
 - ✅ **Todo lo versionado es rastreable y documentado**
 
 ### Testing y Calidad
+
 - ✅ **Todo proyecto que implemente pruebas unitarias debe sumar al menos 3% adicional** al estado actual
 - ✅ **Excepción**: Si el proyecto se encuentra en +80% de cobertura
 - ✅ **Todo bug sin documentación es un error**
 
 ### Responsabilidad y Proceso
+
 - ✅ **Toda tarea debe ser asignada a un responsable**
 - ✅ **Todo responsable debe velar por el cumplimiento de su tarea**
 - ✅ **Las tareas solo deben ser pasadas a HECHO por el PM o TL**
 - ✅ **Si tienes muchas dudas, pártelo y divídete el trabajo con otras personas**
 
 ### Deuda Técnica
+
 - ✅ **Los bugs son deuda técnica, siempre que esté documentado y los líderes sepan que existe**
 
 ## ✅ Definition of Ready (DoR)
@@ -41,22 +45,26 @@ Antes de contribuir, es fundamental entender y seguir nuestros dogmas:
 Antes de comenzar cualquier trabajo, asegúrate de que cumple con la DoR:
 
 ### 🎯 Claridad y Entendimiento
+
 - [ ] **Entendimiento claro y documentado** de la finalidad de la historia de usuario
 - [ ] **Contexto claro para el PM y el TL** de la idea inicial
 - [ ] **Sin dudas en cuanto a su finalidad** (si hay dudas, realizar Spike o POC)
 
 ### 🔍 Análisis Técnico
+
 - [ ] **Dependencias de terceros identificadas** y su disponibilidad validada
 - [ ] **Estado y calidad de la data** entendidos antes del refinamiento
 - [ ] **Viabilidad técnica validada** (limitaciones de sistemas, infraestructura o integraciones)
 
 ### 📊 Definición y Métricas
+
 - [ ] **Casos de uso y casos borde definidos** con criterios de aceptación claros
 - [ ] **Criticidad o prioridad identificada** en el contexto del negocio
 - [ ] **Métricas de éxito definidas** para validar el cumplimiento
 - [ ] **Fecha límite de entrega (deadline)** establecida
 
 ### 📏 Estimación
+
 - [ ] **Estimación realizada**: Todo lo que sea mayor a 13 puntos o tome más de 10 días pasa a ser Epic
 - [ ] **Spike definido**: De ser necesario, mínimo 2 pts y máximo 5 pts
 
@@ -65,18 +73,21 @@ Antes de comenzar cualquier trabajo, asegúrate de que cumple con la DoR:
 Todo trabajo debe cumplir con la DoD antes de ser considerado completo:
 
 ### 🚀 Implementación
+
 - [ ] **Implementación completa y demostrable**
 - [ ] **Certificación de QA** y validación por Finanzas (cuando aplique)
 - [ ] **Código desplegado y funcionando correctamente en PROD** sin errores críticos
 - [ ] **Solución auditable** por Finanzas y otros equipos externos
 
 ### 🧪 Testing y Calidad
+
 - [ ] **Pruebas automatizadas y/o manuales ejecutadas y aprobadas**
 - [ ] **Cobertura de casos de uso y casos borde**
 - [ ] **Incremento mínimo de 3% en cobertura** (o mantenida si >80%)
 - [ ] **Pipeline de CI/CD ejecutado exitosamente**
 
 ### 📊 Evidencia y Documentación
+
 - [ ] **Evidencia documentada en el Pull Request** (capturas, logs, reportes, instrucciones)
 - [ ] **Documentación técnica y funcional actualizada** en Notion
 - [ ] **Data unificada correctamente**, evitando corrupción o pérdidas
@@ -131,6 +142,7 @@ git commit -m "refactor(handlers): improve error handling structure"
 ```
 
 **Tipos permitidos:**
+
 - `feat`: Nueva funcionalidad
 - `fix`: Corrección de bug
 - `docs`: Cambios en documentación
@@ -154,11 +166,13 @@ git commit -m "refactor(handlers): improve error handling structure"
 Todas las ramas deben seguir la convención que incluye el código de Jira como prefijo:
 
 ### Formato Obligatorio
+
 ```
 <tipo>/<código-jira>_<descripción-corta>
 ```
 
 ### Tipos de Rama
+
 - **`feat/`**: Nuevas funcionalidades
 - **`fix/`**: Corrección de bugs
 - **`hotfix/`**: Correcciones urgentes en producción
@@ -168,6 +182,7 @@ Todas las ramas deben seguir la convención que incluye el código de Jira como 
 - **`chore/`**: Tareas de mantenimiento
 
 ### Ejemplos Correctos
+
 ```bash
 # Nuevas funcionalidades
 git checkout -b feat/FB-123_integracion-bigquery
@@ -191,6 +206,7 @@ git checkout -b test/FB-890_cobertura-servicios
 ```
 
 ### Reglas Importantes
+
 - ✅ **Obligatorio**: Usar código de Jira con prefijo `FB-`
 - ✅ **Obligatorio**: Usar guión bajo `_` después del código
 - ✅ **Obligatorio**: Descripción en kebab-case (guiones)
@@ -198,6 +214,7 @@ git checkout -b test/FB-890_cobertura-servicios
 - ❌ **Prohibido**: Espacios, caracteres especiales, mayúsculas en descripción
 
 ### Validación Automática
+
 Los workflows de CI/CD validarán automáticamente que las ramas sigan esta convención antes de permitir el merge.
 
 ## 💻 Estándares de Código
@@ -249,6 +266,7 @@ const API_BASE_URL = 'https://api.example.com';
 #### 📝 Reglas Obligatorias
 
 **✅ CÓDIGO FUENTE (Siempre en inglés)**
+
 ```typescript
 // ✅ CORRECTO: Variables, funciones, clases en inglés
 const calculateTransactionFee = (amount: number): number => {
@@ -270,6 +288,7 @@ const calcularComisionTransaccion = (monto: number): number => {
 ```
 
 **✅ COMENTARIOS DE CÓDIGO (Siempre en inglés)**
+
 ```typescript
 // ✅ CORRECTO: Comentarios de código en inglés
 /**
@@ -294,58 +313,66 @@ const validatePayment = (request: PaymentRequest): boolean => {
 ```
 
 **✅ DOCUMENTACIÓN (Siempre en español)**
+
 ```markdown
 <!-- ✅ CORRECTO: Documentación en español -->
+
 ## Configuración de Base de Datos
 
 Esta sección explica cómo configurar la conexión a PostgreSQL para el ambiente de desarrollo.
 
 ### Pasos de Instalación
+
 1. Instalar PostgreSQL 15+
 2. Crear base de datos `fbo_dev`
 3. Configurar variables de entorno
 
 <!-- ❌ INCORRECTO: Documentación en inglés -->
+
 ## Database Configuration
 
 This section explains how to configure PostgreSQL connection for development environment.
 ```
 
 **✅ FRAGMENTOS DE CÓDIGO EN DOCUMENTACIÓN (Siempre en inglés)**
-```markdown
+
+````markdown
 <!-- ✅ CORRECTO: Código en documentación en inglés -->
+
 ## Ejemplo de Uso
 
 ```typescript
 const client = new DatabaseClient({
   host: 'localhost',
   port: 5432,
-  database: 'fbo_dev'
+  database: 'fbo_dev',
 });
 
 const result = await client.executeQuery('SELECT * FROM transactions');
 ```
+````
 
 <!-- ❌ INCORRECTO: Código en documentación en español -->
+
 ```typescript
 const cliente = new ClienteBaseDatos({
   servidor: 'localhost',
   puerto: 5432,
-  baseDatos: 'fbo_dev'
+  baseDatos: 'fbo_dev',
 });
 ```
 
 #### 🎯 Aplicación por Tipo de Archivo
 
-| Tipo de Archivo | Idioma del Contenido | Ejemplos |
-|----------------|---------------------|----------|
-| **Código TypeScript** | 🇺🇸 Inglés | `*.ts`, `*.js`, `*.mjs` |
-| **Tests** | 🇺🇸 Inglés | `*.test.ts`, `*.spec.ts` |
-| **Configuración** | 🇺🇸 Inglés | `tsconfig.json`, `package.json` |
-| **Documentación** | 🇪🇸 Español | `README.md`, `docs/*.md` |
-| **Commits** | 🇪🇸 Español | Títulos y descripciones |
-| **Pull Requests** | 🇪🇸 Español | Títulos y descripciones |
-| **Issues** | 🇪🇸 Español | Títulos y descripciones |
+| Tipo de Archivo       | Idioma del Contenido | Ejemplos                        |
+| --------------------- | -------------------- | ------------------------------- |
+| **Código TypeScript** | 🇺🇸 Inglés            | `*.ts`, `*.js`, `*.mjs`         |
+| **Tests**             | 🇺🇸 Inglés            | `*.test.ts`, `*.spec.ts`        |
+| **Configuración**     | 🇺🇸 Inglés            | `tsconfig.json`, `package.json` |
+| **Documentación**     | 🇪🇸 Español           | `README.md`, `docs/*.md`        |
+| **Commits**           | 🇪🇸 Español           | Títulos y descripciones         |
+| **Pull Requests**     | 🇪🇸 Español           | Títulos y descripciones         |
+| **Issues**            | 🇪🇸 Español           | Títulos y descripciones         |
 
 #### 🚫 Violaciones Comunes a Evitar
 
@@ -379,6 +406,7 @@ Para documentación técnica detallada, arquitectura del sistema y guías de imp
 **🔗 [Notion - Financial Backoffice Documentation](https://www.notion.so/yummy/financial-backoffice)**
 
 Esta documentación incluye:
+
 - Especificaciones técnicas completas
 - Diagramas de arquitectura actualizados
 - Guías de troubleshooting
@@ -470,11 +498,7 @@ npm run check-all
  * @returns The total calculated amount
  * @throws {ValidationError} When baseAmount is negative
  */
-export const calculateTotal = (
-  baseAmount: number,
-  taxRate: number,
-  fees: number = 0
-): number => {
+export const calculateTotal = (baseAmount: number, taxRate: number, fees: number = 0): number => {
   // Implementation
 };
 ```
@@ -498,6 +522,7 @@ export const calculateTotal = (
 ### Criterios de Revisión
 
 #### ✅ Aprobación
+
 - Cumple con dogmas del equipo
 - Sigue estándares de código
 - Tests pasan y cobertura aumenta
@@ -505,6 +530,7 @@ export const calculateTotal = (
 - No introduce deuda técnica
 
 #### ❌ Rechazo
+
 - Viola dogmas del equipo
 - Tests fallan o cobertura disminuye
 - Código no documentado
@@ -517,11 +543,13 @@ export const calculateTotal = (
 # Ejemplos de comentarios constructivos
 
 ## ✅ Correcto
+
 "Considera usar un Map aquí para mejorar la performance de búsqueda O(1) vs O(n)"
 "Falta validación de entrada para el parámetro 'email'"
 "Excelente uso de tipos, muy claro"
 
 ## ❌ Incorrecto
+
 "Esto está mal"
 "No me gusta este approach"
 "Cambia todo"
@@ -570,4 +598,4 @@ npm audit fix
 
 **¡Gracias por contribuir al éxito del equipo Financial Backoffice!** 🚀
 
-*Última actualización: Agosto 2025*
+_Última actualización: Agosto 2025_

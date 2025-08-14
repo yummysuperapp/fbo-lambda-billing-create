@@ -1,6 +1,6 @@
 /**
  * @fileoverview Interfaces Index
- * 
+ *
  * This file exports all interfaces, classes, and validation schemas
  * that require explicit imports throughout the application.
  */

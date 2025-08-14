@@ -11,7 +11,7 @@ export const createResponse = (
   httpStatusMessage?: HttpStatusMessageType,
   body?: FBOLambda.UnknownRecord,
   headers?: Record<string, string>,
-  isBase64Encoded = false,
+  isBase64Encoded = false
 ): APIGatewayProxyResult => ({
   statusCode,
   isBase64Encoded,
@@ -41,7 +41,7 @@ export function safeJsonParse<T = unknown>(json: string): T | null {
  * Delays execution for the specified number of milliseconds
  */
 export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -51,7 +51,7 @@ export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
   maxRetries: number = 3,
   baseDelay: number = 1000,
-  maxDelay: number = 10000,
+  maxDelay: number = 10000
 ): Promise<T> {
   let lastError: Error | undefined;
 
@@ -77,10 +77,7 @@ export async function retryWithBackoff<T>(
 /**
  * Validates that a value is not null or undefined
  */
-export function assertExists<T>(
-  value: T | null | undefined,
-  message: string,
-): asserts value is T {
+export function assertExists<T>(value: T | null | undefined, message: string): asserts value is T {
   if (value === null || value === undefined) {
     throw new Error(message);
   }
@@ -168,16 +165,13 @@ export const isHttpEvent = (event: LambdaHttpEvent): event is APIGatewayProxyEve
   typeof (event.requestContext as { http?: unknown }).http === 'object' &&
   (event.requestContext as { http?: { method?: unknown } }).http !== null &&
   'method' in (event.requestContext as { http: { method?: unknown } }).http &&
-  typeof (event.requestContext as { http: { method?: unknown } }).http.method ===
-    'string';
+  typeof (event.requestContext as { http: { method?: unknown } }).http.method === 'string';
 
 /**
  * Gets the HTTP method from a Lambda event object.
  * Supports APIGatewayProxyEvent v2.
  */
-export const getHttpEventMethod = (
-  event: LambdaHttpEvent,
-): HttpMethodType | null => {
+export const getHttpEventMethod = (event: LambdaHttpEvent): HttpMethodType | null => {
   if (!isHttpEvent(event)) {
     return null;
   }

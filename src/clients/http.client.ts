@@ -1,9 +1,4 @@
-import axios, { 
-  AxiosInstance, 
-  AxiosRequestConfig, 
-  AxiosResponse,
-  AxiosError 
-} from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { Agent } from 'https';
 import { createLogger, retryWithBackoff } from '@/utils';
 import type { HttpClientInterface, HttpRequestConfig, Logger } from '@/types';
@@ -48,7 +43,7 @@ export class HttpClient implements HttpClientInterface {
       httpsAgent,
       headers: {
         'User-Agent': 'Yummy-FBO-Lambda/1.0',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
         ...config.headers,
       },
@@ -56,7 +51,7 @@ export class HttpClient implements HttpClientInterface {
     });
 
     this.setupInterceptors();
-    
+
     this.logger.info('HTTP Client initialized', {
       baseURL: config.baseURL,
       timeout: config.timeout,
@@ -133,7 +128,8 @@ export class HttpClient implements HttpClientInterface {
    * Calculates response time from axios response
    */
   private getResponseTime(response: AxiosResponse): number | undefined {
-    const requestTime = (response.config as AxiosRequestConfig & { metadata?: { startTime: number } }).metadata?.startTime;
+    const requestTime = (response.config as AxiosRequestConfig & { metadata?: { startTime: number } }).metadata
+      ?.startTime;
     return requestTime ? Date.now() - requestTime : undefined;
   }
 
@@ -152,18 +148,16 @@ export class HttpClient implements HttpClientInterface {
   /**
    * Executes HTTP request with retry logic
    */
-  private async executeRequest<T>(
-    requestFn: () => Promise<AxiosResponse<T>>
-  ): Promise<T> {
+  private async executeRequest<T>(requestFn: () => Promise<AxiosResponse<T>>): Promise<T> {
     return retryWithBackoff(
       async () => {
         const response = await requestFn();
-        
+
         // Handle HTTP error status codes
         if (response.status >= 400) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
+
         return response.data;
       },
       this.retries,
@@ -175,44 +169,28 @@ export class HttpClient implements HttpClientInterface {
    * Performs GET request
    */
   async get<T = unknown>(url: string, config?: HttpRequestConfig): Promise<T> {
-    return this.executeRequest(() => 
-      this.client.get<T>(url, this.toAxiosConfig(config))
-    );
+    return this.executeRequest(() => this.client.get<T>(url, this.toAxiosConfig(config)));
   }
 
   /**
    * Performs POST request
    */
-  async post<T = unknown>(
-    url: string, 
-    data?: unknown, 
-    config?: HttpRequestConfig
-  ): Promise<T> {
-    return this.executeRequest(() => 
-      this.client.post<T>(url, data, this.toAxiosConfig(config))
-    );
+  async post<T = unknown>(url: string, data?: unknown, config?: HttpRequestConfig): Promise<T> {
+    return this.executeRequest(() => this.client.post<T>(url, data, this.toAxiosConfig(config)));
   }
 
   /**
    * Performs PUT request
    */
-  async put<T = unknown>(
-    url: string, 
-    data?: unknown, 
-    config?: HttpRequestConfig
-  ): Promise<T> {
-    return this.executeRequest(() => 
-      this.client.put<T>(url, data, this.toAxiosConfig(config))
-    );
+  async put<T = unknown>(url: string, data?: unknown, config?: HttpRequestConfig): Promise<T> {
+    return this.executeRequest(() => this.client.put<T>(url, data, this.toAxiosConfig(config)));
   }
 
   /**
    * Performs DELETE request
    */
   async delete<T = unknown>(url: string, config?: HttpRequestConfig): Promise<T> {
-    return this.executeRequest(() => 
-      this.client.delete<T>(url, this.toAxiosConfig(config))
-    );
+    return this.executeRequest(() => this.client.delete<T>(url, this.toAxiosConfig(config)));
   }
 }
 
@@ -225,10 +203,7 @@ class HttpClientRegistry {
   /**
    * Gets or creates an HTTP client for the given base URL
    */
-  static getClient(
-    baseURL: string, 
-    config?: Omit<HttpClientConfig, 'baseURL'>
-  ): HttpClient {
+  static getClient(baseURL: string, config?: Omit<HttpClientConfig, 'baseURL'>): HttpClient {
     if (!this.clients.has(baseURL)) {
       this.clients.set(baseURL, new HttpClient({ ...config, baseURL }));
     }
@@ -253,10 +228,7 @@ export function createHttpClient(config?: HttpClientConfig): HttpClientInterface
 /**
  * Gets a cached HTTP client for the given base URL
  */
-export function getHttpClient(
-  baseURL: string, 
-  config?: Omit<HttpClientConfig, 'baseURL'>
-): HttpClientInterface {
+export function getHttpClient(baseURL: string, config?: Omit<HttpClientConfig, 'baseURL'>): HttpClientInterface {
   return HttpClientRegistry.getClient(baseURL, config);
 }
 

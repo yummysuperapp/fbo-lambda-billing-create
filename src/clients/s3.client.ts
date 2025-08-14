@@ -5,11 +5,7 @@ import {
   HeadObjectCommand,
   S3ClientConfig,
 } from '@aws-sdk/client-s3';
-import type { 
-  S3ClientInterface, 
-  Logger,
-  FileMetadata 
-} from '@/types';
+import type { S3ClientInterface, Logger, FileMetadata } from '@/types';
 import { config } from '@/config';
 import { createLogger } from '@/utils';
 
@@ -19,7 +15,7 @@ import { createLogger } from '@/utils';
 async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
   const chunks: Uint8Array[] = [];
   const reader = stream.getReader();
-  
+
   try {
     while (true) {
       const { done, value } = await reader.read();
@@ -29,7 +25,7 @@ async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
   } finally {
     reader.releaseLock();
   }
-  
+
   return Buffer.concat(chunks);
 }
 
@@ -43,7 +39,7 @@ class S3ClientSingleton implements S3ClientInterface {
 
   private constructor() {
     this.logger = createLogger('S3Client');
-    
+
     const s3Config: S3ClientConfig = {
       region: config.aws.region,
       maxAttempts: 3,
@@ -73,8 +69,8 @@ class S3ClientSingleton implements S3ClientInterface {
    * Uploads a file to S3
    */
   async uploadFile(
-    bucketName: string, 
-    key: string, 
+    bucketName: string,
+    key: string,
     body: Buffer | Uint8Array | string,
     options?: {
       ContentType?: string;
@@ -92,17 +88,17 @@ class S3ClientSingleton implements S3ClientInterface {
         ...options,
       });
 
-      this.logger.info('Uploading file to S3', { 
-        bucket: bucketName, 
+      this.logger.info('Uploading file to S3', {
+        bucket: bucketName,
         key,
-        size: body.length 
+        size: body.length,
       });
 
       await this.client.send(command);
-      
-      this.logger.info('File uploaded successfully', { 
-        bucket: bucketName, 
-        key 
+
+      this.logger.info('File uploaded successfully', {
+        bucket: bucketName,
+        key,
       });
     } catch (error) {
       this.logger.error('Failed to upload file to S3', error as Error, {
@@ -123,23 +119,23 @@ class S3ClientSingleton implements S3ClientInterface {
         Key: key,
       });
 
-      this.logger.info('Downloading file from S3', { 
-        bucket: bucketName, 
-        key 
+      this.logger.info('Downloading file from S3', {
+        bucket: bucketName,
+        key,
       });
 
       const response = await this.client.send(command);
-      
+
       if (!response.Body) {
         throw new Error('No body in S3 response');
       }
 
       const buffer = await streamToBuffer(response.Body as ReadableStream);
-      
-      this.logger.info('File downloaded successfully', { 
-        bucket: bucketName, 
+
+      this.logger.info('File downloaded successfully', {
+        bucket: bucketName,
         key,
-        size: buffer.length 
+        size: buffer.length,
       });
 
       return buffer;
@@ -162,9 +158,9 @@ class S3ClientSingleton implements S3ClientInterface {
         Key: key,
       });
 
-      this.logger.info('Fetching metadata for S3 object', { 
-        bucket: bucketName, 
-        key 
+      this.logger.info('Fetching metadata for S3 object', {
+        bucket: bucketName,
+        key,
       });
 
       const response = await this.client.send(command);
@@ -182,10 +178,10 @@ class S3ClientSingleton implements S3ClientInterface {
         ...(response.ContentType && { contentType: response.ContentType }),
       };
 
-      this.logger.info('Metadata retrieved successfully', { 
-        bucket: bucketName, 
+      this.logger.info('Metadata retrieved successfully', {
+        bucket: bucketName,
         key,
-        size: metadata.size 
+        size: metadata.size,
       });
 
       return metadata;

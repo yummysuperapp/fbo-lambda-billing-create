@@ -29,7 +29,8 @@ Incluye la siguiente información en tu reporte:
 **Componente Afectado**: [e.g., API endpoint, función específica]
 **Versión Afectada**: [e.g., 1.2.3]
 **Descripción**: [Descripción detallada de la vulnerabilidad]
-**Pasos para Reproducir**: 
+**Pasos para Reproducir**:
+
 1. Paso 1
 2. Paso 2
 3. ...
@@ -40,37 +41,41 @@ Incluye la siguiente información en tu reporte:
 
 #### 3. Proceso de Respuesta
 
-| Timeframe | Acción |
-|-----------|--------|
-| 24 horas | Confirmación de recepción |
-| 72 horas | Evaluación inicial y clasificación |
-| 7 días | Plan de mitigación |
-| 30 días | Resolución (para vulnerabilidades críticas) |
-| 90 días | Resolución (para vulnerabilidades de menor severidad) |
+| Timeframe | Acción                                                |
+| --------- | ----------------------------------------------------- |
+| 24 horas  | Confirmación de recepción                             |
+| 72 horas  | Evaluación inicial y clasificación                    |
+| 7 días    | Plan de mitigación                                    |
+| 30 días   | Resolución (para vulnerabilidades críticas)           |
+| 90 días   | Resolución (para vulnerabilidades de menor severidad) |
 
 ## 🛡️ Políticas de Seguridad
 
 ### Clasificación de Severidad
 
 #### 🔴 Critical
+
 - Ejecución remota de código
 - Acceso no autorizado a datos financieros
 - Bypass completo de autenticación
 - Exposición de credenciales o secretos
 
 #### 🟠 High
+
 - Escalación de privilegios
 - Acceso no autorizado a datos sensibles
 - Inyección SQL o NoSQL
 - Cross-Site Scripting (XSS) persistente
 
 #### 🟡 Medium
+
 - Cross-Site Request Forgery (CSRF)
 - Exposición de información sensible
 - Bypass parcial de controles de acceso
 - Vulnerabilidades de configuración
 
 #### 🟢 Low
+
 - Exposición de información no sensible
 - Vulnerabilidades que requieren acceso físico
 - Issues de logging o monitoreo
@@ -105,7 +110,7 @@ import Joi from 'joi';
 const userSchema = Joi.object({
   email: Joi.string().email().required(),
   amount: Joi.number().positive().max(1000000).required(),
-  currency: Joi.string().valid('COP', 'USD').required()
+  currency: Joi.string().valid('COP', 'USD').required(),
 });
 
 const validateInput = (data: unknown) => {
@@ -124,13 +129,13 @@ const validateInput = (data: unknown) => {
 const config = {
   dbPassword: process.env.DB_PASSWORD!,
   apiKey: process.env.API_KEY!,
-  jwtSecret: process.env.JWT_SECRET!
+  jwtSecret: process.env.JWT_SECRET!,
 };
 
 // ❌ Incorrecto: Hardcoded secrets
 const config = {
   dbPassword: 'mypassword123',
-  apiKey: 'sk-1234567890abcdef'
+  apiKey: 'sk-1234567890abcdef',
 };
 ```
 
@@ -141,13 +146,13 @@ const config = {
 logger.info('User login attempt', {
   userId: user.id,
   timestamp: new Date().toISOString(),
-  ip: req.ip
+  ip: req.ip,
 });
 
 // ❌ Incorrecto: Logear información sensible
 logger.info('User login', {
   password: user.password,
-  creditCard: user.creditCard
+  creditCard: user.creditCard,
 });
 ```
 
@@ -197,7 +202,7 @@ const awsConfig = {
   region: process.env.AWS_REGION || 'us-east-1',
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  sessionToken: process.env.AWS_SESSION_TOKEN
+  sessionToken: process.env.AWS_SESSION_TOKEN,
 };
 ```
 
@@ -212,7 +217,7 @@ const securityEvents = {
   UNAUTHORIZED_ACCESS: 'security.access.unauthorized',
   SUSPICIOUS_ACTIVITY: 'security.activity.suspicious',
   DATA_ACCESS: 'security.data.access',
-  PRIVILEGE_ESCALATION: 'security.privilege.escalation'
+  PRIVILEGE_ESCALATION: 'security.privilege.escalation',
 };
 
 // Implementación de logging
@@ -220,7 +225,7 @@ const logSecurityEvent = (event: string, details: SecurityEventDetails) => {
   logger.warn(event, {
     ...details,
     timestamp: new Date().toISOString(),
-    severity: 'security'
+    severity: 'security',
   });
 };
 ```
@@ -238,38 +243,43 @@ const logSecurityEvent = (event: string, details: SecurityEventDetails) => {
 ### Plan de Respuesta
 
 #### 1. Detección y Análisis
+
 - Identificar el alcance del incidente
 - Evaluar el impacto potencial
 - Documentar evidencia inicial
 
 #### 2. Contención
+
 - Aislar sistemas afectados
 - Implementar mitigaciones temporales
 - Preservar evidencia forense
 
 #### 3. Erradicación
+
 - Eliminar la causa raíz
 - Aplicar parches de seguridad
 - Actualizar configuraciones
 
 #### 4. Recuperación
+
 - Restaurar servicios afectados
 - Monitorear actividad anómala
 - Validar integridad de datos
 
 #### 5. Lecciones Aprendidas
+
 - Documentar el incidente
 - Actualizar políticas de seguridad
 - Mejorar controles preventivos
 
 ### Contactos de Emergencia
 
-| Rol | Contacto | Disponibilidad |
-|-----|----------|----------------|
-| Tech Lead | jose.carrillo@yummysuperapp.com | 24/7 |
-| Security Team | security@yummysuperapp.com | 24/7 |
-| DevOps Lead | devops@yummysuperapp.com | 24/7 |
-| Legal/Compliance | legal@yummysuperapp.com | Horario laboral |
+| Rol              | Contacto                        | Disponibilidad  |
+| ---------------- | ------------------------------- | --------------- |
+| Tech Lead        | jose.carrillo@yummysuperapp.com | 24/7            |
+| Security Team    | security@yummysuperapp.com      | 24/7            |
+| DevOps Lead      | devops@yummysuperapp.com        | 24/7            |
+| Legal/Compliance | legal@yummysuperapp.com         | Horario laboral |
 
 ## 📋 Checklist de Seguridad
 
@@ -298,12 +308,14 @@ const logSecurityEvent = (event: string, details: SecurityEventDetails) => {
 ## 🔗 Recursos Adicionales
 
 ### Documentación Interna
+
 - [Guía de Configuración](docs/CONFIGURATION.md)
 - [Arquitectura del Sistema](docs/ARCHITECTURE.md)
 - [Código de Conducta](CODE_OF_CONDUCT.md)
 - [Guía de Contribución](CONTRIBUTING.md)
 
 ### Recursos Externos
+
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
 - [AWS Security Best Practices](https://aws.amazon.com/security/security-resources/)
@@ -336,5 +348,5 @@ Para cualquier pregunta relacionada con seguridad:
 
 ---
 
-*Última actualización: Agosto 2025*
-*Próxima revisión: Agosto 2025*
+_Última actualización: Agosto 2025_
+_Próxima revisión: Agosto 2025_

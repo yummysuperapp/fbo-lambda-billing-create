@@ -30,16 +30,19 @@ Como miembros, contribuidores y líderes del equipo de Financial Backoffice de Y
 Este código de conducta se alinea con nuestros dogmas fundamentales:
 
 ### Responsabilidad y Compromiso
+
 - **Toda tarea debe ser asignada a un responsable**: Cada miembro debe asumir responsabilidad clara
 - **Todo responsable debe velar por el cumplimiento**: Seguimiento activo de compromisos
 - **Solo PM o TL pueden marcar tareas como HECHO**: Respeto por la jerarquía y proceso
 
 ### Calidad y Excelencia
+
 - **Todo lo que se haga debe ser escalable y eficiente**: Compromiso con la calidad técnica
 - **Todo bug sin documentación es un error**: Documentación obligatoria de problemas
 - **Si tienes dudas, divide el trabajo**: Colaboración activa cuando sea necesario
 
 ### Transparencia y Comunicación
+
 - **Todo lo versionado es rastreable**: Transparencia en cambios y decisiones
 - **Los bugs son deuda técnica documentada**: Comunicación clara de limitaciones
 
@@ -94,21 +97,25 @@ Instancias de comportamiento abusivo, acosador o inaceptable pueden ser reportad
 Los líderes del proyecto seguirán estas Pautas de Impacto en la Comunidad para determinar las consecuencias de cualquier acción que consideren en violación de este Código de Conducta:
 
 #### 1. Corrección
+
 **Impacto en la Comunidad**: Uso de lenguaje inapropiado u otro comportamiento considerado no profesional o no deseado en la comunidad.
 
 **Consecuencia**: Una advertencia escrita privada de los líderes del proyecto, proporcionando claridad alrededor de la naturaleza de este incumplimiento y una explicación de por qué el comportamiento es inaceptable.
 
 #### 2. Advertencia
+
 **Impacto en la Comunidad**: Un incumplimiento causado por un único incidente o por una cadena de acciones.
 
 **Consecuencia**: Una advertencia con consecuencias por comportamiento prolongado. No se permite interactuar con las personas involucradas, incluyendo interacción no solicitada con quienes se encuentran aplicando el Código de Conducta, por un período especificado de tiempo.
 
 #### 3. Expulsión Temporal
+
 **Impacto en la Comunidad**: Una serie de incumplimientos de los estándares de la comunidad, incluyendo comportamiento inapropiado continuo.
 
 **Consecuencia**: Una expulsión temporal de cualquier forma de interacción o comunicación pública con la comunidad durante un intervalo de tiempo especificado.
 
 #### 4. Expulsión Permanente
+
 **Impacto en la Comunidad**: Demostrar un patrón sistemático de incumplimientos de los estándares de la comunidad, incluyendo conductas inapropiadas prolongadas en el tiempo, acoso de individuos, o agresiones o menosprecio a grupos de individuos.
 
 **Consecuencia**: Una expulsión permanente de cualquier tipo de interacción pública con la comunidad del proyecto.

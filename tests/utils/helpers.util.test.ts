@@ -13,43 +13,43 @@ import {
   truncateString,
   generateId,
   isHttpEvent,
-  getHttpEventMethod
+  getHttpEventMethod,
 } from '@/utils/helpers.util';
 
 describe('Helpers', () => {
   describe('createResponse', () => {
     it('should create a response with default headers and message only', () => {
       const response = createResponse(200, 'OK');
-      
+
       expect(response.statusCode).toBe(200);
       expect(response.body).toBe('{"message":"OK"}');
       expect(response.headers).toEqual({
         'Content-Type': 'application/json',
-        'X-Powered-By': 'Yummy-FBO-Lambda'
+        'X-Powered-By': 'Yummy-FBO-Lambda',
       });
     });
 
     it('should create a response with message and merged body fields', () => {
       const body = { success: true, data: 'test' } as const;
       const response = createResponse(201, 'Created', body);
-      
+
       expect(response.statusCode).toBe(201);
       expect(JSON.parse(response.body)).toEqual({ message: 'Created', ...body });
       expect(response.headers).toEqual({
         'Content-Type': 'application/json',
-        'X-Powered-By': 'Yummy-FBO-Lambda'
+        'X-Powered-By': 'Yummy-FBO-Lambda',
       });
     });
 
     it('should create a response with custom headers and base64 flag', () => {
       const customHeaders = { 'Custom-Header': 'value' } as const;
       const response = createResponse(202, 'Accepted', { queued: true }, customHeaders, true);
-      
+
       expect(response.isBase64Encoded).toBe(true);
       expect(response.headers).toEqual({
         'Content-Type': 'application/json',
         'X-Powered-By': 'Yummy-FBO-Lambda',
-        'Custom-Header': 'value'
+        'Custom-Header': 'value',
       });
       expect(JSON.parse(response.body)).toEqual({ message: 'Accepted', queued: true });
     });
@@ -82,32 +82,30 @@ describe('Helpers', () => {
     it('should succeed on first attempt', async () => {
       const operation = vi.fn().mockResolvedValue('success');
       const result = await retryWithBackoff(operation);
-      
+
       expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(1);
     });
 
     it('should retry on failure and eventually succeed', async () => {
-      const operation = vi.fn()
-        .mockRejectedValueOnce(new Error('fail'))
-        .mockResolvedValue('success');
-      
+      const operation = vi.fn().mockRejectedValueOnce(new Error('fail')).mockResolvedValue('success');
+
       const result = await retryWithBackoff(operation, 3, 10);
-      
+
       expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(2);
     });
 
     it('should throw error after max retries', async () => {
       const operation = vi.fn().mockRejectedValue(new Error('persistent error'));
-      
+
       await expect(retryWithBackoff(operation, 2, 10)).rejects.toThrow('persistent error');
       expect(operation).toHaveBeenCalledTimes(3);
     });
 
     it('should handle non-Error rejections', async () => {
       const operation = vi.fn().mockRejectedValue('string error');
-      
+
       await expect(retryWithBackoff(operation, 1, 10)).rejects.toThrow('string error');
       expect(operation).toHaveBeenCalledTimes(2);
     });
@@ -115,17 +113,17 @@ describe('Helpers', () => {
     it('should respect maxDelay parameter', async () => {
       const operation = vi.fn().mockRejectedValue(new Error('fail'));
       const start = Date.now();
-      
+
       await expect(retryWithBackoff(operation, 1, 1000, 50)).rejects.toThrow('fail');
       const elapsed = Date.now() - start;
-      
+
       // Should be limited by maxDelay (50ms) rather than baseDelay * 2^attempt (1000ms)
       expect(elapsed).toBeLessThan(200);
     });
 
     it('should handle zero retries', async () => {
       const operation = vi.fn().mockRejectedValue(new Error('immediate fail'));
-      
+
       await expect(retryWithBackoff(operation, 0, 10)).rejects.toThrow('immediate fail');
       expect(operation).toHaveBeenCalledTimes(1);
     });
@@ -134,12 +132,12 @@ describe('Helpers', () => {
       // This test covers the theoretical case where the loop exits without setting lastError
       // This is mainly for TypeScript flow analysis coverage
       const operation = vi.fn();
-      
+
       // Mock a scenario where operation throws on first call but somehow the loop exits
       operation.mockImplementationOnce(() => {
         throw new Error('test error');
       });
-      
+
       await expect(retryWithBackoff(operation, 0, 10)).rejects.toThrow('test error');
       expect(operation).toHaveBeenCalledTimes(1);
     });
@@ -151,7 +149,7 @@ describe('Helpers', () => {
         // Simulate a scenario where the operation doesn't throw but also doesn't return
         throw undefined; // This will be caught and converted to an error
       });
-      
+
       await expect(retryWithBackoff(mockOperation, 0, 100)).rejects.toThrow();
       expect(mockOperation).toHaveBeenCalledTimes(1);
     });
@@ -159,7 +157,7 @@ describe('Helpers', () => {
     it('should throw fallback error when lastError is undefined', async () => {
       // Create a spy that will force the fallback condition
       const mockOperation = vi.fn().mockRejectedValue(undefined);
-      
+
       // Test with negative maxRetries to potentially skip the loop
       await expect(retryWithBackoff(mockOperation, -1, 100)).rejects.toThrow('Unexpected error in retryWithBackoff');
     });
@@ -292,7 +290,7 @@ describe('Helpers', () => {
     it('should generate unique IDs', () => {
       const id1 = generateId();
       const id2 = generateId();
-      
+
       expect(id1).not.toBe(id2);
       expect(typeof id1).toBe('string');
       expect(typeof id2).toBe('string');

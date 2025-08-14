@@ -3,6 +3,7 @@
 This is the **AWS Lambda** - a private AWS Lambda function template for Financial Backoffice (FBO) operations at Yummy Inc. This template serves as the foundation for building serverless financial services with strict quality standards and comprehensive testing.
 
 ### Key Information
+
 - **Team**: Financial Backoffice (FBO)
 - **Tech Lead**: José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Runtime**: Node.js 22.x with TypeScript
@@ -12,12 +13,14 @@ This is the **AWS Lambda** - a private AWS Lambda function template for Financia
 ## Language and Communication Standards
 
 ### Critical Language Rules
+
 - **Natural language** (comments, documentation, commit messages): **Spanish (es_CO)**
 - **All code** (variables, functions, classes, file names, directories): **English (en_US)**
 - **Code comments**: English unless explicitly Spanish context required
 - **Documentation files**: Spanish for user-facing docs, English for technical specs
 
 ### Naming Conventions
+
 - **Variables/Functions**: `camelCase`
 - **Classes/Components**: `PascalCase`
 - **Directories/Files**: `kebab-case`
@@ -27,6 +30,7 @@ This is the **AWS Lambda** - a private AWS Lambda function template for Financia
 ## Architecture and Technical Stack
 
 ### Core Technologies
+
 - **Runtime**: Node.js 22.x
 - **Language**: TypeScript (ultra-strict configuration)
 - **Module System**: ESModules (`"type": "module"`)
@@ -35,12 +39,14 @@ This is the **AWS Lambda** - a private AWS Lambda function template for Financia
 - **Build**: TypeScript compiler with strict settings
 
 ### Database Support
+
 - **MongoDB**: Primary NoSQL database with Atlas connection
 - **PostgreSQL**: Relational database with connection pooling
 - **BigQuery**: Analytics and data warehouse integration
 - **S3**: File storage and document management
 
 ### AWS Services Integration
+
 - **Lambda**: Serverless compute platform
 - **S3**: Object storage with presigned URLs
 - **CloudWatch**: Logging and monitoring
@@ -49,6 +55,7 @@ This is the **AWS Lambda** - a private AWS Lambda function template for Financia
 ## Project Structure and Patterns
 
 ### Directory Structure
+
 ```
 src/
 ├── @types/           # TypeScript type definitions
@@ -69,6 +76,7 @@ tests/
 ```
 
 ### Path Aliases (tsconfig.json)
+
 - `@/*` → `./src/*`
 - `@/types` → `./src/@types/index.d.ts`
 - `@/interfaces/*` → `./src/interfaces/*`
@@ -81,6 +89,7 @@ tests/
 ## TypeScript Configuration Standards
 
 ### Ultra-Strict TypeScript Rules
+
 - **NO `any` types allowed** - Use `unknown` or precise types
 - **Strict null checks**: All variables must handle null/undefined
 - **No unused variables/parameters**: Clean code enforcement
@@ -89,6 +98,7 @@ tests/
 - **Explicit function return types**: Clear API contracts
 
 ### Required TypeScript Settings
+
 ```json
 {
   "strict": true,
@@ -105,6 +115,7 @@ tests/
 ## Code Quality and Testing Standards
 
 ### Testing Requirements
+
 - **Framework**: Vitest with Node.js environment
 - **Coverage**: 100% required (lines, functions, branches, statements)
 - **Test Types**: Unit, integration, and service tests
@@ -112,12 +123,14 @@ tests/
 - **Setup**: Global test setup in `tests/setup.ts`
 
 ### Test File Patterns
+
 - **Location**: Co-located in `tests/` directory
 - **Naming**: `*.test.ts` or `*.spec.ts`
 - **Structure**: Describe blocks with clear test descriptions
 - **Cleanup**: Proper cleanup after each test
 
 ### ESLint Rules
+
 - **No console.log**: Use `console.warn` or `console.error` only
 - **Prefer const**: Immutable variables by default
 - **No var**: Use `const` or `let` only
@@ -127,12 +140,14 @@ tests/
 ## Environment and Configuration
 
 ### Environment Variables
+
 - **Validation**: All env vars validated in `environment.config.ts`
 - **Type Safety**: Strongly typed environment configuration
 - **Required Variables**: AWS credentials, database connections, API keys
 - **Environment Detection**: `NODE_ENV` with proper environment flags
 
 ### Configuration Pattern
+
 - **Centralized**: All config in `src/config/` directory
 - **Typed**: Strong TypeScript interfaces for all configurations
 - **Validated**: Runtime validation of all environment variables
@@ -141,12 +156,14 @@ tests/
 ## Development Workflow
 
 ### Branch Naming Convention
+
 - **Features**: `feat/FB-[JIRA-NUMBER]_[description]`
 - **Fixes**: `fix/FB-[JIRA-NUMBER]_[description]`
 - **Hotfixes**: `hotfix/FB-[JIRA-NUMBER]_[description]`
 - **Validation**: Automatic branch name validation in CI/CD
 
 ### Available Scripts
+
 ```bash
 # Development
 npm run start:dev          # Development with tsx
@@ -170,6 +187,7 @@ npm run prepare-deploy     # Pre-deployment validation
 ## CI/CD Pipeline
 
 ### Testing Workflow (`.github/workflows/test.yml`)
+
 1. **Type Checking**: Strict TypeScript validation
 2. **Linting**: ESLint with TypeScript rules
 3. **Testing**: Vitest with 100% coverage requirement
@@ -177,6 +195,7 @@ npm run prepare-deploy     # Pre-deployment validation
 5. **Quality Gates**: All checks must pass
 
 ### Deployment Workflow (`.github/workflows/deploy.yml`)
+
 1. **Trigger**: Only after successful testing workflow
 2. **Environment Detection**: Based on branch (develop/testing/master)
 3. **Build**: TypeScript compilation and packaging
@@ -186,6 +205,7 @@ npm run prepare-deploy     # Pre-deployment validation
 ## Security and Best Practices
 
 ### Security Standards
+
 - **No hardcoded secrets**: All sensitive data in environment variables
 - **IAM roles**: Prefer IAM roles over access keys in production
 - **Input validation**: Validate all external inputs
@@ -193,6 +213,7 @@ npm run prepare-deploy     # Pre-deployment validation
 - **Audit logging**: Track all significant operations
 
 ### Performance Considerations
+
 - **Connection pooling**: Reuse database connections
 - **Lazy loading**: Load dependencies only when needed
 - **Memory management**: Proper cleanup of resources
@@ -201,6 +222,7 @@ npm run prepare-deploy     # Pre-deployment validation
 ## Code Review Guidelines
 
 ### What to Review
+
 1. **Type Safety**: Ensure no `any` types and proper type definitions
 2. **Test Coverage**: Verify 100% coverage is maintained
 3. **Error Handling**: Check comprehensive error handling
@@ -211,6 +233,7 @@ npm run prepare-deploy     # Pre-deployment validation
 8. **Architecture**: Check adherence to established patterns
 
 ### Quality Checklist
+
 - [ ] TypeScript strict mode compliance
 - [ ] 100% test coverage maintained
 - [ ] ESLint rules passing
@@ -225,13 +248,16 @@ npm run prepare-deploy     # Pre-deployment validation
 ## Integration with External Services
 
 ### Slack Integration
+
 After completing a code review, search for the associated Slack thread using the GitHub MCP and notify the team in the `#fbo-team` channel that a Copilot review has been completed. Include:
+
 - Pull request link
 - Summary of review findings
 - Any critical issues identified
 - Recommendations for improvement
 
 ### Notification Template
+
 ```
 🤖 **Copilot Code Review Completed**
 
@@ -251,13 +277,16 @@ After completing a code review, search for the associated Slack thread using the
 ## Documentation Standards
 
 ### Code Documentation
+
 - **JSDoc**: Use JSDoc comments for all public functions and classes
 - **Type Annotations**: Explicit type annotations for complex types
 - **README Updates**: Keep README.md current with any architectural changes
 - **API Documentation**: Document all external interfaces
 
 ### File Headers
+
 Include file headers with:
+
 - Purpose and functionality description
 - Author information (José Carrillo <jose.carrillo@yummysuperapp.com>)
 - Version and last update information
@@ -266,12 +295,14 @@ Include file headers with:
 ## Troubleshooting and Support
 
 ### Common Issues
+
 1. **Type Errors**: Check for `any` types and ensure proper type definitions
 2. **Test Failures**: Verify mocks are properly configured
 3. **Build Issues**: Check TypeScript configuration and dependencies
 4. **Deployment Failures**: Validate environment variables and AWS permissions
 
 ### Support Contacts
+
 - **Tech Lead**: José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Team Channel**: #fbo-team (Slack)
 - **Documentation**: [Confluence FBO Space](https://yummy.atlassian.net/wiki/spaces/FBO)

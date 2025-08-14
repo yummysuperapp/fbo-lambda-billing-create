@@ -29,6 +29,7 @@ Esta documentación describe las APIs y interfaces públicas del FBO Lambda Temp
 Cliente HTTP robusto con soporte para reintentos, interceptores y configuración flexible para comunicación con APIs externas.
 
 #### Importación
+
 ```typescript
 import { HttpClient, createHttpClient, getHttpClient } from '@/clients/http.client';
 ```
@@ -62,6 +63,7 @@ new HttpClient(config?: HttpClientConfig)
 ```
 
 **Parámetros:**
+
 - `config` (opcional): Configuración del cliente HTTP
   - `baseURL`: URL base para todas las requests
   - `timeout`: Timeout en milisegundos (default: 30000)
@@ -72,18 +74,23 @@ new HttpClient(config?: HttpClientConfig)
 #### Métodos
 
 ##### `get<T>(url: string, config?: HttpRequestConfig): Promise<T>`
+
 Realiza una petición GET HTTP.
 
 ##### `post<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
+
 Realiza una petición POST HTTP.
 
 ##### `put<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
+
 Realiza una petición PUT HTTP.
 
 ##### `delete<T>(url: string, config?: HttpRequestConfig): Promise<T>`
+
 Realiza una petición DELETE HTTP.
 
 ##### `patch<T>(url: string, data?: any, config?: HttpRequestConfig): Promise<T>`
+
 Realiza una petición PATCH HTTP.
 
 #### Ejemplo de Uso
@@ -94,7 +101,7 @@ import { createHttpClient } from '@/clients';
 const httpClient = createHttpClient({
   baseURL: 'https://api.example.com',
   timeout: 5000,
-  retries: 2
+  retries: 2,
 });
 
 // GET request
@@ -103,7 +110,7 @@ const users = await httpClient.get<User[]>('/users');
 // POST request
 const newUser = await httpClient.post<User>('/users', {
   name: 'John Doe',
-  email: 'john@example.com'
+  email: 'john@example.com',
 });
 ```
 
@@ -112,6 +119,7 @@ const newUser = await httpClient.post<User>('/users', {
 Cliente MongoDB optimizado con pool de conexiones y operaciones CRUD completas.
 
 #### Importación
+
 ```typescript
 import { MongoClient, createMongoClient } from '@/clients/mongo.client';
 ```
@@ -144,16 +152,17 @@ const mongoClient = await createMongoClient();
 const result = await mongoClient.insertOne('users', {
   name: 'John Doe',
   email: 'john@example.com',
-  createdAt: new Date()
+  createdAt: new Date(),
 });
 
 // Buscar documentos
 const users = await mongoClient.findMany('users', {
-  active: true
+  active: true,
 });
 
 // Actualizar documento
-const updateResult = await mongoClient.updateOne('users', 
+const updateResult = await mongoClient.updateOne(
+  'users',
   { email: 'john@example.com' },
   { $set: { lastLogin: new Date() } }
 );
@@ -164,6 +173,7 @@ const updateResult = await mongoClient.updateOne('users',
 Cliente PostgreSQL con pool de conexiones, transacciones y queries tipadas.
 
 #### Importación
+
 ```typescript
 import { PostgresClient, createPostgresClient } from '@/clients/postgres.client';
 ```
@@ -193,10 +203,7 @@ import { createPostgresClient } from '@/clients';
 const pgClient = await createPostgresClient();
 
 // Query simple
-const result = await pgClient.query<User>(
-  'SELECT * FROM users WHERE active = $1',
-  [true]
-);
+const result = await pgClient.query<User>('SELECT * FROM users WHERE active = $1', [true]);
 
 // Transacción
 const transferResult = await pgClient.transaction(async (client) => {
@@ -211,6 +218,7 @@ const transferResult = await pgClient.transaction(async (client) => {
 Cliente AWS S3 con SDK v3 para operaciones de almacenamiento de archivos.
 
 #### Importación
+
 ```typescript
 import { S3Client, createS3Client } from '@/clients/s3.client';
 ```
@@ -249,11 +257,7 @@ import { createS3Client } from '@/clients';
 const s3Client = createS3Client();
 
 // Subir archivo
-const uploadResult = await s3Client.uploadFile(
-  'my-bucket',
-  'documents/report.pdf',
-  fileBuffer
-);
+const uploadResult = await s3Client.uploadFile('my-bucket', 'documents/report.pdf', fileBuffer);
 
 // Generar URL presignada
 const presignedUrl = await s3Client.getPresignedUrl(
@@ -271,6 +275,7 @@ const objects = await s3Client.listObjects('my-bucket', 'documents/');
 Cliente Google Cloud BigQuery para analytics y consultas de datos masivos.
 
 #### Importación
+
 ```typescript
 import { BigQueryClient, createBigQueryClient } from '@/clients/bigquery.client';
 ```
@@ -294,7 +299,8 @@ import { createBigQueryClient } from '@/clients';
 const bqClient = createBigQueryClient();
 
 // Ejecutar consulta
-const results = await bqClient.query<FinancialReport>(`
+const results = await bqClient.query<FinancialReport>(
+  `
   SELECT 
     date,
     SUM(amount) as total_amount,
@@ -303,14 +309,16 @@ const results = await bqClient.query<FinancialReport>(`
   WHERE date >= @start_date
   GROUP BY date
   ORDER BY date
-`, {
-  start_date: '2024-01-01'
-});
+`,
+  {
+    start_date: '2024-01-01',
+  }
+);
 
 // Insertar datos
 const rows = [
-  { id: 1, name: 'Transaction 1', amount: 100.50 },
-  { id: 2, name: 'Transaction 2', amount: 250.75 }
+  { id: 1, name: 'Transaction 1', amount: 100.5 },
+  { id: 2, name: 'Transaction 2', amount: 250.75 },
 ];
 
 await bqClient.insertRows('financial_data', 'transactions', rows);
@@ -323,6 +331,7 @@ await bqClient.insertRows('financial_data', 'transactions', rows);
 Servicio especializado para operaciones financieras y de negocio del backoffice.
 
 #### Importación
+
 ```typescript
 import { FinanceService, createFinanceService } from '@/services/finance.service';
 ```
@@ -366,11 +375,11 @@ const financeService = createFinanceService();
 // Procesar transacción
 const result = await financeService.processTransaction({
   id: 'txn_123',
-  amount: 1000.00,
+  amount: 1000.0,
   currency: 'USD',
   fromAccount: 'acc_sender',
   toAccount: 'acc_receiver',
-  type: 'transfer'
+  type: 'transfer',
 });
 
 // Calcular tasa de cambio
@@ -381,7 +390,7 @@ const report = await financeService.generateFinancialReport({
   startDate: '2024-01-01',
   endDate: '2024-01-31',
   currency: 'USD',
-  includeDetails: true
+  includeDetails: true,
 });
 ```
 
@@ -392,6 +401,7 @@ const report = await financeService.generateFinancialReport({
 Sistema de logging estructurado con niveles configurables y formato JSON.
 
 #### Importación
+
 ```typescript
 import { createLogger, Logger } from '@/utils/logger.util';
 ```
@@ -436,35 +446,42 @@ logger.info('User action completed');
 Funciones auxiliares reutilizables para operaciones comunes.
 
 #### Importación
+
 ```typescript
-import { 
+import {
   retryWithBackoff,
   validateEmail,
   formatCurrency,
   generateId,
   parseDate,
-  sanitizeInput
+  sanitizeInput,
 } from '@/utils/helpers.util';
 ```
 
 #### Funciones Disponibles
 
 ##### `retryWithBackoff<T>(operation: () => Promise<T>, options?: RetryOptions): Promise<T>`
+
 Ejecuta una operación con reintentos y backoff exponencial.
 
 ##### `validateEmail(email: string): boolean`
+
 Valida formato de email.
 
 ##### `formatCurrency(amount: number, currency: string): string`
+
 Formatea cantidad monetaria según la moneda.
 
 ##### `generateId(prefix?: string): string`
+
 Genera ID único con prefijo opcional.
 
 ##### `parseDate(dateString: string): Date | null`
+
 Parsea string de fecha de forma segura.
 
 ##### `sanitizeInput(input: string): string`
+
 Sanitiza input del usuario.
 
 #### Ejemplo de Uso
@@ -473,10 +490,7 @@ Sanitiza input del usuario.
 import { retryWithBackoff, formatCurrency, generateId } from '@/utils';
 
 // Retry con backoff
-const result = await retryWithBackoff(
-  () => httpClient.get('/api/data'),
-  { maxRetries: 3, baseDelay: 1000 }
-);
+const result = await retryWithBackoff(() => httpClient.get('/api/data'), { maxRetries: 3, baseDelay: 1000 });
 
 // Formatear moneda
 const formatted = formatCurrency(1234.56, 'USD'); // "$1,234.56"
@@ -584,7 +598,7 @@ interface FinancialReport {
 interface EnvironmentConfig {
   NODE_ENV: 'development' | 'staging' | 'production' | 'test';
   LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
-  
+
   // Database Configuration
   MONGODB_URI: string;
   MONGODB_DATABASE: string;
@@ -593,17 +607,17 @@ interface EnvironmentConfig {
   POSTGRES_DATABASE: string;
   POSTGRES_USER: string;
   POSTGRES_PASSWORD: string;
-  
+
   // AWS Configuration
   AWS_REGION: string;
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
   S3_BUCKET_NAME: string;
-  
+
   // External APIs
   FINANCE_API_URL: string;
   FINANCE_API_KEY: string;
-  
+
   // BigQuery
   GOOGLE_CLOUD_PROJECT_ID: string;
   GOOGLE_CLOUD_KEY_FILE?: string;
@@ -640,6 +654,7 @@ interface AppConfig {
 Handler principal para eventos Lambda con routing automático.
 
 #### Importación
+
 ```typescript
 import { handler } from '@/handlers';
 ```
@@ -677,28 +692,40 @@ functions:
 
 ```typescript
 class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
 }
 
 class NetworkError extends Error {
-  constructor(message: string, public statusCode?: number) {
+  constructor(
+    message: string,
+    public statusCode?: number
+  ) {
     super(message);
     this.name = 'NetworkError';
   }
 }
 
 class DatabaseError extends Error {
-  constructor(message: string, public operation?: string) {
+  constructor(
+    message: string,
+    public operation?: string
+  ) {
     super(message);
     this.name = 'DatabaseError';
   }
 }
 
 class BusinessLogicError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string
+  ) {
     super(message);
     this.name = 'BusinessLogicError';
   }
@@ -711,42 +738,43 @@ class BusinessLogicError extends Error {
 import { createErrorResponse, createSuccessResponse } from '@/utils';
 
 // Error response
-const errorResponse = createErrorResponse(
-  400,
-  'Validation failed',
-  { field: 'email', message: 'Invalid email format' }
-);
+const errorResponse = createErrorResponse(400, 'Validation failed', {
+  field: 'email',
+  message: 'Invalid email format',
+});
 
 // Success response
-const successResponse = createSuccessResponse(
-  { transactionId: 'txn_123', status: 'completed' },
-  201
-);
+const successResponse = createSuccessResponse({ transactionId: 'txn_123', status: 'completed' }, 201);
 ```
 
 ## Mejores Prácticas
 
 ### 1. Manejo de Errores
+
 - Siempre usar try-catch en operaciones asíncronas
 - Loggear errores con contexto suficiente
 - Retornar respuestas de error consistentes
 
 ### 2. Logging
+
 - Usar logging estructurado con metadatos
 - Incluir requestId para correlación
 - No loggear información sensible
 
 ### 3. Validación
+
 - Validar todos los inputs usando Zod schemas
 - Sanitizar datos de entrada
 - Validar permisos y autorización
 
 ### 4. Performance
+
 - Reutilizar conexiones de base de datos
 - Implementar caching cuando sea apropiado
 - Usar connection pooling
 
 ### 5. Seguridad
+
 - No exponer información sensible en logs
 - Usar variables de entorno para secretos
 - Validar y sanitizar todos los inputs
@@ -754,6 +782,7 @@ const successResponse = createSuccessResponse(
 ## Versionado
 
 Este template sigue [Semantic Versioning](https://semver.org/):
+
 - **MAJOR**: Cambios incompatibles en la API
 - **MINOR**: Nuevas funcionalidades compatibles
 - **PATCH**: Correcciones de bugs compatibles
@@ -763,6 +792,7 @@ Este template sigue [Semantic Versioning](https://semver.org/):
 ## Soporte
 
 Para soporte técnico o preguntas sobre la API:
+
 - **Tech Lead**: José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Equipo**: Financial Backoffice Team
 - **Documentación**: [CONTRIBUTING.md](../CONTRIBUTING.md)

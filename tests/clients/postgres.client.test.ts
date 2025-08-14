@@ -71,15 +71,15 @@ describe('PostgresClient', () => {
 
     it('should handle test connection failure during connect', async () => {
       const testError = new Error('Test query failed');
-      
+
       // Mock pool.connect to return a client that fails on query
       const mockClient = {
         query: vi.fn().mockRejectedValueOnce(testError),
         release: vi.fn(),
       };
-      
+
       mockPool.connect.mockResolvedValueOnce(mockClient);
-      
+
       await expect(client.connect()).rejects.toThrow(PostgresError);
       expect(mockClient.release).toHaveBeenCalled();
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -97,13 +97,13 @@ describe('PostgresClient', () => {
       const mockClient = { query: vi.fn(), release: vi.fn() };
       mockPool.connect.mockResolvedValue(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       await client.connect();
       mockLogger.debug.mockClear();
-      
+
       // Second connection attempt
       await client.connect();
-      
+
       expect(mockLogger.debug).toHaveBeenCalledWith('PostgreSQL pool already exists');
     });
   });
@@ -213,11 +213,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
@@ -240,11 +240,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockImplementation((sql: string) => {
@@ -273,7 +273,7 @@ describe('PostgresClient', () => {
       mockPool.connect.mockResolvedValue(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
       await client.connect();
-      
+
       // Then test disconnect
       mockPool.end.mockResolvedValue(undefined);
       await client.disconnect();
@@ -291,7 +291,7 @@ describe('PostgresClient', () => {
       mockPool.connect.mockResolvedValue(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
       await client.connect();
-      
+
       // Then test disconnect failure
       const error = new Error('Disconnect failed');
       mockPool.end.mockRejectedValue(error);
@@ -333,23 +333,23 @@ describe('PostgresClient', () => {
       const PoolMock = vi.fn().mockImplementation(() => {
         throw new Error('Connection failed');
       });
-      
+
       // Replace the Pool constructor temporarily
       const originalPool = (global as any).Pool;
       (global as any).Pool = PoolMock;
-      
+
       const newClient = createPostgresClient(mockConfig, mockLogger);
-      
+
       await expect(newClient.connect()).rejects.toThrow(PostgresError);
       expect(mockLogger.error).toHaveBeenCalledWith(
         'PostgreSQL connection failed',
         expect.any(PostgresError),
         expect.objectContaining({
           host: mockConfig.host,
-          database: mockConfig.database
+          database: mockConfig.database,
         })
       );
-      
+
       // Restore original Pool
       (global as any).Pool = originalPool;
     });
@@ -357,23 +357,20 @@ describe('PostgresClient', () => {
     it('should handle disconnect error', async () => {
       // Create a separate client for this test to avoid interference
       const testClient = createPostgresClient(mockConfig, mockLogger);
-      
+
       // Mock successful connection first
       const mockClient = { query: vi.fn(), release: vi.fn() };
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Connect the client
       await testClient.connect();
-      
+
       // Now mock pool.end to throw an error for disconnect
       mockPool.end.mockRejectedValue(new Error('Disconnect failed'));
-      
+
       await expect(testClient.disconnect()).rejects.toThrow(PostgresError);
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'PostgreSQL disconnect failed',
-        expect.any(PostgresError)
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('PostgreSQL disconnect failed', expect.any(PostgresError));
     });
 
     it('should handle client release failure during connect', async () => {
@@ -392,11 +389,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockImplementation((sql: string) => {
@@ -423,71 +420,62 @@ describe('PostgresClient', () => {
     it('should handle rollback failure in transaction', async () => {
       const transactionError = new Error('Transaction failed');
       const rollbackError = new Error('Rollback failed');
-      
+
       const mockClient = {
         query: vi.fn(),
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
-      
+
       // Mock BEGIN to succeed, callback to fail, and ROLLBACK to fail
       mockClient.query
         .mockResolvedValueOnce({ rows: [], rowCount: 0 }) // BEGIN
         .mockRejectedValueOnce(rollbackError); // ROLLBACK fails
-      
+
       const callback = vi.fn().mockRejectedValueOnce(transactionError);
-      
+
       await expect(client.transaction(callback)).rejects.toThrow(PostgresError);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'PostgreSQL rollback failed',
-        rollbackError
-      );
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'PostgreSQL transaction failed',
-        expect.any(PostgresError)
-      );
+
+      expect(mockLogger.error).toHaveBeenCalledWith('PostgreSQL rollback failed', rollbackError);
+      expect(mockLogger.error).toHaveBeenCalledWith('PostgreSQL transaction failed', expect.any(PostgresError));
     });
 
     it('should handle client release failure in transaction', async () => {
       const transactionError = new Error('Transaction failed');
       const releaseError = new Error('Release failed');
-      
+
       const mockClient = {
         query: vi.fn(),
         release: vi.fn().mockRejectedValueOnce(releaseError),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
-      
+
       // Mock BEGIN to succeed, callback to fail, and ROLLBACK to succeed
       mockClient.query
         .mockResolvedValueOnce({ rows: [], rowCount: 0 }) // BEGIN
         .mockResolvedValueOnce({ rows: [], rowCount: 0 }); // ROLLBACK
-      
+
       const callback = vi.fn().mockRejectedValueOnce(transactionError);
-      
+
       await expect(client.transaction(callback)).rejects.toThrow(PostgresError);
-      
+
       // Verify transaction error is logged
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'PostgreSQL transaction failed',
-        expect.any(PostgresError)
-      );
-      
+      expect(mockLogger.error).toHaveBeenCalledWith('PostgreSQL transaction failed', expect.any(PostgresError));
+
       // Verify client release was attempted
       expect(mockClient.release).toHaveBeenCalled();
     });
@@ -498,11 +486,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
@@ -529,12 +517,12 @@ describe('PostgresClient', () => {
       };
 
       const customClient = createPostgresClient(customConfig, mockLogger);
-      
+
       // Mock the connection test
       const mockClient = { query: vi.fn(), release: vi.fn() };
       mockPool.connect.mockResolvedValue(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Connect to trigger pool creation
       await customClient.connect();
 
@@ -562,12 +550,12 @@ describe('PostgresClient', () => {
       };
 
       const minimalClient = createPostgresClient(minimalConfig, mockLogger);
-      
+
       // Mock the connection test
       const mockClient = { query: vi.fn(), release: vi.fn() };
       mockPool.connect.mockResolvedValue(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Connect to trigger pool creation
       await minimalClient.connect();
 
@@ -592,11 +580,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [{ id: 1 }], rowCount: 1 });
@@ -623,11 +611,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockImplementation((sql: string) => {
@@ -649,11 +637,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [{ id: 1 }], rowCount: 1 });
@@ -670,11 +658,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockImplementation((sql: string) => {
@@ -696,11 +684,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
@@ -721,11 +709,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
@@ -739,7 +727,7 @@ describe('PostgresClient', () => {
 
     it('should handle disconnect when pool is null', async () => {
       const disconnectedClient = createPostgresClient(mockConfig, mockLogger);
-      
+
       // Should not throw when pool is null
       await expect(disconnectedClient.disconnect()).resolves.not.toThrow();
     });
@@ -750,11 +738,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockImplementation((sql: string) => {
@@ -779,26 +767,26 @@ describe('PostgresClient', () => {
 
     it('should handle client release failure in finally block during successful transaction', async () => {
       const releaseError = new Error('Release failed in finally');
-      
+
       const mockClient = {
         query: vi.fn(),
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock client.release to throw an error (this will be called in the finally block)
       mockClient.release.mockImplementation(() => {
         throw releaseError;
       });
-      
+
       const result = await client.transaction(async (txClient) => {
         await txClient.query('INSERT INTO users (name) VALUES ($1)', ['test']);
         return 'success';
@@ -809,10 +797,7 @@ describe('PostgresClient', () => {
       expect(mockClient.query).toHaveBeenCalledWith('INSERT INTO users (name) VALUES ($1)', ['test']);
       expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
       expect(mockClient.release).toHaveBeenCalled();
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to release PostgreSQL client',
-        releaseError
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to release PostgreSQL client', releaseError);
     });
 
     it('should execute finally block in successful transaction', async () => {
@@ -821,11 +806,11 @@ describe('PostgresClient', () => {
         release: vi.fn(),
       };
       const mockConnectClient = { query: vi.fn(), release: vi.fn() };
-      
+
       // Mock for ensureConnection (connect test)
       mockPool.connect.mockResolvedValueOnce(mockConnectClient);
       mockConnectClient.query.mockResolvedValue({ rows: [], rowCount: 0 });
-      
+
       // Mock for transaction
       mockPool.connect.mockResolvedValueOnce(mockClient);
       mockClient.query.mockResolvedValue({ rows: [], rowCount: 0 });

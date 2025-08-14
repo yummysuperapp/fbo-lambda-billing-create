@@ -23,21 +23,27 @@ Este documento describe los procesos de despliegue, pipelines de CI/CD y gestió
 Seguimos una convención estricta de nomenclatura de ramas con el prefijo **FB-**:
 
 #### Ramas de Funcionalidades
+
 ```
 feat/FB-[NUMERO-JIRA]_[descripcion-corta]
 ```
+
 **Ejemplo:** `feat/FB-1234_add-payment-validation`
 
 #### Ramas de Corrección de Errores
+
 ```
 fix/FB-[NUMERO-JIRA]_[descripcion-corta]
 ```
+
 **Ejemplo:** `fix/FB-5678_resolve-connection-timeout`
 
 #### Ramas de Hotfix
+
 ```
 hotfix/FB-[NUMERO-JIRA]_[descripcion-corta]
 ```
+
 **Ejemplo:** `hotfix/FB-9999_critical-security-patch`
 
 ### Validación de Ramas
@@ -79,16 +85,16 @@ gitGraph
     branch develop
     checkout develop
     commit id: "Dev Setup"
-    
+
     branch feat/FB-1234_new-feature
     checkout feat/FB-1234_new-feature
     commit id: "Feature Work"
     commit id: "Tests Added"
-    
+
     checkout develop
     merge feat/FB-1234_new-feature
     commit id: "Feature Merged"
-    
+
     checkout main
     merge develop
     commit id: "Release v1.1.0"
@@ -101,33 +107,35 @@ gitGraph
 Nuestro pipeline de CI/CD consta de las siguientes etapas:
 
 #### 1. **Validación de Calidad de Código**
+
 ```yaml
 code-quality:
   runs-on: ubuntu-latest
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Run ESLint
       run: npm run lint
-    
+
     - name: Run Prettier check
       run: npm run format:check
-    
+
     - name: TypeScript compilation
       run: npm run build
 ```
 
 #### 2. **Testing**
+
 ```yaml
 testing:
   runs-on: ubuntu-latest
@@ -135,13 +143,13 @@ testing:
   steps:
     - name: Run unit tests
       run: npm test
-    
+
     - name: Run integration tests
       run: npm run test:integration
-    
+
     - name: Generate coverage report
       run: npm run test:coverage
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -149,6 +157,7 @@ testing:
 ```
 
 #### 3. **Análisis de Seguridad**
+
 ```yaml
 security:
   runs-on: ubuntu-latest
@@ -156,7 +165,7 @@ security:
   steps:
     - name: Run security audit
       run: npm audit --audit-level=high
-    
+
     - name: Run Snyk security scan
       uses: snyk/actions/node@master
       env:
@@ -164,6 +173,7 @@ security:
 ```
 
 #### 4. **Build y Empaquetado**
+
 ```yaml
 build:
   runs-on: ubuntu-latest
@@ -171,11 +181,11 @@ build:
   steps:
     - name: Build application
       run: npm run build
-    
+
     - name: Package Lambda function
       run: |
         zip -r lambda-package.zip dist/ node_modules/ package.json
-    
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -184,6 +194,7 @@ build:
 ```
 
 #### 5. **Despliegue**
+
 ```yaml
 deploy:
   runs-on: ubuntu-latest
@@ -196,7 +207,7 @@ deploy:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-    
+
     - name: Deploy to AWS Lambda
       run: |
         aws lambda update-function-code \
@@ -207,6 +218,7 @@ deploy:
 ### Configuración de Entornos
 
 #### Desarrollo (Development)
+
 ```bash
 # Variables de entorno para desarrollo
 NODE_ENV=development
@@ -224,6 +236,7 @@ MOCK_EXTERNAL_APIS=true
 ```
 
 #### Staging
+
 ```bash
 # Variables de entorno para staging
 NODE_ENV=staging
@@ -240,6 +253,7 @@ API_BASE_URL=https://api-staging.yummysuperapp.com
 ```
 
 #### Producción
+
 ```bash
 # Variables de entorno para producción
 NODE_ENV=production
@@ -257,20 +271,21 @@ ENABLE_MONITORING=true
 
 ### Variables de Entorno por Ambiente
 
-| Variable | Desarrollo | Staging | Producción |
-|----------|------------|---------|------------|
-| `NODE_ENV` | development | staging | production |
-| `LOG_LEVEL` | debug | info | warn |
-| `ENABLE_TRACING` | false | true | true |
-| `CACHE_TTL` | 60 | 300 | 900 |
-| `MAX_RETRIES` | 1 | 3 | 5 |
-| `TIMEOUT_MS` | 5000 | 10000 | 15000 |
+| Variable         | Desarrollo  | Staging | Producción |
+| ---------------- | ----------- | ------- | ---------- |
+| `NODE_ENV`       | development | staging | production |
+| `LOG_LEVEL`      | debug       | info    | warn       |
+| `ENABLE_TRACING` | false       | true    | true       |
+| `CACHE_TTL`      | 60          | 300     | 900        |
+| `MAX_RETRIES`    | 1           | 3       | 5          |
+| `TIMEOUT_MS`     | 5000        | 10000   | 15000      |
 
 ## Métodos de Despliegue
 
 ### 1. AWS SAM (Serverless Application Model)
 
 #### Configuración SAM
+
 ```yaml
 # template.yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -290,7 +305,7 @@ Parameters:
     Type: String
     Default: development
     AllowedValues: [development, staging, production]
-  
+
   LogLevel:
     Type: String
     Default: info
@@ -315,6 +330,7 @@ Resources:
 ```
 
 #### Comandos de Despliegue SAM
+
 ```bash
 # Build
 sam build
@@ -332,6 +348,7 @@ sam deploy --parameter-overrides Environment=production
 ### 2. Serverless Framework
 
 #### Configuración Serverless
+
 ```yaml
 # serverless.yml
 service: fbo-lambda-template
@@ -363,6 +380,7 @@ plugins:
 ```
 
 #### Comandos de Despliegue Serverless
+
 ```bash
 # Deploy a desarrollo
 serverless deploy --stage dev
@@ -380,6 +398,7 @@ serverless deploy function --function main --stage prod
 ### 3. AWS CDK (Cloud Development Kit)
 
 #### Stack CDK
+
 ```typescript
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -398,25 +417,26 @@ export class FBOLambdaStack extends cdk.Stack {
       environment: {
         NODE_ENV: process.env.NODE_ENV || 'development',
         MONGODB_URI: process.env.MONGODB_URI || '',
-        POSTGRES_HOST: process.env.POSTGRES_HOST || ''
-      }
+        POSTGRES_HOST: process.env.POSTGRES_HOST || '',
+      },
     });
 
     // API Gateway
     const api = new apigateway.RestApi(this, 'FBOApi', {
       restApiName: 'FBO Lambda Template API',
-      description: 'API for FBO Lambda Template'
+      description: 'API for FBO Lambda Template',
     });
 
     const integration = new apigateway.LambdaIntegration(fboFunction);
     api.root.addProxy({
-      defaultIntegration: integration
+      defaultIntegration: integration,
     });
   }
 }
 ```
 
 #### Comandos CDK
+
 ```bash
 # Sintetizar template
 cdk synth
@@ -433,6 +453,7 @@ cdk destroy
 ### 4. Despliegue Manual
 
 #### Preparación del Paquete
+
 ```bash
 # 1. Instalar dependencias
 npm ci --production
@@ -445,6 +466,7 @@ zip -r lambda-package.zip dist/ node_modules/ package.json
 ```
 
 #### Despliegue via AWS CLI
+
 ```bash
 # Actualizar código de función
 aws lambda update-function-code \
@@ -462,6 +484,7 @@ aws lambda update-function-configuration \
 ### Recursos AWS
 
 #### Lambda Function
+
 ```yaml
 FBOLambdaFunction:
   Type: AWS::Lambda::Function
@@ -484,6 +507,7 @@ FBOLambdaFunction:
 ```
 
 #### IAM Role
+
 ```yaml
 LambdaExecutionRole:
   Type: AWS::IAM::Role
@@ -514,33 +538,35 @@ LambdaExecutionRole:
 ```
 
 #### MongoDB Atlas
+
 ```yaml
 # Configuración via Terraform
 resource "mongodbatlas_cluster" "fbo_cluster" {
-  project_id   = var.atlas_project_id
-  name         = "fbo-lambda-${var.environment}"
-  
-  cluster_type = "REPLICASET"
-  replication_specs {
-    num_shards = 1
-    regions_config {
-      region_name     = "US_EAST_1"
-      electable_nodes = 3
-      priority        = 7
-      read_only_nodes = 0
-    }
-  }
-  
-  provider_backup_enabled      = true
-  auto_scaling_disk_gb_enabled = true
-  mongo_db_major_version       = "6.0"
-  
-  provider_instance_size_name = var.cluster_size
-  provider_name               = "AWS"
+project_id   = var.atlas_project_id
+name         = "fbo-lambda-${var.environment}"
+
+cluster_type = "REPLICASET"
+replication_specs {
+num_shards = 1
+regions_config {
+region_name     = "US_EAST_1"
+electable_nodes = 3
+priority        = 7
+read_only_nodes = 0
+}
+}
+
+provider_backup_enabled      = true
+auto_scaling_disk_gb_enabled = true
+mongo_db_major_version       = "6.0"
+
+provider_instance_size_name = var.cluster_size
+provider_name               = "AWS"
 }
 ```
 
 #### PostgreSQL RDS
+
 ```yaml
 PostgresDatabase:
   Type: AWS::RDS::DBInstance
@@ -552,15 +578,15 @@ PostgresDatabase:
     AllocatedStorage: 20
     StorageType: gp2
     StorageEncrypted: true
-    
+
     DBName: !Ref DatabaseName
     MasterUsername: !Ref DatabaseUsername
     MasterUserPassword: !Ref DatabasePassword
-    
+
     VPCSecurityGroups:
       - !Ref DatabaseSecurityGroup
     DBSubnetGroupName: !Ref DatabaseSubnetGroup
-    
+
     BackupRetentionPeriod: 7
     MultiAZ: !If [IsProduction, true, false]
     DeletionProtection: !If [IsProduction, true, false]
@@ -571,6 +597,7 @@ PostgresDatabase:
 ### CloudWatch Logs
 
 #### Configuración de Log Groups
+
 ```yaml
 LambdaLogGroup:
   Type: AWS::Logs::LogGroup
@@ -580,15 +607,16 @@ LambdaLogGroup:
 ```
 
 #### Structured Logging
+
 ```typescript
 import { logger } from '@/utils/logger.util';
 
 // Log de información
 logger.info('Payment processed successfully', {
   paymentId: 'pay_123',
-  amount: 100.00,
+  amount: 100.0,
   currency: 'USD',
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 // Log de error
@@ -596,13 +624,14 @@ logger.error('Payment processing failed', {
   paymentId: 'pay_123',
   error: error.message,
   stack: error.stack,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 ```
 
 ### CloudWatch Metrics
 
 #### Custom Metrics
+
 ```typescript
 import AWS from 'aws-sdk';
 
@@ -610,24 +639,29 @@ const cloudwatch = new AWS.CloudWatch();
 
 // Métrica de pagos procesados
 const putMetric = async (metricName: string, value: number, unit: string = 'Count') => {
-  await cloudwatch.putMetricData({
-    Namespace: 'FBO/Lambda',
-    MetricData: [{
-      MetricName: metricName,
-      Value: value,
-      Unit: unit,
-      Timestamp: new Date()
-    }]
-  }).promise();
+  await cloudwatch
+    .putMetricData({
+      Namespace: 'FBO/Lambda',
+      MetricData: [
+        {
+          MetricName: metricName,
+          Value: value,
+          Unit: unit,
+          Timestamp: new Date(),
+        },
+      ],
+    })
+    .promise();
 };
 
 // Uso
 await putMetric('PaymentsProcessed', 1);
-await putMetric('PaymentAmount', 100.00, 'None');
+await putMetric('PaymentAmount', 100.0, 'None');
 await putMetric('ProcessingTime', 250, 'Milliseconds');
 ```
 
 #### Dashboards
+
 ```yaml
 FBODashboard:
   Type: AWS::CloudWatch::Dashboard
@@ -657,6 +691,7 @@ FBODashboard:
 ### X-Ray Tracing
 
 #### Configuración
+
 ```typescript
 import AWSXRay from 'aws-xray-sdk-core';
 import AWS from 'aws-sdk';
@@ -672,7 +707,7 @@ captureHTTPsGlobal(require('https'));
 export const traceAsyncFunction = async (name: string, fn: () => Promise<any>) => {
   const segment = AWSXRay.getSegment();
   const subsegment = segment?.addNewSubsegment(name);
-  
+
   try {
     const result = await fn();
     subsegment?.close();
@@ -688,6 +723,7 @@ export const traceAsyncFunction = async (name: string, fn: () => Promise<any>) =
 ### Alertas
 
 #### Configuración de Alarmas
+
 ```yaml
 HighErrorRateAlarm:
   Type: AWS::CloudWatch::Alarm
@@ -731,6 +767,7 @@ HighLatencyAlarm:
 ### Rollback Automático
 
 #### Configuración de Auto-Rollback
+
 ```yaml
 LambdaAlias:
   Type: AWS::Lambda::Alias
@@ -741,7 +778,7 @@ LambdaAlias:
     RoutingConfig:
       AdditionalVersionWeights:
         - FunctionVersion: !GetAtt PreviousLambdaVersion.Version
-          FunctionWeight: 0.1  # 10% tráfico a versión anterior
+          FunctionWeight: 0.1 # 10% tráfico a versión anterior
 
 AutoRollbackAlarm:
   Type: AWS::CloudWatch::Alarm
@@ -761,6 +798,7 @@ AutoRollbackAlarm:
 ### Rollback Manual
 
 #### Via AWS CLI
+
 ```bash
 # Listar versiones
 aws lambda list-versions-by-function --function-name fbo-lambda-template
@@ -778,6 +816,7 @@ aws lambda get-alias \
 ```
 
 #### Via SAM
+
 ```bash
 # Rollback usando SAM
 sam deploy --parameter-overrides \
@@ -788,6 +827,7 @@ sam deploy --parameter-overrides \
 #### Procedimiento de Emergencia
 
 1. **Identificar el Problema**
+
    ```bash
    # Revisar logs recientes
    aws logs filter-log-events \
@@ -796,6 +836,7 @@ sam deploy --parameter-overrides \
    ```
 
 2. **Ejecutar Rollback**
+
    ```bash
    # Rollback inmediato
    aws lambda update-alias \
@@ -805,6 +846,7 @@ sam deploy --parameter-overrides \
    ```
 
 3. **Verificar Funcionalidad**
+
    ```bash
    # Test de salud
    curl -X GET https://api.yummysuperapp.com/health
@@ -823,6 +865,7 @@ sam deploy --parameter-overrides \
 ### Gestión de Secretos
 
 #### AWS Secrets Manager
+
 ```typescript
 import AWS from 'aws-sdk';
 
@@ -830,10 +873,12 @@ const secretsManager = new AWS.SecretsManager();
 
 export const getSecret = async (secretName: string): Promise<string> => {
   try {
-    const result = await secretsManager.getSecretValue({
-      SecretId: secretName
-    }).promise();
-    
+    const result = await secretsManager
+      .getSecretValue({
+        SecretId: secretName,
+      })
+      .promise();
+
     return result.SecretString || '';
   } catch (error) {
     logger.error('Failed to retrieve secret', { secretName, error });
@@ -847,6 +892,7 @@ const apiKey = await getSecret('fbo/external-api/key');
 ```
 
 #### Environment Variables Loader
+
 ```typescript
 import { getSecret } from './secrets';
 
@@ -863,6 +909,7 @@ export const loadEnvironmentVariables = async () => {
 ### Políticas IAM
 
 #### Principio de Menor Privilegio
+
 ```yaml
 LambdaExecutionPolicy:
   Type: AWS::IAM::Policy
@@ -878,14 +925,14 @@ LambdaExecutionPolicy:
             - logs:CreateLogStream
             - logs:PutLogEvents
           Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
-        
+
         # Secretos específicos
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
           Resource:
             - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:fbo/*'
-        
+
         # S3 bucket específico
         - Effect: Allow
           Action:
@@ -893,7 +940,7 @@ LambdaExecutionPolicy:
             - s3:PutObject
           Resource:
             - !Sub '${FBOBucket}/*'
-        
+
         # X-Ray tracing
         - Effect: Allow
           Action:
@@ -905,6 +952,7 @@ LambdaExecutionPolicy:
 ### Seguridad de Red
 
 #### VPC Configuration
+
 ```yaml
 LambdaVPCConfig:
   Type: AWS::Lambda::Function
@@ -927,13 +975,13 @@ LambdaSecurityGroup:
         FromPort: 443
         ToPort: 443
         CidrIp: 0.0.0.0/0
-      
+
       # MongoDB Atlas
       - IpProtocol: tcp
         FromPort: 27017
         ToPort: 27017
         SourceSecurityGroupId: !Ref MongoDBSecurityGroup
-      
+
       # PostgreSQL RDS
       - IpProtocol: tcp
         FromPort: 5432
@@ -948,10 +996,12 @@ LambdaSecurityGroup:
 #### 1. **Timeout de Lambda**
 
 **Síntomas:**
+
 - Error: "Task timed out after X seconds"
 - Logs cortados abruptamente
 
 **Soluciones:**
+
 ```bash
 # Aumentar timeout
 aws lambda update-function-configuration \
@@ -967,10 +1017,12 @@ aws lambda update-function-configuration \
 #### 2. **Errores de Memoria**
 
 **Síntomas:**
+
 - Error: "Runtime exited with error: signal: killed"
 - Logs de memoria insuficiente
 
 **Soluciones:**
+
 ```bash
 # Aumentar memoria
 aws lambda update-function-configuration \
@@ -986,10 +1038,12 @@ aws lambda update-function-configuration \
 #### 3. **Errores de Conexión a Base de Datos**
 
 **Síntomas:**
+
 - Error: "Connection timeout"
 - Error: "Too many connections"
 
 **Soluciones:**
+
 ```typescript
 // Implementar connection pooling
 import { MongoClient } from 'mongodb';
@@ -1000,14 +1054,14 @@ export const getMongoClient = async (): Promise<MongoClient> => {
   if (cachedClient) {
     return cachedClient;
   }
-  
+
   cachedClient = new MongoClient(process.env.MONGODB_URI!, {
     maxPoolSize: 10,
     minPoolSize: 2,
     maxIdleTimeMS: 30000,
-    serverSelectionTimeoutMS: 5000
+    serverSelectionTimeoutMS: 5000,
   });
-  
+
   await cachedClient.connect();
   return cachedClient;
 };
@@ -1016,10 +1070,12 @@ export const getMongoClient = async (): Promise<MongoClient> => {
 #### 4. **Errores de Permisos**
 
 **Síntomas:**
+
 - Error: "AccessDenied"
 - Error: "User is not authorized"
 
 **Soluciones:**
+
 ```bash
 # Verificar políticas IAM
 aws iam get-role-policy \
@@ -1036,6 +1092,7 @@ aws iam put-role-policy \
 ### Herramientas de Debugging
 
 #### 1. **CloudWatch Insights**
+
 ```sql
 -- Buscar errores recientes
 fields @timestamp, @message
@@ -1050,6 +1107,7 @@ fields @timestamp, @duration
 ```
 
 #### 2. **X-Ray Service Map**
+
 ```bash
 # Obtener traces recientes
 aws xray get-trace-summaries \
@@ -1059,6 +1117,7 @@ aws xray get-trace-summaries \
 ```
 
 #### 3. **Local Testing**
+
 ```bash
 # Ejecutar localmente con SAM
 sam local start-api --env-vars env.json
@@ -1070,6 +1129,7 @@ sam local invoke FBOLambdaFunction --event events/test-event.json
 ### Optimización de Rendimiento
 
 #### 1. **Cold Start Optimization**
+
 ```typescript
 // Inicialización fuera del handler
 const mongoClient = new MongoClient(process.env.MONGODB_URI!);
@@ -1082,6 +1142,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 ```
 
 #### 2. **Bundle Size Optimization**
+
 ```javascript
 // webpack.config.js
 module.exports = {
@@ -1091,12 +1152,13 @@ module.exports = {
   optimization: {
     minimize: true,
     usedExports: true,
-    sideEffects: false
-  }
+    sideEffects: false,
+  },
 };
 ```
 
 #### 3. **Monitoring Continuo**
+
 ```typescript
 // Métricas personalizadas
 const startTime = Date.now();
@@ -1104,10 +1166,10 @@ const startTime = Date.now();
 try {
   // Lógica de negocio
   const result = await processPayment(payment);
-  
+
   // Métrica de éxito
   await putMetric('PaymentSuccess', 1);
-  
+
   return result;
 } catch (error) {
   // Métrica de error
@@ -1125,6 +1187,7 @@ try {
 ## Soporte y Contacto
 
 Para preguntas sobre despliegue o problemas técnicos:
+
 - **Tech Lead:** José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Equipo:** Financial Backoffice
 - **Slack:** #fbo-team
@@ -1132,6 +1195,6 @@ Para preguntas sobre despliegue o problemas técnicos:
 
 ---
 
-*Última actualización: Agosto 2025*
-*Versión: 1.0.0*
-*Próxima revisión: Agosto 2025*
+_Última actualización: Agosto 2025_
+_Versión: 1.0.0_
+_Próxima revisión: Agosto 2025_

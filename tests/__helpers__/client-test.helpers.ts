@@ -29,7 +29,7 @@ export const mockConfigs = {
     maxRetries: 3,
     autoRetry: true,
   },
-  
+
   postgres: {
     host: 'localhost',
     port: 5432,
@@ -41,7 +41,7 @@ export const mockConfigs = {
     connectionTimeoutMillis: 30000,
     idleTimeoutMillis: 30000,
   },
-  
+
   mongo: {
     uri: 'mongodb://localhost:27017/test',
     database: 'test_db',
@@ -50,7 +50,7 @@ export const mockConfigs = {
     maxIdleTimeMS: 30000,
     serverSelectionTimeoutMS: 5000,
   },
-  
+
   s3: {
     region: 'us-east-1',
     bucketName: 'test-bucket',
@@ -58,7 +58,7 @@ export const mockConfigs = {
     secretAccessKey: 'test-secret-key',
     maxRetries: 3,
   },
-  
+
   http: {
     baseURL: 'https://api.example.com',
     timeout: 5000,
@@ -99,7 +99,7 @@ export const mockResponses = {
       headers: { 'content-type': 'application/json' },
     },
   },
-  
+
   error: {
     connection: new Error('Connection failed'),
     timeout: new Error('Request timeout'),
@@ -119,14 +119,14 @@ export const testFixtures = {
     email: 'john@example.com',
     age: 30,
   },
-  
+
   sql: {
     select: 'SELECT * FROM users WHERE id = $1',
     insert: 'INSERT INTO users (name, email) VALUES ($1, $2)',
     update: 'UPDATE users SET name = $1 WHERE id = $2',
     delete: 'DELETE FROM users WHERE id = $1',
   },
-  
+
   bigquery: {
     dataset: 'test_dataset',
     table: 'test_table',
@@ -137,14 +137,14 @@ export const testFixtures = {
       ],
     },
   },
-  
+
   mongo: {
     collection: 'test_collection',
     document: { _id: 'test-id', name: 'test', value: 123 },
     filter: { name: 'test' },
     update: { $set: { value: 456 } },
   },
-  
+
   s3: {
     key: 'test/file.txt',
     content: 'test content',
@@ -191,14 +191,14 @@ export class TestSetupHelper {
   static mockPerformance() {
     const mockNow = vi.fn();
     let time = 0;
-    
+
     mockNow.mockImplementation(() => {
       time += 100; // Add 100ms for each call
       return time;
     });
-    
+
     global.Date.now = mockNow;
-    
+
     return {
       reset: () => {
         time = 0;
@@ -218,25 +218,14 @@ export class AssertionHelper {
   /**
    * Asserts that a logger was called with expected message and level
    */
-  static assertLoggerCalled(
-    logger: Logger,
-    level: keyof Logger,
-    expectedMessage: string
-  ) {
-    expect(logger[level]).toHaveBeenCalledWith(
-      expect.stringContaining(expectedMessage),
-      expect.any(Object)
-    );
+  static assertLoggerCalled(logger: Logger, level: keyof Logger, expectedMessage: string) {
+    expect(logger[level]).toHaveBeenCalledWith(expect.stringContaining(expectedMessage), expect.any(Object));
   }
 
   /**
    * Asserts error structure for client errors
    */
-  static assertClientError(
-    error: any,
-    expectedMessage: string,
-    expectedContext?: Record<string, unknown>
-  ) {
+  static assertClientError(error: any, expectedMessage: string, expectedContext?: Record<string, unknown>) {
     expect(error).toBeDefined();
     expect(error.message).toBe(expectedMessage);
     if (expectedContext) {
@@ -247,10 +236,7 @@ export class AssertionHelper {
   /**
    * Asserts that mock was called with specific parameters
    */
-  static assertMockCalledWith(
-    mockFn: MockedFunction<any>,
-    expectedParams: unknown[]
-  ) {
+  static assertMockCalledWith(mockFn: MockedFunction<any>, expectedParams: unknown[]) {
     expect(mockFn).toHaveBeenCalledWith(...expectedParams);
   }
 }
@@ -269,7 +255,7 @@ export class PerformanceHelper {
     const start = Date.now();
     const result = await fn();
     const duration = Date.now() - start;
-    
+
     return { result, duration };
   }
 
@@ -289,9 +275,9 @@ export class PerformanceHelper {
   }> {
     const results: number[] = [];
     let errors = 0;
-    
+
     const startTime = Date.now();
-    
+
     const promises = Array.from({ length: concurrent }, async () => {
       for (let i = 0; i < iterations; i++) {
         const opStart = Date.now();
@@ -303,11 +289,11 @@ export class PerformanceHelper {
         }
       }
     });
-    
+
     await Promise.all(promises);
-    
+
     const totalTime = Date.now() - startTime;
-    
+
     return {
       totalTime,
       avgTime: results.reduce((a, b) => a + b, 0) / results.length,

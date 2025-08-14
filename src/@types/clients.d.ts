@@ -40,8 +40,8 @@ export interface MongoClientInterface {
 // S3 Client Types
 export interface S3ClientInterface {
   uploadFile(
-    bucketName: string, 
-    key: string, 
+    bucketName: string,
+    key: string,
     body: Buffer | Uint8Array | string,
     options?: {
       ContentType?: string;
@@ -99,8 +99,18 @@ export interface BigQueryTableSchema {
 
 export interface BigQueryClientInterface {
   query<T = FBOLambda.UnknownRecord>(sql: string, options?: BigQueryQueryOptions): Promise<T[]>;
-  insert(datasetId: string, tableId: string, rows: FBOLambda.UnknownRecord[], options?: BigQueryInsertOptions): Promise<void>;
-  createTable(datasetId: string, tableId: string, schema: BigQueryTableSchema, options?: { description?: string }): Promise<void>;
+  insert(
+    datasetId: string,
+    tableId: string,
+    rows: FBOLambda.UnknownRecord[],
+    options?: BigQueryInsertOptions
+  ): Promise<void>;
+  createTable(
+    datasetId: string,
+    tableId: string,
+    schema: BigQueryTableSchema,
+    options?: { description?: string }
+  ): Promise<void>;
   deleteTable(datasetId: string, tableId: string): Promise<void>;
   tableExists(datasetId: string, tableId: string): Promise<boolean>;
   getTableMetadata(datasetId: string, tableId: string): Promise<FBOLambda.UnknownRecord>;

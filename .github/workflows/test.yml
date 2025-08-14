@@ -2,17 +2,17 @@ name: Testing Report
 
 on:
   push:
-    branches: [ master, develop, testing ]
+    branches: [master, develop, testing]
   pull_request:
-    branches: [ master, develop, testing ]
+    branches: [master, develop, testing]
   release:
-    types: [ created ]
+    types: [created]
 
 jobs:
   test:
     name: 🧪 Test & Lint
     runs-on: ubuntu-latest
-    
+
     outputs:
       coverage: ${{ steps.coverage.outputs.coverage }}
       tests-passed: ${{ steps.test-result.outputs.passed }}
@@ -23,328 +23,328 @@ jobs:
       security-low: ${{ steps.security-audit.outputs.low }}
       security-info: ${{ steps.security-audit.outputs.info }}
       security-total: ${{ steps.security-audit.outputs.total }}
-    
+
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22.x
-        cache: npm
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
 
-    - name: 📦 Install dependencies
-      run: npm ci
+      - name: 📦 Install dependencies
+        run: npm ci
 
-    - name: 🔍 Run type checking
-      run: npm run type-check
+      - name: 🔍 Run type checking
+        run: npm run type-check
 
-    - name: 🧹 Run linting
-      run: npm run lint
+      - name: 🧹 Run linting
+        run: npm run lint
 
-    - name: 🧪 Run tests with coverage
-      run: npm run test:cov
+      - name: 🧪 Run tests with coverage
+        run: npm run test:cov
 
-    - name: 🔒 Run security audit
-      id: security-audit
-      continue-on-error: true
-      run: |
-        # Run npm audit and capture output
-        npm audit --audit-level=moderate --json > audit_output.json 2>&1 || true
-        npm audit --audit-level=moderate > audit_output.txt 2>&1 || true
-        
-        # Extract vulnerability counts
-        if [ -f "audit_output.json" ]; then
-          CRITICAL=$(cat audit_output.json | grep -o '"critical":[0-9]*' | cut -d':' -f2 || echo "0")
-          HIGH=$(cat audit_output.json | grep -o '"high":[0-9]*' | cut -d':' -f2 || echo "0")
-          MODERATE=$(cat audit_output.json | grep -o '"moderate":[0-9]*' | cut -d':' -f2 || echo "0")
-          LOW=$(cat audit_output.json | grep -o '"low":[0-9]*' | cut -d':' -f2 || echo "0")
-          INFO=$(cat audit_output.json | grep -o '"info":[0-9]*' | cut -d':' -f2 || echo "0")
-          
-          # Calculate total vulnerabilities
-          TOTAL=$((CRITICAL + HIGH + MODERATE + LOW + INFO))
-        else
-          CRITICAL=0
-          HIGH=0
-          MODERATE=0
-          LOW=0
-          INFO=0
-          TOTAL=0
-        fi
-        
-        # Set outputs for other steps
-        echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
-        echo "high=${HIGH}" >> $GITHUB_OUTPUT
-        echo "moderate=${MODERATE}" >> $GITHUB_OUTPUT
-        echo "low=${LOW}" >> $GITHUB_OUTPUT
-        echo "info=${INFO}" >> $GITHUB_OUTPUT
-        echo "total=${TOTAL}" >> $GITHUB_OUTPUT
-        
-        # Determine security status
-        if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
-          echo "status=⚠️ Critical/High vulnerabilities found" >> $GITHUB_OUTPUT
-          echo "severity=high" >> $GITHUB_OUTPUT
-        elif [ "$MODERATE" -gt 0 ]; then
-          echo "status=⚡ Moderate vulnerabilities found" >> $GITHUB_OUTPUT
-          echo "severity=moderate" >> $GITHUB_OUTPUT
-        elif [ "$LOW" -gt 0 ] || [ "$INFO" -gt 0 ]; then
-          echo "status=ℹ️ Low/Info vulnerabilities found" >> $GITHUB_OUTPUT
-          echo "severity=low" >> $GITHUB_OUTPUT
-        else
-          echo "status=✅ No vulnerabilities found" >> $GITHUB_OUTPUT
-          echo "severity=none" >> $GITHUB_OUTPUT
-        fi
-        
-        echo "Security audit completed: ${TOTAL} total vulnerabilities found"
+      - name: 🔒 Run security audit
+        id: security-audit
+        continue-on-error: true
+        run: |
+          # Run npm audit and capture output
+          npm audit --audit-level=moderate --json > audit_output.json 2>&1 || true
+          npm audit --audit-level=moderate > audit_output.txt 2>&1 || true
 
-    - name: 📊 Generate coverage report
-      id: coverage
-      if: success()
-      run: |
-        # Run tests with coverage and capture output
-        npm run test:cov > coverage_output.txt 2>&1 || true
-        
-        # Extract test summary
-        TEST_FILES=$(grep "Test Files" coverage_output.txt | tail -1 || echo "Test Files: Not found")
-        TESTS_COUNT=$(grep "Tests" coverage_output.txt | grep "passed" | tail -1 || echo "Tests: Not found")
-        DURATION=$(grep "Duration" coverage_output.txt | tail -1 || echo "Duration: Not found")
-        
-        # Extract coverage table
-        COVERAGE_TABLE=$(awk '/% Coverage report from v8/,/^$/' coverage_output.txt | grep -v "^$" || echo "Coverage table not found")
-        
-        # Extract overall coverage percentage - more robust extraction
-        OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | awk -F'|' '{gsub(/[ %]/, "", $2); print $2}' || echo "N/A")
-        
-        # Fallback if first method fails
-        if [ "$OVERALL_COVERAGE" = "N/A" ] || [ -z "$OVERALL_COVERAGE" ]; then
-          OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | sed 's/.*|[[:space:]]*\([0-9.]*\).*/\1/' || echo "N/A")
-        fi
-        
-        # Set output for other workflows
-        echo "coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
-        
-        # Create coverage report
-        cat > coverage_report.md << EOF
-        ## 📊 Test Coverage Report
-        
-        ### 🎯 Overall Coverage: ${OVERALL_COVERAGE}%
-        
-        ### 📈 Test Results
-        - ✅ **Type Check**: Passed
-        - ✅ **Linting**: Passed  
-        - ✅ **${TESTS_COUNT}**: All passed
-        - ✅ **${TEST_FILES}**: All passed
-        - ⏱️ **${DURATION}**
-        
-        ### 📋 Detailed Coverage Report
-        \`\`\`
-        ${COVERAGE_TABLE}
-        \`\`\`
-        
-        ### 🔧 Build Information
-        - **Node.js**: ${{ env.NODE_VERSION }}
-        - **Commit**: \`${{ github.sha }}\`
-        - **Branch**: \`${{ github.ref_name }}\`
-        - **Workflow**: ${{ github.workflow }}
-        - **Run**: #${{ github.run_number }}
-        - **Event**: ${{ github.event_name }}
-        
-        ---
-        *Generated automatically by GitHub Actions* 🤖
-        EOF
-        
-        echo "Coverage report generated successfully"
-        echo "Overall coverage: ${OVERALL_COVERAGE}%"
+          # Extract vulnerability counts
+          if [ -f "audit_output.json" ]; then
+            CRITICAL=$(cat audit_output.json | grep -o '"critical":[0-9]*' | cut -d':' -f2 || echo "0")
+            HIGH=$(cat audit_output.json | grep -o '"high":[0-9]*' | cut -d':' -f2 || echo "0")
+            MODERATE=$(cat audit_output.json | grep -o '"moderate":[0-9]*' | cut -d':' -f2 || echo "0")
+            LOW=$(cat audit_output.json | grep -o '"low":[0-9]*' | cut -d':' -f2 || echo "0")
+            INFO=$(cat audit_output.json | grep -o '"info":[0-9]*' | cut -d':' -f2 || echo "0")
+            
+            # Calculate total vulnerabilities
+            TOTAL=$((CRITICAL + HIGH + MODERATE + LOW + INFO))
+          else
+            CRITICAL=0
+            HIGH=0
+            MODERATE=0
+            LOW=0
+            INFO=0
+            TOTAL=0
+          fi
 
-    - name: 📊 Generate security audit report
-      id: security-report
-      if: always()
-      run: |
-        # Generate security audit report
-        cat > security_report.md << EOF
-        ## 🔒 Security Audit Report
-        
-        ### 🛡️ Overall Security Status: ${{ steps.security-audit.outputs.status }}
-        
-        ### 📈 Vulnerability Summary
-        - 🔴 **Critical**: ${{ steps.security-audit.outputs.critical }} vulnerabilities
-        - 🟠 **High**: ${{ steps.security-audit.outputs.high }} vulnerabilities  
-        - 🟡 **Moderate**: ${{ steps.security-audit.outputs.moderate }} vulnerabilities
-        - 🔵 **Low**: ${{ steps.security-audit.outputs.low }} vulnerabilities
-        - ℹ️ **Info**: ${{ steps.security-audit.outputs.info }} vulnerabilities
-        - 📊 **Total**: ${{ steps.security-audit.outputs.total }} vulnerabilities
-        
-        ### 📋 Audit Details
-        EOF
-        
-        # Add audit details if available
-        if [ -f "audit_output.txt" ] && [ -s "audit_output.txt" ]; then
-          echo "\`\`\`" >> security_report.md
-          head -50 audit_output.txt >> security_report.md
-          echo "\`\`\`" >> security_report.md
-        else
-          echo "No detailed audit information available." >> security_report.md
-        fi
-        
-        cat >> security_report.md << EOF
-        
-        ### 🔧 Build Information
-        - **Node.js**: ${{ env.NODE_VERSION }}
-        - **Commit**: \`${{ github.sha }}\`
-        - **Branch**: \`${{ github.ref_name }}\`
-        - **Workflow**: ${{ github.workflow }}
-        - **Run**: #${{ github.run_number }}
-        - **Event**: ${{ github.event_name }}
-        - **Audit Level**: moderate
-        
-        ### 📝 Recommendations
-        EOF
-        
-        # Add recommendations based on severity
-        if [ "${{ steps.security-audit.outputs.critical }}" -gt 0 ] || [ "${{ steps.security-audit.outputs.high }}" -gt 0 ]; then
-          echo "⚠️ **Critical/High vulnerabilities detected!** Consider running \`npm audit fix\` or updating vulnerable packages immediately." >> security_report.md
-        elif [ "${{ steps.security-audit.outputs.moderate }}" -gt 0 ]; then
-          echo "⚡ **Moderate vulnerabilities detected.** Review and consider running \`npm audit fix\` when convenient." >> security_report.md
-        elif [ "${{ steps.security-audit.outputs.total }}" -gt 0 ]; then
-          echo "ℹ️ **Low-level vulnerabilities detected.** Monitor and update when possible." >> security_report.md
-        else
-          echo "✅ **No vulnerabilities detected.** Keep dependencies updated!" >> security_report.md
-        fi
-        
-        cat >> security_report.md << EOF
-        
-        ---
-        *Generated automatically by GitHub Actions Security Audit* 🔒
-        EOF
-        
-        echo "Security audit report generated successfully"
+          # Set outputs for other steps
+          echo "critical=${CRITICAL}" >> $GITHUB_OUTPUT
+          echo "high=${HIGH}" >> $GITHUB_OUTPUT
+          echo "moderate=${MODERATE}" >> $GITHUB_OUTPUT
+          echo "low=${LOW}" >> $GITHUB_OUTPUT
+          echo "info=${INFO}" >> $GITHUB_OUTPUT
+          echo "total=${TOTAL}" >> $GITHUB_OUTPUT
 
-    - name: 💬 Comment coverage on PR
-      if: success() && github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          const coverageReport = fs.readFileSync('coverage_report.md', 'utf8');
-          const securityReport = fs.existsSync('security_report.md') ? fs.readFileSync('security_report.md', 'utf8') : '## 🔒 Security Audit Report\nN/A';
-          
-          // Look for existing coverage comment
-          const comments = await github.rest.issues.listComments({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
-          
-          const botCoverageComment = comments.data.find(comment => 
-            comment.user.type === 'Bot' && 
-            comment.body.includes('📊 Test Coverage Report')
-          );
-          
-          if (botCoverageComment) {
-            await github.rest.issues.updateComment({
-              comment_id: botCoverageComment.id,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: coverageReport
-            });
-            console.log('Updated existing coverage comment');
-          } else {
-            await github.rest.issues.createComment({
+          # Determine security status
+          if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+            echo "status=⚠️ Critical/High vulnerabilities found" >> $GITHUB_OUTPUT
+            echo "severity=high" >> $GITHUB_OUTPUT
+          elif [ "$MODERATE" -gt 0 ]; then
+            echo "status=⚡ Moderate vulnerabilities found" >> $GITHUB_OUTPUT
+            echo "severity=moderate" >> $GITHUB_OUTPUT
+          elif [ "$LOW" -gt 0 ] || [ "$INFO" -gt 0 ]; then
+            echo "status=ℹ️ Low/Info vulnerabilities found" >> $GITHUB_OUTPUT
+            echo "severity=low" >> $GITHUB_OUTPUT
+          else
+            echo "status=✅ No vulnerabilities found" >> $GITHUB_OUTPUT
+            echo "severity=none" >> $GITHUB_OUTPUT
+          fi
+
+          echo "Security audit completed: ${TOTAL} total vulnerabilities found"
+
+      - name: 📊 Generate coverage report
+        id: coverage
+        if: success()
+        run: |
+          # Run tests with coverage and capture output
+          npm run test:cov > coverage_output.txt 2>&1 || true
+
+          # Extract test summary
+          TEST_FILES=$(grep "Test Files" coverage_output.txt | tail -1 || echo "Test Files: Not found")
+          TESTS_COUNT=$(grep "Tests" coverage_output.txt | grep "passed" | tail -1 || echo "Tests: Not found")
+          DURATION=$(grep "Duration" coverage_output.txt | tail -1 || echo "Duration: Not found")
+
+          # Extract coverage table
+          COVERAGE_TABLE=$(awk '/% Coverage report from v8/,/^$/' coverage_output.txt | grep -v "^$" || echo "Coverage table not found")
+
+          # Extract overall coverage percentage - more robust extraction
+          OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | awk -F'|' '{gsub(/[ %]/, "", $2); print $2}' || echo "N/A")
+
+          # Fallback if first method fails
+          if [ "$OVERALL_COVERAGE" = "N/A" ] || [ -z "$OVERALL_COVERAGE" ]; then
+            OVERALL_COVERAGE=$(grep "All files" coverage_output.txt | sed 's/.*|[[:space:]]*\([0-9.]*\).*/\1/' || echo "N/A")
+          fi
+
+          # Set output for other workflows
+          echo "coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
+
+          # Create coverage report
+          cat > coverage_report.md << EOF
+          ## 📊 Test Coverage Report
+
+          ### 🎯 Overall Coverage: ${OVERALL_COVERAGE}%
+
+          ### 📈 Test Results
+          - ✅ **Type Check**: Passed
+          - ✅ **Linting**: Passed  
+          - ✅ **${TESTS_COUNT}**: All passed
+          - ✅ **${TEST_FILES}**: All passed
+          - ⏱️ **${DURATION}**
+
+          ### 📋 Detailed Coverage Report
+          \`\`\`
+          ${COVERAGE_TABLE}
+          \`\`\`
+
+          ### 🔧 Build Information
+          - **Node.js**: ${{ env.NODE_VERSION }}
+          - **Commit**: \`${{ github.sha }}\`
+          - **Branch**: \`${{ github.ref_name }}\`
+          - **Workflow**: ${{ github.workflow }}
+          - **Run**: #${{ github.run_number }}
+          - **Event**: ${{ github.event_name }}
+
+          ---
+          *Generated automatically by GitHub Actions* 🤖
+          EOF
+
+          echo "Coverage report generated successfully"
+          echo "Overall coverage: ${OVERALL_COVERAGE}%"
+
+      - name: 📊 Generate security audit report
+        id: security-report
+        if: always()
+        run: |
+          # Generate security audit report
+          cat > security_report.md << EOF
+          ## 🔒 Security Audit Report
+
+          ### 🛡️ Overall Security Status: ${{ steps.security-audit.outputs.status }}
+
+          ### 📈 Vulnerability Summary
+          - 🔴 **Critical**: ${{ steps.security-audit.outputs.critical }} vulnerabilities
+          - 🟠 **High**: ${{ steps.security-audit.outputs.high }} vulnerabilities  
+          - 🟡 **Moderate**: ${{ steps.security-audit.outputs.moderate }} vulnerabilities
+          - 🔵 **Low**: ${{ steps.security-audit.outputs.low }} vulnerabilities
+          - ℹ️ **Info**: ${{ steps.security-audit.outputs.info }} vulnerabilities
+          - 📊 **Total**: ${{ steps.security-audit.outputs.total }} vulnerabilities
+
+          ### 📋 Audit Details
+          EOF
+
+          # Add audit details if available
+          if [ -f "audit_output.txt" ] && [ -s "audit_output.txt" ]; then
+            echo "\`\`\`" >> security_report.md
+            head -50 audit_output.txt >> security_report.md
+            echo "\`\`\`" >> security_report.md
+          else
+            echo "No detailed audit information available." >> security_report.md
+          fi
+
+          cat >> security_report.md << EOF
+
+          ### 🔧 Build Information
+          - **Node.js**: ${{ env.NODE_VERSION }}
+          - **Commit**: \`${{ github.sha }}\`
+          - **Branch**: \`${{ github.ref_name }}\`
+          - **Workflow**: ${{ github.workflow }}
+          - **Run**: #${{ github.run_number }}
+          - **Event**: ${{ github.event_name }}
+          - **Audit Level**: moderate
+
+          ### 📝 Recommendations
+          EOF
+
+          # Add recommendations based on severity
+          if [ "${{ steps.security-audit.outputs.critical }}" -gt 0 ] || [ "${{ steps.security-audit.outputs.high }}" -gt 0 ]; then
+            echo "⚠️ **Critical/High vulnerabilities detected!** Consider running \`npm audit fix\` or updating vulnerable packages immediately." >> security_report.md
+          elif [ "${{ steps.security-audit.outputs.moderate }}" -gt 0 ]; then
+            echo "⚡ **Moderate vulnerabilities detected.** Review and consider running \`npm audit fix\` when convenient." >> security_report.md
+          elif [ "${{ steps.security-audit.outputs.total }}" -gt 0 ]; then
+            echo "ℹ️ **Low-level vulnerabilities detected.** Monitor and update when possible." >> security_report.md
+          else
+            echo "✅ **No vulnerabilities detected.** Keep dependencies updated!" >> security_report.md
+          fi
+
+          cat >> security_report.md << EOF
+
+          ---
+          *Generated automatically by GitHub Actions Security Audit* 🔒
+          EOF
+
+          echo "Security audit report generated successfully"
+
+      - name: 💬 Comment coverage on PR
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coverageReport = fs.readFileSync('coverage_report.md', 'utf8');
+            const securityReport = fs.existsSync('security_report.md') ? fs.readFileSync('security_report.md', 'utf8') : '## 🔒 Security Audit Report\nN/A';
+
+            // Look for existing coverage comment
+            const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: coverageReport
             });
-            console.log('Created new coverage comment');
-          }
-          
-          // Look for existing security comment
-          const botSecurityComment = comments.data.find(comment => 
-            comment.user.type === 'Bot' && 
-            comment.body.includes('🔒 Security Audit Report')
-          );
-          
-          if (botSecurityComment) {
-            await github.rest.issues.updateComment({
-              comment_id: botSecurityComment.id,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: securityReport
-            });
-            console.log('Updated existing security comment');
-          } else {
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: securityReport
-            });
-            console.log('Created new security comment');
-          }
 
-    - name: 📤 Upload coverage artifacts
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report-${{ github.run_number }}
-        path: |
-          coverage/
-          coverage_report.md
-          coverage_output.txt
-        retention-days: 90
+            const botCoverageComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('📊 Test Coverage Report')
+            );
 
-    - name: 📤 Upload security audit artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-audit-${{ github.run_number }}
-        path: |
-          audit_output.json
-          audit_output.txt
-        retention-days: 90
+            if (botCoverageComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botCoverageComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: coverageReport
+              });
+              console.log('Updated existing coverage comment');
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: coverageReport
+              });
+              console.log('Created new coverage comment');
+            }
 
-    - name: ✅ Set test result
-      id: test-result
-      if: always()
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "passed=true" >> $GITHUB_OUTPUT
-          echo "✅ All tests passed successfully"
-        else
-          echo "passed=false" >> $GITHUB_OUTPUT
-          echo "❌ Tests failed"
-          exit 1
-        fi
+            // Look for existing security comment
+            const botSecurityComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🔒 Security Audit Report')
+            );
+
+            if (botSecurityComment) {
+              await github.rest.issues.updateComment({
+                comment_id: botSecurityComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: securityReport
+              });
+              console.log('Updated existing security comment');
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: securityReport
+              });
+              console.log('Created new security comment');
+            }
+
+      - name: 📤 Upload coverage artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ github.run_number }}
+          path: |
+            coverage/
+            coverage_report.md
+            coverage_output.txt
+          retention-days: 90
+
+      - name: 📤 Upload security audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-${{ github.run_number }}
+          path: |
+            audit_output.json
+            audit_output.txt
+          retention-days: 90
+
+      - name: ✅ Set test result
+        id: test-result
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+            echo "✅ All tests passed successfully"
+          else
+            echo "passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Tests failed"
+            exit 1
+          fi
 
   quality-gate:
     name: 🚪 Quality Gate
     runs-on: ubuntu-latest
     needs: test
     if: always()
-    
-    steps:
-    - name: 🔍 Check test results
-      run: |
-        if [ "${{ needs.test.outputs.tests-passed }}" != "true" ]; then
-          echo "❌ Quality gate failed: Tests did not pass"
-          echo "Coverage: ${{ needs.test.outputs.coverage }}%"
-          exit 1
-        else
-          echo "✅ Quality gate passed: All tests successful"
-          echo "Coverage: ${{ needs.test.outputs.coverage }}%"
-        fi
 
-    - name: 📊 Quality summary
-      if: always()
-      run: |
-        echo "## 📊 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Tests**: ${{ needs.test.outputs.tests-passed == 'true' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Coverage**: ${{ needs.test.outputs.coverage }}%" >> $GITHUB_STEP_SUMMARY
-        echo "- **Security**: ${{ needs.test.outputs['security-status'] || 'N/A' }} (Total: ${{ needs.test.outputs['security-total'] || '0' }}, Critical: ${{ needs.test.outputs['security-critical'] || '0' }}, High: ${{ needs.test.outputs['security-high'] || '0' }}, Moderate: ${{ needs.test.outputs['security-moderate'] || '0' }}, Low: ${{ needs.test.outputs['security-low'] || '0' }}, Info: ${{ needs.test.outputs['security-info'] || '0' }})" >> $GITHUB_STEP_SUMMARY
-        echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "\n### 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
-        echo "- Status: ${{ needs.test.outputs['security-status'] || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Summary: Total ${{ needs.test.outputs['security-total'] || '0' }} | Critical ${{ needs.test.outputs['security-critical'] || '0' }}, High ${{ needs.test.outputs['security-high'] || '0' }}, Moderate ${{ needs.test.outputs['security-moderate'] || '0' }}, Low ${{ needs.test.outputs['security-low'] || '0' }}, Info ${{ needs.test.outputs['security-info'] || '0' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Artifacts: security-audit-${{ github.run_number }} (Actions > Run summary > Artifacts)" >> $GITHUB_STEP_SUMMARY
+    steps:
+      - name: 🔍 Check test results
+        run: |
+          if [ "${{ needs.test.outputs.tests-passed }}" != "true" ]; then
+            echo "❌ Quality gate failed: Tests did not pass"
+            echo "Coverage: ${{ needs.test.outputs.coverage }}%"
+            exit 1
+          else
+            echo "✅ Quality gate passed: All tests successful"
+            echo "Coverage: ${{ needs.test.outputs.coverage }}%"
+          fi
+
+      - name: 📊 Quality summary
+        if: always()
+        run: |
+          echo "## 📊 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ${{ needs.test.outputs.tests-passed == 'true' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage**: ${{ needs.test.outputs.coverage }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security**: ${{ needs.test.outputs['security-status'] || 'N/A' }} (Total: ${{ needs.test.outputs['security-total'] || '0' }}, Critical: ${{ needs.test.outputs['security-critical'] || '0' }}, High: ${{ needs.test.outputs['security-high'] || '0' }}, Moderate: ${{ needs.test.outputs['security-moderate'] || '0' }}, Low: ${{ needs.test.outputs['security-low'] || '0' }}, Info: ${{ needs.test.outputs['security-info'] || '0' }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "\n### 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ needs.test.outputs['security-status'] || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Summary: Total ${{ needs.test.outputs['security-total'] || '0' }} | Critical ${{ needs.test.outputs['security-critical'] || '0' }}, High ${{ needs.test.outputs['security-high'] || '0' }}, Moderate ${{ needs.test.outputs['security-moderate'] || '0' }}, Low ${{ needs.test.outputs['security-low'] || '0' }}, Info ${{ needs.test.outputs['security-info'] || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Artifacts: security-audit-${{ github.run_number }} (Actions > Run summary > Artifacts)" >> $GITHUB_STEP_SUMMARY

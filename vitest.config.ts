@@ -6,17 +6,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
-    include: [
-      'tests/**/*.test.ts',
-      'tests/**/*.spec.ts'
-    ],
-    exclude: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      'tests/__mocks__/**',
-      'tests/__fixtures__/**'
-    ],
+    include: ['tests/**/*.test.ts', 'tests/**/*.spec.ts'],
+    exclude: ['node_modules/**', 'dist/**', 'build/**', 'tests/__mocks__/**', 'tests/__fixtures__/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'lcov', 'html'],
@@ -34,17 +25,17 @@ export default defineConfig({
         '**/*.d.ts',
         'vitest.config.ts',
         'eslint.config.js',
-        'index.js'
+        'index.js',
       ],
       thresholds: {
         global: {
           branches: 100,
           functions: 100,
           lines: 100,
-          statements: 100
-        }
-      }
-    }
+          statements: 100,
+        },
+      },
+    },
   },
   resolve: {
     alias: {
@@ -56,7 +47,7 @@ export default defineConfig({
       '@/types': path.resolve(__dirname, './src/@types'),
       '@tests': path.resolve(__dirname, './tests'),
       '@mocks': path.resolve(__dirname, './tests/__mocks__'),
-      '@fixtures': path.resolve(__dirname, './tests/__fixtures__')
-    }
-  }
+      '@fixtures': path.resolve(__dirname, './tests/__fixtures__'),
+    },
+  },
 });

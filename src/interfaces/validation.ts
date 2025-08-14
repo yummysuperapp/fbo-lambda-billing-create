@@ -1,6 +1,6 @@
 /**
  * @fileoverview Validation Schemas
- * 
+ *
  * This file contains Zod validation schemas for runtime validation
  * of data structures throughout the application.
  */

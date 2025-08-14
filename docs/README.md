@@ -5,6 +5,7 @@ Este directorio contiene las plantillas de GitHub para Pull Requests e Issues, d
 ## 🎯 Plantillas Disponibles
 
 ### Pull Request Template
+
 - **Archivo**: `pull_request_template.md`
 - **Propósito**: Asegurar que todos los PRs cumplan con la Definition of Done (DoD)
 - **Incluye**: Checklist de DoD, validación de dogmas, evidencia requerida
@@ -12,21 +13,25 @@ Este directorio contiene las plantillas de GitHub para Pull Requests e Issues, d
 ### Issue Templates
 
 #### 🐛 Bug Report (`bug_report.md`)
+
 - Para reportar bugs y errores en el sistema
 - Incluye validación de documentación según dogmas del equipo
 - Clasificación de criticidad e impacto
 
 #### ✨ Feature Request (`feature_request.md`)
+
 - Para proponer nuevas funcionalidades
 - Basado en Definition of Ready (DoR)
 - Incluye análisis de escalabilidad y eficiencia
 
 #### 🔧 Technical Task (`technical_task.md`)
+
 - Para tareas técnicas, spikes y POCs
 - Enfocado en mejoras de infraestructura y deuda técnica
 - Validación de impacto en testing y performance
 
 #### 📊 Technical Debt (`technical_debt.md`)
+
 - Para documentar deuda técnica identificada
 - Seguimiento de bugs documentados y despriorizados
 - Análisis de impacto y estrategias de resolución
@@ -36,16 +41,19 @@ Este directorio contiene las plantillas de GitHub para Pull Requests e Issues, d
 Todas las plantillas incorporan nuestros dogmas fundamentales:
 
 ### Escalabilidad y Eficiencia
+
 - ✅ Todo debe ser escalable, elástico y pensado en usos futuros
 - ✅ Soluciones eficientes son escalables y elásticas
 - ✅ Todo lo versionado es rastreable y documentado
 
 ### Testing y Calidad
+
 - ✅ Proyectos con pruebas unitarias deben sumar al menos 3% adicional
 - ✅ Excepción: proyectos con +80% de cobertura
 - ✅ Todo bug sin documentación es un error
 
 ### Responsabilidad y Proceso
+
 - ✅ Toda tarea debe ser asignada a un responsable
 - ✅ Todo responsable debe velar por el cumplimiento
 - ✅ Solo PM o TL pueden marcar tareas como HECHO
@@ -77,6 +85,7 @@ Las plantillas de PR incluyen validación completa de DoD:
 ## 📋 Uso de las Plantillas
 
 ### Para Pull Requests
+
 1. La plantilla se carga automáticamente al crear un PR
 2. Completar todos los checkboxes aplicables
 3. Incluir evidencia requerida (capturas, logs, reportes)
@@ -84,6 +93,7 @@ Las plantillas de PR incluyen validación completa de DoD:
 5. Solo PM o TL pueden aprobar y mergear
 
 ### Para Issues
+
 1. Seleccionar el tipo de issue apropiado
 2. Completar toda la información requerida
 3. Asignar responsable específico

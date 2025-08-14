@@ -45,16 +45,8 @@
       "@/utils/*": ["./src/utils/*"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests",
-    "*.test.*",
-    "*.spec.*"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests", "*.test.*", "*.spec.*"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

@@ -23,6 +23,8 @@
     "start:local": "NODE_ENV=local tsx src/index.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
@@ -31,7 +33,7 @@
     "deploy:dev": "npm run deploy dev",
     "deploy:testing": "npm run deploy testing",
     "deploy:prod": "npm run deploy prod",
-    "check-all": "npm run type-check && npm run lint && npm run test",
+    "check-all": "npm run format && npm run type-check && npm run lint && npm run test",
     "prepare-deploy": "npm run check-all && npm run build"
   },
   "keywords": [
@@ -83,6 +85,8 @@
     "@typescript-eslint/parser": "~8.18.1",
     "@vitest/coverage-v8": "~3.2.4",
     "eslint": "~9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "rimraf": "~6.0.1",
     "tsc-alias": "^1.8.16",
     "tsx": "~4.19.2",

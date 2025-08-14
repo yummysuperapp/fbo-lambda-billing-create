@@ -1,8 +1,4 @@
-import type { 
-  HttpClientInterface, 
-  FinanceConfig, 
-  Logger 
-} from '@/types';
+import type { HttpClientInterface, FinanceConfig, Logger } from '@/types';
 import { createLogger } from '@/utils';
 
 /**
@@ -91,7 +87,7 @@ export class FinanceService {
     // Check file extension
     const allowedExtensions = ['.csv', '.xlsx', '.txt'];
     const fileExtension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-    
+
     if (!allowedExtensions.includes(fileExtension)) {
       errors.push(`Invalid file extension: ${fileExtension}. Allowed: ${allowedExtensions.join(', ')}`);
     }
@@ -119,7 +115,7 @@ export class FinanceService {
    */
   async getHealthStatus(): Promise<{ healthy: boolean; responseTime?: number }> {
     const startTime = Date.now();
-    
+
     try {
       await this.httpClient.get(`${this.config.baseUrl}/health`, {
         headers: {
@@ -129,15 +125,15 @@ export class FinanceService {
       });
 
       const responseTime = Date.now() - startTime;
-      
+
       this.logger.info('Finance API health check successful', { responseTime });
-      
+
       return { healthy: true, responseTime };
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       this.logger.error('Finance API health check failed', error as Error, { responseTime });
-      
+
       return { healthy: false, responseTime };
     }
   }

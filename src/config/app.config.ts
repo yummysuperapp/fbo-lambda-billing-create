@@ -1,20 +1,20 @@
 /**
  * @fileoverview Application Configuration Factory
- * 
+ *
  * This module creates the application configuration from validated
  * environment variables and provides convenient configuration objects
  * for all services and components.
- * 
+ *
  * Features:
  * - Type-safe configuration creation from environment variables
  * - Structured configuration objects for each service
  * - Environment-specific configuration flags
  * - S3 bucket allowlist parsing and validation
  * - Configuration logging for debugging and monitoring
- * 
+ *
  * The configuration is created from validated environment variables
  * and provides a clean interface for accessing service configurations.
- * 
+ *
  * @author José Carrillo <jose.carrillo@yummysuperapp.com>
  * @since 1.0.0
  */
@@ -24,7 +24,7 @@ import { env, type EnvVars } from './environment.config';
 
 /**
  * Creates the application configuration from validated environment variables
- * 
+ *
  * @param {EnvVars} envVars - Validated environment variables
  * @returns {AppConfig} Complete application configuration
  */
@@ -72,13 +72,14 @@ function createConfig(envVars: EnvVars): AppConfig {
       datasetId: envVars.BIGQUERY_DATASET_ID,
       location: envVars.BIGQUERY_LOCATION,
       ...(envVars.BIGQUERY_KEY_FILENAME && { keyFilename: envVars.BIGQUERY_KEY_FILENAME }),
-      ...(envVars.BIGQUERY_CLIENT_EMAIL && envVars.BIGQUERY_PRIVATE_KEY && {
-        credentials: {
-          client_email: envVars.BIGQUERY_CLIENT_EMAIL,
-          private_key: envVars.BIGQUERY_PRIVATE_KEY.replace(/\\n/g, '\n'),
-          project_id: envVars.BIGQUERY_PROJECT_ID,
-        },
-      }),
+      ...(envVars.BIGQUERY_CLIENT_EMAIL &&
+        envVars.BIGQUERY_PRIVATE_KEY && {
+          credentials: {
+            client_email: envVars.BIGQUERY_CLIENT_EMAIL,
+            private_key: envVars.BIGQUERY_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            project_id: envVars.BIGQUERY_PROJECT_ID,
+          },
+        }),
       maxRetries: envVars.BIGQUERY_MAX_RETRIES,
       autoRetry: envVars.BIGQUERY_AUTO_RETRY,
     },
@@ -95,7 +96,7 @@ export const IS_DEVELOPMENT = NODE_ENV === 'development' || NODE_ENV === 'dev';
 export const IS_PRODUCTION = NODE_ENV === 'production' || NODE_ENV === 'prod';
 
 // Parse allowed S3 buckets from environment variable
-export const ALLOWED_S3_BUCKETS = env.ALLOWED_S3_BUCKETS.split(',').map(bucket => bucket.trim());
+export const ALLOWED_S3_BUCKETS = env.ALLOWED_S3_BUCKETS.split(',').map((bucket) => bucket.trim());
 
 // Log configuration status on module load
 console.warn('✅ [Config] Environment validation successful');

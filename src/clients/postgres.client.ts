@@ -1,9 +1,5 @@
 import { Pool, PoolClient } from 'pg';
-import type { 
-  PostgresClientInterface, 
-  PostgresConfig, 
-  Logger
-} from '@/types';
+import type { PostgresClientInterface, PostgresConfig, Logger } from '@/types';
 import { PostgresError } from '@/interfaces/exceptions';
 
 /**
@@ -58,10 +54,7 @@ export class PostgresClient implements PostgresClientInterface {
         maxConnections: this.config.maxConnections ?? 10,
       });
     } catch (error) {
-      const pgError = new PostgresError(
-        'Failed to connect to PostgreSQL',
-        { error }
-      );
+      const pgError = new PostgresError('Failed to connect to PostgreSQL', { error });
       this.logger.error('PostgreSQL connection failed', pgError, {
         host: this.config.host,
         database: this.config.database,
@@ -81,10 +74,7 @@ export class PostgresClient implements PostgresClientInterface {
         this.logger.info('PostgreSQL connection pool closed');
       }
     } catch (error) {
-      const pgError = new PostgresError(
-        'Failed to close PostgreSQL connection',
-        { error }
-      );
+      const pgError = new PostgresError('Failed to close PostgreSQL connection', { error });
       this.logger.error('PostgreSQL disconnect failed', pgError);
       throw pgError;
     }
@@ -95,7 +85,7 @@ export class PostgresClient implements PostgresClientInterface {
    */
   async query<T = FBOLambda.UnknownRecord>(text: string, params?: unknown[]): Promise<T[]> {
     await this.ensureConnection();
-    
+
     try {
       const start = Date.now();
       const result = await this.pool!.query(text, params);
@@ -110,10 +100,7 @@ export class PostgresClient implements PostgresClientInterface {
 
       return result.rows as T[];
     } catch (error) {
-      const pgError = new PostgresError(
-        'Query execution failed',
-        { error, query: text, params }
-      );
+      const pgError = new PostgresError('Query execution failed', { error, query: text, params });
       this.logger.error('PostgreSQL query failed', pgError, {
         query: text.substring(0, 100),
         params: params?.length ?? 0,
@@ -127,7 +114,7 @@ export class PostgresClient implements PostgresClientInterface {
    */
   async queryOne<T = FBOLambda.UnknownRecord>(text: string, params?: unknown[]): Promise<T | null> {
     const results = await this.query<T>(text, params);
-    return results.length > 0 ? results[0] ?? null : null;
+    return results.length > 0 ? (results[0] ?? null) : null;
   }
 
   /**
@@ -135,19 +122,19 @@ export class PostgresClient implements PostgresClientInterface {
    */
   async transaction<T>(callback: (client: PostgresClientInterface) => Promise<T>): Promise<T> {
     await this.ensureConnection();
-    
+
     const client = await this.pool!.connect();
     const transactionClient = new PostgresTransactionClient(client, this.logger);
-    
+
     try {
       await client.query('BEGIN');
       this.logger.debug('PostgreSQL transaction started');
-      
+
       const result = await callback(transactionClient);
-      
+
       await client.query('COMMIT');
       this.logger.debug('PostgreSQL transaction committed');
-      
+
       return result;
     } catch (error) {
       try {
@@ -157,11 +144,8 @@ export class PostgresClient implements PostgresClientInterface {
         this.logger.error('PostgreSQL rollback failed', rollbackError as Error);
         // Still throw the original error, but wrapped in PostgresError
       }
-      
-      const pgError = new PostgresError(
-        'Transaction failed',
-        { error }
-      );
+
+      const pgError = new PostgresError('Transaction failed', { error });
       this.logger.error('PostgreSQL transaction failed', pgError);
       throw pgError;
     } finally {
@@ -207,10 +191,7 @@ class PostgresTransactionClient implements PostgresClientInterface {
 
       return result.rows as T[];
     } catch (error) {
-      const pgError = new PostgresError(
-        'Transaction query execution failed',
-        { error, query: text, params }
-      );
+      const pgError = new PostgresError('Transaction query execution failed', { error, query: text, params });
       this.logger.error('PostgreSQL transaction query failed', pgError);
       throw pgError;
     }
@@ -218,7 +199,7 @@ class PostgresTransactionClient implements PostgresClientInterface {
 
   async queryOne<T = FBOLambda.UnknownRecord>(text: string, params?: unknown[]): Promise<T | null> {
     const results = await this.query<T>(text, params);
-    return results.length > 0 ? results[0] ?? null : null;
+    return results.length > 0 ? (results[0] ?? null) : null;
   }
 
   async transaction<T>(callback: (client: PostgresClientInterface) => Promise<T>): Promise<T> {

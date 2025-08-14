@@ -1,9 +1,9 @@
 /**
  * @fileoverview Type Definitions Index
- * 
+ *
  * This file re-exports all type definitions from the @types directory
  * making them available for import throughout the project.
- * 
+ *
  * Usage:
  * import type { HttpClientInterface, LambdaResponse } from '@/types';
  */
@@ -11,7 +11,7 @@
 // Client type definitions
 export * from './clients';
 
-// Configuration type definitions  
+// Configuration type definitions
 export * from './config';
 
 // Context and logger type definitions

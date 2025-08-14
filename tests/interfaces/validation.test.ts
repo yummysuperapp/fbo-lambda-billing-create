@@ -13,7 +13,7 @@ import {
   type CustomEventType,
   type FinanceConfigType,
   type PostgresConfigType,
-  type MongoConfigType
+  type MongoConfigType,
 } from '@/interfaces/validation';
 
 describe('Validation Schemas', () => {
@@ -27,13 +27,13 @@ describe('Validation Schemas', () => {
         eventName: 's3:ObjectCreated:Put',
         s3: {
           bucket: {
-            name: 'test-bucket'
+            name: 'test-bucket',
           },
           object: {
             key: 'test-file.txt',
-            size: 1024
-          }
-        }
+            size: 1024,
+          },
+        },
       };
 
       const result = S3EventRecordSchema.safeParse(validRecord);
@@ -67,15 +67,15 @@ describe('Validation Schemas', () => {
             eventName: 's3:ObjectCreated:Put',
             s3: {
               bucket: {
-                name: 'test-bucket'
+                name: 'test-bucket',
               },
               object: {
                 key: 'test-file.txt',
-                size: 1024
-              }
-            }
-          }
-        ]
+                size: 1024,
+              },
+            },
+          },
+        ],
       };
 
       const result = S3EventSchema.safeParse(validEvent);
@@ -93,13 +93,13 @@ describe('Validation Schemas', () => {
         path: '/api/test',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer token'
+          Authorization: 'Bearer token',
         },
         queryStringParameters: {
-          param1: 'value1'
+          param1: 'value1',
         },
         body: '{"test": "data"}',
-        isBase64Encoded: false
+        isBase64Encoded: false,
       };
 
       const result = APIGatewayEventSchema.safeParse(validEvent);
@@ -117,7 +117,7 @@ describe('Validation Schemas', () => {
         headers: {},
         queryStringParameters: null,
         body: null,
-        isBase64Encoded: false
+        isBase64Encoded: false,
       };
 
       const result = APIGatewayEventSchema.safeParse(validEvent);
@@ -131,12 +131,12 @@ describe('Validation Schemas', () => {
         action: 'process-file',
         data: {
           fileId: 'file-123',
-          userId: 'user-456'
+          userId: 'user-456',
         },
         metadata: {
           timestamp: '2023-01-01T00:00:00.000Z',
-          source: 'api'
-        }
+          source: 'api',
+        },
       };
 
       const result = CustomEventSchema.safeParse(validEvent);
@@ -148,7 +148,7 @@ describe('Validation Schemas', () => {
 
     it('should validate custom event with minimal data', () => {
       const validEvent = {
-        action: 'simple-action'
+        action: 'simple-action',
       };
 
       const result = CustomEventSchema.safeParse(validEvent);
@@ -162,7 +162,7 @@ describe('Validation Schemas', () => {
         baseUrl: 'https://api.finance.com',
         apiKey: 'secret-key-123',
         dispersionEndpoint: '/api/v1/dispersion',
-        timeout: 30000
+        timeout: 30000,
       };
 
       const result = FinanceConfigSchema.safeParse(validConfig);
@@ -178,7 +178,7 @@ describe('Validation Schemas', () => {
         baseUrl: 'not-a-url',
         apiKey: '',
         dispersionEndpoint: '/api/v1/dispersion',
-        timeout: -1
+        timeout: -1,
       };
 
       const result = FinanceConfigSchema.safeParse(invalidConfig);
@@ -199,7 +199,7 @@ describe('Validation Schemas', () => {
         maxConnections: 10,
         connectionTimeout: 5000,
         connectionTimeoutMillis: 5000,
-        idleTimeoutMillis: 10000
+        idleTimeoutMillis: 10000,
       };
 
       const result = PostgresConfigSchema.safeParse(validConfig);
@@ -222,7 +222,7 @@ describe('Validation Schemas', () => {
         maxConnections: 0,
         connectionTimeout: -1,
         connectionTimeoutMillis: -1,
-        idleTimeoutMillis: -1
+        idleTimeoutMillis: -1,
       };
 
       const result = PostgresConfigSchema.safeParse(invalidConfig);
@@ -242,8 +242,8 @@ describe('Validation Schemas', () => {
         options: {
           maxPoolSize: 10,
           serverSelectionTimeoutMS: 5000,
-          socketTimeoutMS: 30000
-        }
+          socketTimeoutMS: 30000,
+        },
       };
 
       const result = MongoConfigSchema.safeParse(validConfig);
@@ -265,8 +265,8 @@ describe('Validation Schemas', () => {
         options: {
           maxPoolSize: 0,
           serverSelectionTimeoutMS: -1,
-          socketTimeoutMS: -1
-        }
+          socketTimeoutMS: -1,
+        },
       };
 
       const result = MongoConfigSchema.safeParse(invalidConfig);
@@ -285,12 +285,12 @@ describe('Validation Schemas', () => {
         eventName: 's3:ObjectCreated:Put',
         s3: {
           bucket: { name: 'test-bucket' },
-          object: { key: 'test-file.txt', size: 1024 }
-        }
+          object: { key: 'test-file.txt', size: 1024 },
+        },
       };
 
       const s3Event: S3EventType = {
-        Records: [s3Record]
+        Records: [s3Record],
       };
 
       const apiEvent: APIGatewayEventType = {
@@ -299,18 +299,18 @@ describe('Validation Schemas', () => {
         headers: {},
         queryStringParameters: null,
         body: null,
-        isBase64Encoded: false
+        isBase64Encoded: false,
       };
 
       const customEvent: CustomEventType = {
-        action: 'test-action'
+        action: 'test-action',
       };
 
       const financeConfig: FinanceConfigType = {
         baseUrl: 'https://api.test.com',
         apiKey: 'test-key',
         dispersionEndpoint: '/dispersion',
-        timeout: 5000
+        timeout: 5000,
       };
 
       const postgresConfig: PostgresConfigType = {
@@ -324,7 +324,7 @@ describe('Validation Schemas', () => {
         maxConnections: 5,
         connectionTimeout: 1000,
         connectionTimeoutMillis: 1000,
-        idleTimeoutMillis: 2000
+        idleTimeoutMillis: 2000,
       };
 
       const mongoConfig: MongoConfigType = {
@@ -337,8 +337,8 @@ describe('Validation Schemas', () => {
         options: {
           maxPoolSize: 5,
           serverSelectionTimeoutMS: 1000,
-          socketTimeoutMS: 1000
-        }
+          socketTimeoutMS: 1000,
+        },
       };
 
       // If these compile without errors, type inference is working

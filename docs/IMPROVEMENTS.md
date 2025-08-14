@@ -26,6 +26,7 @@ Este documento rastrea las mejoras, optimizaciones y evolución implementadas en
 ### ✅ Completado (Q1 2025)
 
 #### Implementación de Convención de Nomenclatura de Ramas
+
 - **Característica**: Sistema robusto de nomenclatura de ramas con formato `<type>/FB-<number>_<description>`
 - **Impacto**: Mejora significativa en la organización, trazabilidad y automatización del flujo de trabajo
 - **Componentes**:
@@ -36,6 +37,7 @@ Este documento rastrea las mejoras, optimizaciones y evolución implementadas en
   - Mensajes de error detallados con ejemplos correctos e incorrectos
 
 #### Estandarización de Idioma y Documentación
+
 - **Característica**: Implementación de estándares de idioma consistentes en todo el proyecto
 - **Impacto**: Mejora en la claridad, consistencia y mantenibilidad de la documentación
 - **Componentes**:
@@ -49,6 +51,7 @@ Este documento rastrea las mejoras, optimizaciones y evolución implementadas en
   - Referencias a documentación completa en Notion
 
 #### Infraestructura de Testing Moderna
+
 - **Característica**: Framework de testing robusto con Vitest y cobertura estricta
 - **Impacto**: Alta confiabilidad, desarrollo dirigido por tests y calidad de código superior
 - **Componentes**:
@@ -59,6 +62,7 @@ Este documento rastrea las mejoras, optimizaciones y evolución implementadas en
   - **Integración CI**: Workflow `test.yml` con validación automática
 
 #### Stack Tecnológico Moderno
+
 - **Característica**: Tecnologías de vanguardia para desarrollo serverless
 - **Impacto**: Desarrollo eficiente, mantenibilidad y escalabilidad
 - **Componentes**:
@@ -73,6 +77,7 @@ Este documento rastrea las mejoras, optimizaciones y evolución implementadas en
 ### Gestión de Ramas
 
 #### Antes
+
 ```bash
 # Nomenclatura inconsistente
 feature/nueva-funcionalidad
@@ -81,6 +86,7 @@ hotfix/fix-prod
 ```
 
 #### Después
+
 ```bash
 # Formato estricto: <type>/FB-<number>_<description>
 feat/FB-123_integracion-bigquery
@@ -90,6 +96,7 @@ refactor/FB-234_optimizacion-queries
 ```
 
 **Beneficios:**
+
 - 🎯 **Trazabilidad**: Fácil vinculación entre ramas y características
 - 🔍 **Organización**: Nomenclatura consistente en todas las ramas de características
 - ⚡ **Automatización**: Validación automática previene errores de nomenclatura
@@ -98,11 +105,13 @@ refactor/FB-234_optimizacion-queries
 ### Proceso de Pull Request
 
 #### Plantillas de PR Mejoradas
+
 - **Plantilla de Solicitud de Característica**: Incluye ejemplos de nomenclatura de ramas
 - **Plantilla de Reporte de Bug**: Enlaces a convenciones de nomenclatura de ramas
 - **Plantilla Estándar de PR**: Lista de verificación integral con validación de ramas
 
 **Mejoras:**
+
 - Reducción del tiempo de revisión de PR en 30%
 - Mejora de la calidad del código a través de listas de verificación estandarizadas
 - Mejor documentación de cambios
@@ -112,6 +121,7 @@ refactor/FB-234_optimizacion-queries
 #### Flujos de Trabajo de GitHub Actions
 
 **Flujo de Trabajo de Validación de Ramas:**
+
 ```yaml
 name: Branch Naming Validation
 on:
@@ -135,6 +145,7 @@ jobs:
 ```
 
 **Beneficios:**
+
 - ✅ **Puertas de Calidad**: Validación automatizada antes del merge
 - 🚀 **Retroalimentación Rápida**: Notificación inmediata de problemas de nomenclatura
 - 🔒 **Consistencia**: Estándares aplicados en todas las contribuciones
@@ -144,6 +155,7 @@ jobs:
 ### Configuración de TypeScript
 
 #### `tsconfig.json` Mejorado
+
 ```json
 {
   "compilerOptions": {
@@ -162,6 +174,7 @@ jobs:
 ```
 
 **Mejoras:**
+
 - 🛡️ **Seguridad de Tipos**: Configuración estricta de TypeScript
 - 🐛 **Prevención de Bugs**: Detección de errores en tiempo de compilación
 - 📝 **Documentación de Código**: Mejor IntelliSense y autocompletado
@@ -169,17 +182,20 @@ jobs:
 ### Integración de ESLint y Prettier
 
 #### Reglas de ESLint
+
 - Reglas específicas de TypeScript
 - Validación de import/export
 - Detección de variables no utilizadas
 - Convenciones de nomenclatura consistentes
 
 #### Configuración de Prettier
+
 - Formateo consistente de código
 - Formateo automático al guardar
 - Integración con VS Code
 
 **Métricas:**
+
 - 📉 **Tiempo de Revisión de Código**: Reducido en 25%
 - 🎯 **Consistencia de Código**: 95% de adherencia a la guía de estilo
 - 🐛 **Reducción de Bugs**: 40% menos problemas relacionados con estilo
@@ -189,6 +205,7 @@ jobs:
 ### Framework de Testing con Vitest
 
 #### Configuración Actual
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
@@ -203,17 +220,18 @@ export default defineConfig({
           branches: 100,
           functions: 100,
           lines: 100,
-          statements: 100
-        }
-      }
-    }
-  }
+          statements: 100,
+        },
+      },
+    },
+  },
 });
 ```
 
 ### Mejoras de Cobertura
 
 #### Cobertura Estricta del 100%
+
 ```typescript
 coverage: {
   provider: 'v8',
@@ -236,6 +254,7 @@ coverage: {
 ```
 
 **Logros:**
+
 - 📊 **Cobertura Objetivo**: 100% en todas las métricas
 - 🎯 **Calidad Máxima**: Sin código sin testear
 - 📈 **Exclusiones Inteligentes**: Solo archivos de configuración y tipos
@@ -243,6 +262,7 @@ coverage: {
 ### Mejora de Estructura de Tests
 
 #### Arquitectura de Tests Organizada
+
 ```
 tests/
 ├── __fixtures__/     # Datos de test y ejemplos
@@ -256,6 +276,7 @@ tests/
 ```
 
 **Beneficios:**
+
 - 🏗️ **Organización**: Estructura modular por capas de arquitectura
 - 🔄 **Reutilización**: Mocks especializados para AWS, bases de datos y HTTP
 - ⚡ **Rendimiento**: Ejecución rápida con Vitest y configuración optimizada
@@ -266,6 +287,7 @@ tests/
 ### Renovación Integral de Documentación
 
 #### Documentación de API (`API.md`)
+
 - **Clientes Especializados**: BigQuery, MongoDB, PostgreSQL, S3, HTTP
 - **Servicios de Negocio**: Finance service con operaciones del Financial Backoffice
 - **Utilidades**: Logger con Winston, helpers y validaciones con Zod
@@ -273,30 +295,35 @@ tests/
 - **Ejemplos Prácticos**: Código de uso real para cada componente
 
 #### Documentación de Arquitectura (`ARCHITECTURE.md`)
+
 - **Arquitectura Serverless**: Diseño específico para AWS Lambda
 - **Patrones de Diseño**: Factory para clientes, Strategy para servicios
 - **Flujo de Datos**: Request/response con validación y logging
 - **Integración AWS**: S3, CloudWatch, y servicios de base de datos
 
 #### Guía de Configuración (`CONFIGURATION.md`)
+
 - **Variables de Entorno**: Referencia completa con ejemplos
 - **Configuración de Base de Datos**: Configuración de MongoDB, PostgreSQL, BigQuery
 - **Integración AWS**: Configuración de Lambda, S3, CloudWatch
 - **Configuraciones de Seguridad**: Configuración de autenticación y autorización
 
 #### Guía de Despliegue (`DEPLOYMENT.md`)
+
 - **Convenciones de Ramas**: Integración con nuevos estándares de nomenclatura
 - **Pipeline CI/CD**: Flujo de trabajo completo de despliegue
 - **Gestión de Entornos**: Desarrollo, staging, producción
 - **Procedimientos de Rollback**: Estrategias de rollback de emergencia
 
 #### Guía de Testing (`TESTING.md`)
+
 - **Estrategia de Testing**: Enfoque de testing unitario, integración, E2E
 - **Configuración de Vitest**: Configuración y setup completo
 - **Mejores Prácticas**: Patrones y convenciones de testing
 - **Testing de Rendimiento**: Testing de carga y optimización
 
 **Métricas de Impacto:**
+
 - 📚 **Cobertura de Documentación**: 100% de características principales documentadas
 - ⏱️ **Tiempo de Incorporación**: Reducido de 2 días a 4 horas
 - 🎯 **Satisfacción del Desarrollador**: 95% de retroalimentación positiva
@@ -306,17 +333,20 @@ tests/
 ### Rendimiento de Base de Datos
 
 #### Optimizaciones de Clientes de Base de Datos
+
 - **Connection Pooling**: Configuración optimizada para entornos serverless
 - **Configuración de Timeouts**: Timeouts apropiados para AWS Lambda
 - **Manejo de Errores**: Estrategias robustas de retry y fallback
 
 #### Mejoras de Clientes
+
 - **Cliente MongoDB**: Configuración optimizada para conexiones serverless
 - **Cliente PostgreSQL**: Pool de conexiones eficiente para Lambda
 - **Cliente BigQuery**: Autenticación y configuración simplificada
 - **Cliente S3**: Operaciones optimizadas con AWS SDK v3
 
 **Beneficios del Template:**
+
 - 🚀 **Setup Rápido**: Configuración lista para usar en <5 minutos
 - 💾 **Mejores Prácticas**: Configuraciones optimizadas incluidas
 - 🔄 **Reutilización**: Clientes estandarizados para múltiples proyectos
@@ -324,16 +354,19 @@ tests/
 ### Optimización de Template Lambda
 
 #### Configuración Optimizada
+
 - **Bundle Size**: Configuración para mantener bundles <10MB
 - **Dependencias**: Solo dependencias esenciales incluidas
 - **Estructura**: Arquitectura modular para fácil extensión
 
 #### Mejores Prácticas Incluidas
+
 - **Configuración de Memoria**: Configuraciones recomendadas por tipo de función
 - **Timeouts**: Valores apropiados para diferentes casos de uso
 - **Variables de Entorno**: Configuración estandarizada
 
 **Beneficios del Template:**
+
 - ⚡ **Desarrollo Rápido**: Setup completo en minutos
 - 🎯 **Mejores Prácticas**: Configuraciones optimizadas incluidas
 - 💰 **Eficiencia**: Configuraciones que minimizan costos AWS
@@ -343,17 +376,19 @@ tests/
 ### Validación de Entrada
 
 #### Validación de Schema con Zod
+
 ```typescript
 import { z } from 'zod';
 
 const PaymentSchema = z.object({
   amount: z.number().positive(),
   currency: z.string().length(3),
-  method: z.enum(['credit_card', 'bank_transfer'])
+  method: z.enum(['credit_card', 'bank_transfer']),
 });
 ```
 
 #### Mejoras de Seguridad
+
 - **Prevención de Inyección SQL**: Consultas parametrizadas
 - **Protección XSS**: Sanitización de entrada
 - **Protección CSRF**: Validación basada en tokens
@@ -362,11 +397,13 @@ const PaymentSchema = z.object({
 ### Autenticación y Autorización
 
 #### Implementación JWT
+
 - **Validación de Tokens**: Verificación segura de tokens
 - **Acceso Basado en Roles**: Sistema granular de permisos
 - **Gestión de Sesiones**: Manejo seguro de sesiones
 
 **Métricas de Seguridad:**
+
 - 🛡️ **Reducción de Vulnerabilidades**: 90% menos problemas de seguridad
 - 🔒 **Cumplimiento**: Cumple con SOC 2 Type II
 - 🎯 **Puntuación de Seguridad**: 95/100 (subió de 70/100)
@@ -376,11 +413,13 @@ const PaymentSchema = z.object({
 ### Integración AWS
 
 #### Integración CloudWatch
+
 - **Logging**: Logging estructurado con Winston
 - **Métricas**: Métricas personalizadas y dashboards
 - **Alarmas**: Monitoreo proactivo y alertas
 
 #### Tracing X-Ray
+
 - **Tracing Distribuido**: Seguimiento de requests end-to-end
 - **Insights de Rendimiento**: Identificación de cuellos de botella
 - **Análisis de Errores**: Investigación detallada de errores
@@ -388,16 +427,19 @@ const PaymentSchema = z.object({
 ### Infraestructura de Base de Datos
 
 #### MongoDB Atlas
+
 - **Optimización de Cluster**: Configuración de cluster dimensionada correctamente
 - **Estrategia de Backup**: Backup y recuperación automatizados
 - **Seguridad**: Seguridad de red y encriptación
 
 #### PostgreSQL RDS
+
 - **Alta Disponibilidad**: Despliegue Multi-AZ
 - **Performance Insights**: Monitoreo de rendimiento de consultas
 - **Backups Automatizados**: Recuperación point-in-time
 
 **Beneficios del Template:**
+
 - 📈 **Configuración Completa**: Infraestructura lista para despliegue
 - 🔄 **Mejores Prácticas**: Configuraciones probadas incluidas
 - 💾 **Documentación**: Guías completas de configuración
@@ -407,11 +449,13 @@ const PaymentSchema = z.object({
 ### Herramientas de Desarrollo
 
 #### Configuración de VS Code
+
 - **Extensiones**: Paquete de extensiones recomendadas
 - **Configuraciones**: Configuraciones optimizadas de workspace
 - **Debugging**: Configuración integral de debug
 
 #### Desarrollo Local
+
 - **Docker Compose**: Entorno de desarrollo local
 - **Hot Reload**: Iteración rápida de desarrollo
 - **Gestión de Entornos**: Cambio fácil de entornos
@@ -419,11 +463,13 @@ const PaymentSchema = z.object({
 ### Generación de Código
 
 #### Plantillas y Scaffolding
+
 - **Plantillas de Servicios**: Estructura estandarizada de servicios
 - **Plantillas de Clientes**: Implementación consistente de clientes
 - **Plantillas de Tests**: Generación automatizada de tests
 
 **Productividad del Desarrollador:**
+
 - ⚡ **Tiempo de Setup**: Reducido de 2 horas a 15 minutos
 - 🔄 **Ciclo de Desarrollo**: 50% más rápida iteración
 - 😊 **Satisfacción del Desarrollador**: 90% de retroalimentación positiva
@@ -433,6 +479,7 @@ const PaymentSchema = z.object({
 ### Estrategia de Logging
 
 #### Configuración de Winston Logger
+
 ```typescript
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -444,13 +491,14 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.CloudWatchLogs({
       logGroupName: '/aws/lambda/fbo-template',
-      logStreamName: () => new Date().toISOString().split('T')[0]
-    })
-  ]
+      logStreamName: () => new Date().toISOString().split('T')[0],
+    }),
+  ],
 });
 ```
 
 #### Logging Estructurado
+
 - **Formato Consistente**: Logs estructurados en JSON
 - **IDs de Correlación**: Trazabilidad de requests
 - **Contexto de Errores**: Información detallada de errores
@@ -459,20 +507,23 @@ const logger = winston.createLogger({
 ### Métricas y Dashboards
 
 #### Dashboards de CloudWatch
+
 - **Métricas de Aplicación**: Tiempos de respuesta, tasas de error
 - **Métricas de Infraestructura**: CPU, memoria, red
 - **Métricas de Negocio**: Volúmenes de transacciones, tasas de éxito
 
 #### Métricas Personalizadas
+
 ```typescript
 const metrics = {
   paymentProcessed: new CloudWatchMetric('PaymentProcessed'),
   errorRate: new CloudWatchMetric('ErrorRate'),
-  responseTime: new CloudWatchMetric('ResponseTime')
+  responseTime: new CloudWatchMetric('ResponseTime'),
 };
 ```
 
 **Beneficios del Template:**
+
 - 👁️ **Configuración Lista**: Logging y métricas preconfiguradas
 - 🚨 **Mejores Prácticas**: Patrones de observabilidad incluidos
 - 📊 **Documentación**: Guías de implementación completas
@@ -482,6 +533,7 @@ const metrics = {
 ### Q2 2025 - Expansión del Template
 
 #### Alta Prioridad
+
 - [ ] **Nuevos Clientes de Base de Datos**
   - Cliente para DynamoDB
   - Cliente para Redis/ElastiCache
@@ -498,6 +550,7 @@ const metrics = {
   - Structured logging con correlación IDs
 
 #### Prioridad Media
+
 - [ ] **Herramientas de Desarrollo**
   - CLI para generar nuevos servicios
   - Templates para diferentes tipos de Lambda
@@ -511,6 +564,7 @@ const metrics = {
 ### Q2 2025 - Características Avanzadas
 
 #### Alta Prioridad
+
 - [ ] **Despliegue Multi-Región**
   - Replicación cross-región
   - Procedimientos de recuperación ante desastres
@@ -527,6 +581,7 @@ const metrics = {
   - Logging de auditoría
 
 #### Prioridad Media
+
 - [ ] **API GraphQL**
   - Diseño de schema GraphQL
   - Implementación de resolvers
@@ -540,6 +595,7 @@ const metrics = {
 ### Q3 2025 - Innovación y Optimización
 
 #### Alta Prioridad
+
 - [ ] **Integración AI/ML**
   - Modelos de detección de fraude
   - Analíticas predictivas
@@ -556,6 +612,7 @@ const metrics = {
   - Chaos engineering
 
 #### Prioridad Media
+
 - [ ] **Herramientas de Desarrollador**
   - Desarrollo de herramienta CLI
   - Automatización de generación de código
@@ -569,6 +626,7 @@ const metrics = {
 ### Q4 2025 - Madurez de Plataforma
 
 #### Alta Prioridad
+
 - [ ] **Plataforma como Servicio**
   - Despliegue de autoservicio
   - Arquitectura multi-tenant
@@ -585,6 +643,7 @@ const metrics = {
   - Framework de gobernanza de datos
 
 #### Prioridad Media
+
 - [ ] **SDK Móvil**
   - SDK React Native
   - SDKs nativos iOS/Android
@@ -599,74 +658,80 @@ const metrics = {
 
 ### Métricas de Desarrollo
 
-| Métrica | Antes | Actual | Objetivo | Tendencia |
-|---------|-------|--------|----------|----------|
-| **Cobertura de Código** | N/A | 100% | 100% | ✅ |
-| **Tiempo de Build** | N/A | <30s | <20s | 📈 |
-| **Ejecución de Tests** | N/A | <10s | <5s | 📈 |
-| **Validación de Ramas** | Manual | Automática | Automática | ✅ |
-| **Estándares de Idioma** | Inconsistente | Estandarizado | Estandarizado | ✅ |
+| Métrica                  | Antes         | Actual        | Objetivo      | Tendencia |
+| ------------------------ | ------------- | ------------- | ------------- | --------- |
+| **Cobertura de Código**  | N/A           | 100%          | 100%          | ✅        |
+| **Tiempo de Build**      | N/A           | <30s          | <20s          | 📈        |
+| **Ejecución de Tests**   | N/A           | <10s          | <5s           | 📈        |
+| **Validación de Ramas**  | Manual        | Automática    | Automática    | ✅        |
+| **Estándares de Idioma** | Inconsistente | Estandarizado | Estandarizado | ✅        |
 
 ### Métricas de Template
 
-| Métrica | Antes | Actual | Objetivo | Tendencia |
-|---------|-------|--------|----------|----------|
-| **Setup de Proyecto** | Manual | Template | Automatizado | 📈 |
-| **Configuración TypeScript** | Básica | Estricta | Estricta | ✅ |
-| **Clientes Incluidos** | 0 | 5 | 6+ | 📈 |
-| **Documentación** | Mínima | Completa | Completa | ✅ |
-| **Workflows CI/CD** | 0 | 3 | 4+ | 📈 |
+| Métrica                      | Antes  | Actual   | Objetivo     | Tendencia |
+| ---------------------------- | ------ | -------- | ------------ | --------- |
+| **Setup de Proyecto**        | Manual | Template | Automatizado | 📈        |
+| **Configuración TypeScript** | Básica | Estricta | Estricta     | ✅        |
+| **Clientes Incluidos**       | 0      | 5        | 6+           | 📈        |
+| **Documentación**            | Mínima | Completa | Completa     | ✅        |
+| **Workflows CI/CD**          | 0      | 3        | 4+           | 📈        |
 
 ### Métricas de Adopción
 
-| Métrica | Antes | Actual | Objetivo | Tendencia |
-|---------|-------|--------|----------|----------|
-| **Tiempo de Setup** | N/A | <5 min | <3 min | 📈 |
-| **Proyectos Usando Template** | 0 | 1 | 5+ | 📈 |
-| **Documentación Completa** | 0% | 100% | 100% | ✅ |
-| **Estándares Aplicados** | 0% | 100% | 100% | ✅ |
-| **Workflows Automatizados** | 0 | 3 | 5+ | 📈 |
+| Métrica                       | Antes | Actual | Objetivo | Tendencia |
+| ----------------------------- | ----- | ------ | -------- | --------- |
+| **Tiempo de Setup**           | N/A   | <5 min | <3 min   | 📈        |
+| **Proyectos Usando Template** | 0     | 1      | 5+       | 📈        |
+| **Documentación Completa**    | 0%    | 100%   | 100%     | ✅        |
+| **Estándares Aplicados**      | 0%    | 100%   | 100%     | ✅        |
+| **Workflows Automatizados**   | 0     | 3      | 5+       | 📈        |
 
 ### Métricas de Calidad
 
-| Métrica | Antes | Actual | Objetivo | Tendencia |
-|---------|-------|--------|----------|----------|
-| **Puntuación de Seguridad** | 70/100 | 95/100 | 98/100 | 📈 |
-| **Cobertura de Documentación** | 40% | 100% | 100% | ✅ |
-| **Satisfacción del Desarrollador** | 6.5/10 | 9.0/10 | 9.5/10 | 📈 |
-| **Tiempo de Incorporación** | 2 días | 4 horas | 2 horas | 📈 |
-| **Consistencia de Código** | 70% | 95% | 98% | 📈 |
+| Métrica                            | Antes  | Actual  | Objetivo | Tendencia |
+| ---------------------------------- | ------ | ------- | -------- | --------- |
+| **Puntuación de Seguridad**        | 70/100 | 95/100  | 98/100   | 📈        |
+| **Cobertura de Documentación**     | 40%    | 100%    | 100%     | ✅        |
+| **Satisfacción del Desarrollador** | 6.5/10 | 9.0/10  | 9.5/10   | 📈        |
+| **Tiempo de Incorporación**        | 2 días | 4 horas | 2 horas  | 📈        |
+| **Consistencia de Código**         | 70%    | 95%     | 98%      | 📈        |
 
 ## Casos de Éxito
 
 ### Caso de Estudio 1: Convención de Nomenclatura de Ramas
+
 **Desafío**: Nomenclatura inconsistente de ramas llevando a confusión y pobre trazabilidad.
 
 **Solución**: Implementación de convención con prefijo "FB-" con validación automatizada.
 
 **Resultados**:
+
 - 100% de cumplimiento con convención de nomenclatura
 - 50% más rápida identificación de ramas
 - Mejora en seguimiento de gestión de proyectos
 - Cero conflictos de merge relacionados con nomenclatura
 
 ### Caso de Estudio 2: Migración de Framework de Testing
+
 **Desafío**: Ejecución lenta de tests y configuración compleja de TypeScript con Jest.
 
 **Solución**: Migración a Vitest con configuración optimizada.
 
 **Resultados**:
+
 - 3x más rápida ejecución de tests
 - 40% de reducción en tiempo de pipeline CI/CD
 - Mejora en experiencia del desarrollador
 - Mejor integración con TypeScript
 
 ### Caso de Estudio 3: Renovación de Documentación
+
 **Desafío**: Documentación desactualizada e incompleta obstaculizando el desarrollo.
 
 **Solución**: Actualización integral de documentación en todas las áreas.
 
 **Resultados**:
+
 - 75% de reducción en tiempo de incorporación
 - 90% menos preguntas relacionadas con documentación
 - Mejora en calidad de código a través de mejor comprensión
@@ -724,6 +789,7 @@ const metrics = {
 ## Soporte y Retroalimentación
 
 Para preguntas sobre mejoras o para proponer nuevas mejoras:
+
 - **Tech Lead:** José Carrillo <jose.carrillo@yummysuperapp.com>
 - **Equipo:** Financial Backoffice
 - **Slack:** #fbo-team
@@ -731,6 +797,6 @@ Para preguntas sobre mejoras o para proponer nuevas mejoras:
 
 ---
 
-*Última actualización: Agosto 2025*
-*Versión: 2.0.0*
-*Próxima revisión: Agosto 2025*
+_Última actualización: Agosto 2025_
+_Versión: 2.0.0_
+_Próxima revisión: Agosto 2025_

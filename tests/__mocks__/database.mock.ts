@@ -1,6 +1,6 @@
 /**
  * @fileoverview Database Mocks Configuration
- * 
+ *
  * Centralized mock configuration for database clients.
  * This includes mocks for MongoDB and PostgreSQL clients.
  */
