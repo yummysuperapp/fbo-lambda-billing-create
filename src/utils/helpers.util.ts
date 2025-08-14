@@ -159,34 +159,58 @@ export function generateId(): string {
  * Type guard to check if event is APIGatewayProxyEvent
  */
 export const isHttpEvent = (event: LambdaHttpEvent): boolean => {
-  // Check for APIGatewayProxyEvent structure
-  if ('requestContext' in event && 'headers' in event && 'rawQueryString' in event) {
+  if (typeof event !== 'object' || event === null) {
+    return false;
+  }
+
+  // Check for APIGatewayProxyEvent v2 structure (e.g., from Lambda URL)
+  if (
+    'requestContext' in event &&
+    typeof event.requestContext === 'object' &&
+    event.requestContext !== null &&
+    'http' in event.requestContext &&
+    typeof (event.requestContext as any).http === 'object' &&
+    (event.requestContext as any).http !== null &&
+    'method' in (event.requestContext as any).http
+  ) {
     return true;
   }
-  // Check for APIGatewayEvent structure
-  if ('httpMethod' in event && 'path' in event && 'requestContext' in event) {
+
+  // Check for classic APIGatewayProxyEvent v1 structure
+  if ('httpMethod' in event && 'path' in event) {
     return true;
   }
+
   return false;
 };
 
 /**
- * Check if event is HTTP event and get HTTP method
+ * Gets the HTTP method from a Lambda event object.
+ * Supports APIGatewayProxyEvent v1 and v2.
  */
 export const getHttpEventMethod = (event: LambdaHttpEvent): HttpMethodType | null => {
   if (!isHttpEvent(event)) {
     return null;
   }
-  
-  // Try APIGatewayProxyEvent structure first
-  if ('requestContext' in event && typeof event.requestContext === 'object' && event.requestContext !== null && 'httpMethod' in event.requestContext) {
-    return (event.requestContext as { httpMethod: string }).httpMethod as HttpMethodType;
+
+  // APIGatewayProxyEvent v2 (e.g., from Lambda URL)
+  if (
+    'requestContext' in event &&
+    typeof event.requestContext === 'object' &&
+    event.requestContext !== null &&
+    'http' in event.requestContext &&
+    typeof (event.requestContext as any).http === 'object' &&
+    (event.requestContext as any).http !== null &&
+    'method' in (event.requestContext as any).http &&
+    typeof (event.requestContext as any).http.method === 'string'
+  ) {
+    return (event.requestContext as any).http.method as HttpMethodType;
   }
-  
-  // Try APIGatewayEvent structure
+
+  // APIGatewayProxyEvent v1
   if ('httpMethod' in event && typeof event.httpMethod === 'string') {
     return event.httpMethod as HttpMethodType;
   }
-  
+
   return null;
 };

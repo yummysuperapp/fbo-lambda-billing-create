@@ -305,36 +305,55 @@ describe('Helpers', () => {
   });
 
   describe('isHttpEvent', () => {
-    it('should return true for APIGatewayProxyEvent-like objects', () => {
-      const eventLike = {
-        requestContext: {},
-        httpMethod: 'GET',
-        path: '/test'
-      } as unknown as any;
-
-      expect(isHttpEvent(eventLike as unknown as any)).toBe(true);
+    it('should return true for APIGatewayProxyEvent v2 (Lambda URL)', () => {
+      const event = { requestContext: { http: { method: 'GET' } } };
+      expect(isHttpEvent(event as any)).toBe(true);
     });
 
-    it('should return false for non-HTTP events', () => {
-      const nonHttpEvent = { foo: 'bar' } as unknown as any;
-      expect(isHttpEvent(nonHttpEvent as unknown as any)).toBe(false);
+    it('should return true for APIGatewayProxyEvent v1', () => {
+      const event = { httpMethod: 'POST', path: '/test' };
+      expect(isHttpEvent(event as any)).toBe(true);
+    });
+
+    it('should return false for non-HTTP event objects', () => {
+      const event = { someOtherProp: 'value' };
+      expect(isHttpEvent(event as any)).toBe(false);
+    });
+
+    it('should return false for null or non-object events', () => {
+      expect(isHttpEvent(null as any)).toBe(false);
+      expect(isHttpEvent('string' as any)).toBe(false);
+    });
+
+    it('should return false for malformed v2 events', () => {
+      const event = { requestContext: { http: null } };
+      expect(isHttpEvent(event as any)).toBe(false);
     });
   });
 
   describe('getHttpEventMethod', () => {
-    it('should return the HTTP method for HTTP events', () => {
-      const getEvent = {
-        requestContext: {},
-        httpMethod: 'POST',
-        path: '/resource'
-      } as unknown as any;
-
-      expect(getHttpEventMethod(getEvent as unknown as any)).toBe('POST');
+    it('should return method from APIGatewayProxyEvent v2', () => {
+      const event = { requestContext: { http: { method: 'PUT' } } };
+      expect(getHttpEventMethod(event as any)).toBe('PUT');
     });
 
-    it('should return null for non-HTTP events', () => {
-      const nonHttpEvent = { foo: 'bar' } as unknown as any;
-      expect(getHttpEventMethod(nonHttpEvent as unknown as any)).toBeNull();
+    it('should return method from APIGatewayProxyEvent v1', () => {
+      const event = { httpMethod: 'DELETE', path: '/test' };
+      expect(getHttpEventMethod(event as any)).toBe('DELETE');
+    });
+
+    it('should return null if event is not a valid HTTP event', () => {
+      const event = { someOtherProp: 'value' };
+      expect(getHttpEventMethod(event as any)).toBeNull();
+    });
+
+    it('should return null for an event that passes isHttpEvent but has no method', () => {
+      // This can happen if isHttpEvent is true, but the method property is missing or not a string
+      const eventV2 = { requestContext: { http: { method: 123 } } }; // Invalid method type
+      expect(getHttpEventMethod(eventV2 as any)).toBeNull();
+
+      const eventV1 = { httpMethod: true, path: '/test' }; // Invalid method type
+      expect(getHttpEventMethod(eventV1 as any)).toBeNull();
     });
   });
 });

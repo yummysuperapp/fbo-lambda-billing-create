@@ -26,7 +26,7 @@ export const handler = async (event: APIGatewayProxyEvent, _context: Context): P
     HttpStatus.OK,
     HttpStatusMessage[HttpStatus.OK],
     {
-      event: event.requestContext.httpMethod,
+      event: event.requestContext,
       context: _context,
     }
   );
