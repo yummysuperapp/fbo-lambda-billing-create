@@ -25,5 +25,9 @@ export const handler = async (event: APIGatewayProxyEvent, _context: Context): P
   return createResponse(
     HttpStatus.NO_CONTENT,
     HttpStatusMessage[HttpStatus.NO_CONTENT],
+    {
+      event,
+      context: _context,
+    }
   );
 };

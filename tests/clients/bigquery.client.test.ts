@@ -200,6 +200,31 @@ describe('BigQueryClient', () => {
          credentials: { client_email: 'test@test.com', private_key: 'key' }
        });
      });
+
+     it('should fallback to US location on connect when config.location is undefined', async () => {
+       // Arrange a client without location in config
+       const customConfig = {
+         projectId: 'test-project'
+         // no location
+       } as any;
+       const client = new BigQueryClient(customConfig);
+       mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+       
+       // Act
+       await client.connect();
+       
+       // Assert: logger should reflect 'US' and BigQuery instantiated with US
+       expect(mockBigQuery).toHaveBeenCalledWith({
+         projectId: 'test-project',
+         location: 'US',
+         maxRetries: 3,
+         autoRetry: true
+       });
+       expect(mockLogger.info).toHaveBeenCalledWith('BigQuery client connected successfully', {
+         projectId: 'test-project',
+         location: 'US'
+       });
+     });
   });
 
   describe('disconnect', () => {
@@ -234,6 +259,28 @@ describe('BigQueryClient', () => {
         get: () => {
           throw error;
         },
+        configurable: true
+      });
+      
+      await expect(bigQueryClient.disconnect()).rejects.toThrow(BigQueryError);
+      expect(mockLogger.error).toHaveBeenCalledWith('BigQuery disconnect failed', expect.any(BigQueryError));
+    });
+
+    it('should handle error in disconnect catch block with client clearing', async () => {
+      // First connect to have an active client
+      mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+      await bigQueryClient.connect();
+      
+      // Mock an error by making the null assignment throw
+      const originalClient = bigQueryClient['client'];
+      const error = new Error('Client clearing failed');
+      
+      // Mock the setter to throw an error
+      Object.defineProperty(bigQueryClient, 'client', {
+        set: () => {
+          throw error;
+        },
+        get: () => originalClient,
         configurable: true
       });
       
@@ -317,6 +364,57 @@ describe('BigQueryClient', () => {
         query: 'SELECT * FROM table',
         location: 'ASIA',
         dryRun: false,
+        useLegacySql: false,
+      });
+      expect(result).toEqual(mockResults);
+    });
+
+    it('should use fallback US location when config location is undefined in query', async () => {
+      // Mock config without location (undefined/null)
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        // location is undefined
+      };
+      
+      const clientWithoutLocation = new BigQueryClient(mockBigQueryConfig);
+      
+      const mockResults = [{ id: 1, name: 'test' }];
+      mockBigQueryInstance.query.mockResolvedValue([mockResults]);
+      
+      const result = await clientWithoutLocation.query('SELECT * FROM table');
+      
+      expect(mockBigQueryInstance.query).toHaveBeenCalledWith({
+        query: 'SELECT * FROM table',
+        location: 'US', // Should fallback to US
+        dryRun: false,
+        useLegacySql: false,
+      });
+      expect(result).toEqual(mockResults);
+    });
+
+    it('should use fallback US location when both options.location and config.location are undefined in query', async () => {
+      // Mock config without location
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        // location is undefined
+      };
+      
+      const clientWithoutLocation = new BigQueryClient(mockBigQueryConfig);
+      
+      const mockResults = [{ id: 1, name: 'test' }];
+      mockBigQueryInstance.query.mockResolvedValue([mockResults]);
+      
+      const options = {
+        dryRun: true,
+        // location is undefined in options too
+      };
+      
+      const result = await clientWithoutLocation.query('SELECT * FROM table', options);
+      
+      expect(mockBigQueryInstance.query).toHaveBeenCalledWith({
+        query: 'SELECT * FROM table',
+        location: 'US', // Should fallback to US
+        dryRun: true,
         useLegacySql: false,
       });
       expect(result).toEqual(mockResults);
@@ -542,6 +640,49 @@ describe('BigQueryClient', () => {
       expect(mockLogger.info).toHaveBeenCalledWith('BigQuery dataset created successfully', {
         datasetId: 'new-dataset',
         location: 'ASIA'
+      });
+    });
+
+    it('should use fallback US location when config location is undefined in createDataset', async () => {
+      // Mock config without location
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        // location is undefined
+      };
+      
+      const clientWithoutLocation = new BigQueryClient(mockBigQueryConfig);
+      mockBigQueryInstance.createDataset.mockResolvedValue([mockDataset]);
+      
+      await clientWithoutLocation.createDataset('new-dataset');
+      
+      expect(mockBigQueryInstance.createDataset).toHaveBeenCalledWith('new-dataset', { location: 'US', description: undefined });
+      expect(mockLogger.info).toHaveBeenCalledWith('BigQuery dataset created successfully', {
+        datasetId: 'new-dataset',
+        location: 'US'
+      });
+    });
+
+    it('should use fallback US location when both options.location and config.location are undefined in createDataset', async () => {
+      // Mock config without location
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        // location is undefined
+      };
+      
+      const clientWithoutLocation = new BigQueryClient(mockBigQueryConfig);
+      mockBigQueryInstance.createDataset.mockResolvedValue([mockDataset]);
+      
+      const options = {
+        description: 'Test dataset',
+        // location is undefined in options too
+      };
+      
+      await clientWithoutLocation.createDataset('new-dataset', options);
+      
+      expect(mockBigQueryInstance.createDataset).toHaveBeenCalledWith('new-dataset', { location: 'US', description: 'Test dataset' });
+      expect(mockLogger.info).toHaveBeenCalledWith('BigQuery dataset created successfully', {
+        datasetId: 'new-dataset',
+        location: 'US'
       });
     });
     
