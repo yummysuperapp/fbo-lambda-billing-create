@@ -67,7 +67,7 @@ export interface HttpEvent {
     domainName: string;
     domainPrefix?: string;
     http: {
-      method: string; // e.g., "GET"
+      method: HttpMethod;
       path: string; // e.g., "/develop/billing"
       protocol: string; // e.g., "HTTP/1.1"
       sourceIp: string;
