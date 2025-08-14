@@ -1,19 +1,8 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from 'aws-lambda';
-import { isHttpEvent, getHttpEventMethod, createResponse } from '@/utils';
+import { getHttpEventMethod, createResponse } from '@/utils';
 import { HttpStatus, HttpStatusMessage, HttpMethod } from '@/constants';
 
 export const handler = async (event: APIGatewayProxyEvent, _context: Context): Promise<APIGatewayProxyResult> => {
-  if (!isHttpEvent(event)) {
-    return createResponse(
-      HttpStatus.OK,
-      HttpStatusMessage[HttpStatus.OK],
-      {
-        message: HttpStatusMessage[HttpStatus.OK],
-        event,
-      }
-    );
-  }
-
   const method = getHttpEventMethod(event);
   if (method === HttpMethod.GET) {
      return createResponse(
