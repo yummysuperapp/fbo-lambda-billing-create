@@ -1,7 +1,7 @@
-import { APIGatewayProxyResult, APIGatewayProxyEvent, APIGatewayEvent } from 'aws-lambda';
-import { HttpStatusType, HttpMethodType, HttpStatusMessageType } from '@/types';
+import { APIGatewayProxyEventV2, APIGatewayProxyResult } from 'aws-lambda';
+import { HttpMethodType, HttpStatusMessageType, HttpStatusType } from '@/types';
 
-type LambdaHttpEvent = APIGatewayProxyEvent | APIGatewayEvent | Record<string, unknown>;
+type LambdaHttpEvent = APIGatewayProxyEventV2 | Record<string, unknown>;
 
 /**
  * Creates a standardized Lambda response
@@ -13,17 +13,17 @@ export const createResponse = (
   headers?: Record<string, string>,
   isBase64Encoded = false,
 ): APIGatewayProxyResult => ({
-    statusCode,
-    isBase64Encoded,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Powered-By': 'Yummy-FBO-Lambda',
-      ...(headers || {}),
-    },
-    body: JSON.stringify({
-      message: httpStatusMessage,
-      ...(body || {})
-    }),
+  statusCode,
+  isBase64Encoded,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Powered-By': 'Yummy-FBO-Lambda',
+    ...(headers || {}),
+  },
+  body: JSON.stringify({
+    message: httpStatusMessage,
+    ...(body || {}),
+  }),
 });
 
 /**
@@ -51,7 +51,7 @@ export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
   maxRetries: number = 3,
   baseDelay: number = 1000,
-  maxDelay: number = 10000
+  maxDelay: number = 10000,
 ): Promise<T> {
   let lastError: Error | undefined;
 
@@ -60,7 +60,7 @@ export async function retryWithBackoff<T>(
       return await operation();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       if (attempt === maxRetries) {
         throw lastError;
       }
@@ -77,7 +77,10 @@ export async function retryWithBackoff<T>(
 /**
  * Validates that a value is not null or undefined
  */
-export function assertExists<T>(value: T | null | undefined, message: string): asserts value is T {
+export function assertExists<T>(
+  value: T | null | undefined,
+  message: string,
+): asserts value is T {
   if (value === null || value === undefined) {
     throw new Error(message);
   }
@@ -125,7 +128,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -145,7 +148,7 @@ export function isValidUrl(string: string): boolean {
  */
 export function truncateString(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
-  return `${str.slice(0, maxLength - 3)  }...`;
+  return `${str.slice(0, maxLength - 3)}...`;
 }
 
 /**
@@ -155,62 +158,29 @@ export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Type guard to check if event is APIGatewayProxyEvent
- */
-export const isHttpEvent = (event: LambdaHttpEvent): boolean => {
-  if (typeof event !== 'object' || event === null) {
-    return false;
-  }
-
-  // Check for APIGatewayProxyEvent v2 structure (e.g., from Lambda URL)
-  if (
-    'requestContext' in event &&
-    typeof event.requestContext === 'object' &&
-    event.requestContext !== null &&
-    'http' in event.requestContext &&
-    typeof (event.requestContext as any).http === 'object' &&
-    (event.requestContext as any).http !== null &&
-    'method' in (event.requestContext as any).http
-  ) {
-    return true;
-  }
-
-  // Check for classic APIGatewayProxyEvent v1 structure
-  if ('httpMethod' in event && 'path' in event) {
-    return true;
-  }
-
-  return false;
-};
+export const isHttpEvent = (event: LambdaHttpEvent): event is APIGatewayProxyEventV2 =>
+  event !== null &&
+  typeof event === 'object' &&
+  'requestContext' in event &&
+  typeof event.requestContext === 'object' &&
+  event.requestContext !== null &&
+  'http' in event.requestContext &&
+  typeof (event.requestContext as { http?: unknown }).http === 'object' &&
+  (event.requestContext as { http?: { method?: unknown } }).http !== null &&
+  'method' in (event.requestContext as { http: { method?: unknown } }).http &&
+  typeof (event.requestContext as { http: { method?: unknown } }).http.method ===
+    'string';
 
 /**
  * Gets the HTTP method from a Lambda event object.
- * Supports APIGatewayProxyEvent v1 and v2.
+ * Supports APIGatewayProxyEvent v2.
  */
-export const getHttpEventMethod = (event: LambdaHttpEvent): HttpMethodType | null => {
+export const getHttpEventMethod = (
+  event: LambdaHttpEvent,
+): HttpMethodType | null => {
   if (!isHttpEvent(event)) {
     return null;
   }
 
-  // APIGatewayProxyEvent v2 (e.g., from Lambda URL)
-  if (
-    'requestContext' in event &&
-    typeof event.requestContext === 'object' &&
-    event.requestContext !== null &&
-    'http' in event.requestContext &&
-    typeof (event.requestContext as any).http === 'object' &&
-    (event.requestContext as any).http !== null &&
-    'method' in (event.requestContext as any).http &&
-    typeof (event.requestContext as any).http.method === 'string'
-  ) {
-    return (event.requestContext as any).http.method as HttpMethodType;
-  }
-
-  // APIGatewayProxyEvent v1
-  if ('httpMethod' in event && typeof event.httpMethod === 'string') {
-    return event.httpMethod as HttpMethodType;
-  }
-
-  return null;
+  return event.requestContext.http.method as HttpMethodType;
 };

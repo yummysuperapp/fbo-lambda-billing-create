@@ -14,7 +14,7 @@ import {
   generateId,
   isHttpEvent,
   getHttpEventMethod
-} from '@/utils';
+} from '@/utils/helpers.util';
 
 describe('Helpers', () => {
   describe('createResponse', () => {
@@ -310,11 +310,6 @@ describe('Helpers', () => {
       expect(isHttpEvent(event as any)).toBe(true);
     });
 
-    it('should return true for APIGatewayProxyEvent v1', () => {
-      const event = { httpMethod: 'POST', path: '/test' };
-      expect(isHttpEvent(event as any)).toBe(true);
-    });
-
     it('should return false for non-HTTP event objects', () => {
       const event = { someOtherProp: 'value' };
       expect(isHttpEvent(event as any)).toBe(false);
@@ -337,11 +332,6 @@ describe('Helpers', () => {
       expect(getHttpEventMethod(event as any)).toBe('PUT');
     });
 
-    it('should return method from APIGatewayProxyEvent v1', () => {
-      const event = { httpMethod: 'DELETE', path: '/test' };
-      expect(getHttpEventMethod(event as any)).toBe('DELETE');
-    });
-
     it('should return null if event is not a valid HTTP event', () => {
       const event = { someOtherProp: 'value' };
       expect(getHttpEventMethod(event as any)).toBeNull();
@@ -351,9 +341,6 @@ describe('Helpers', () => {
       // This can happen if isHttpEvent is true, but the method property is missing or not a string
       const eventV2 = { requestContext: { http: { method: 123 } } }; // Invalid method type
       expect(getHttpEventMethod(eventV2 as any)).toBeNull();
-
-      const eventV1 = { httpMethod: true, path: '/test' }; // Invalid method type
-      expect(getHttpEventMethod(eventV1 as any)).toBeNull();
     });
   });
 });
