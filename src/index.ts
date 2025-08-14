@@ -23,10 +23,10 @@ export const handler = async (event: APIGatewayProxyEvent, _context: Context): P
   }
 
   return createResponse(
-    HttpStatus.NO_CONTENT,
-    HttpStatusMessage[HttpStatus.NO_CONTENT],
+    HttpStatus.OK,
+    HttpStatusMessage[HttpStatus.OK],
     {
-      event,
+      event: event.requestContext.httpMethod,
       context: _context,
     }
   );

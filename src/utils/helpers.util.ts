@@ -1,5 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { LambdaEvent, HttpStatusType, HttpMethodType, HttpStatusMessageType } from '@/types';
+import { APIGatewayProxyResult, APIGatewayProxyEvent, APIGatewayEvent } from 'aws-lambda';
+import { HttpStatusType, HttpMethodType, HttpStatusMessageType } from '@/types';
+
+type LambdaHttpEvent = APIGatewayProxyEvent | APIGatewayEvent | Record<string, unknown>;
 
 /**
  * Creates a standardized Lambda response
@@ -156,16 +158,35 @@ export function generateId(): string {
 /**
  * Type guard to check if event is APIGatewayProxyEvent
  */
-export const isHttpEvent = (event: LambdaEvent): event is APIGatewayProxyEvent => {
-  return 'requestContext' in event && 'httpMethod' in event && 'path' in event;
+export const isHttpEvent = (event: LambdaHttpEvent): boolean => {
+  // Check for APIGatewayProxyEvent structure
+  if ('requestContext' in event && 'headers' in event && 'rawQueryString' in event) {
+    return true;
+  }
+  // Check for APIGatewayEvent structure
+  if ('httpMethod' in event && 'path' in event && 'requestContext' in event) {
+    return true;
+  }
+  return false;
 };
 
 /**
- * Check if event is APIGatewayProxyEvent and get HTTP method
+ * Check if event is HTTP event and get HTTP method
  */
-export const getHttpEventMethod = (event: LambdaEvent): HttpMethodType | null => {
-  if (isHttpEvent(event)) {
+export const getHttpEventMethod = (event: LambdaHttpEvent): HttpMethodType | null => {
+  if (!isHttpEvent(event)) {
+    return null;
+  }
+  
+  // Try APIGatewayProxyEvent structure first
+  if ('requestContext' in event && typeof event.requestContext === 'object' && event.requestContext !== null && 'httpMethod' in event.requestContext) {
+    return (event.requestContext as { httpMethod: string }).httpMethod as HttpMethodType;
+  }
+  
+  // Try APIGatewayEvent structure
+  if ('httpMethod' in event && typeof event.httpMethod === 'string') {
     return event.httpMethod as HttpMethodType;
   }
+  
   return null;
 };
