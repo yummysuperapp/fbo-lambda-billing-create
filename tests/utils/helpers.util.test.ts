@@ -157,10 +157,6 @@ describe('Helpers', () => {
     });
 
     it('should throw fallback error when lastError is undefined', async () => {
-      // We need to manipulate the function to bypass the normal flow
-      // and reach the fallback error line. This requires mocking the internal state.
-      //const originalRetryWithBackoff = (await import('../../src/utils/helpers.util')).retryWithBackoff;
-      
       // Create a spy that will force the fallback condition
       const mockOperation = vi.fn().mockRejectedValue(undefined);
       
