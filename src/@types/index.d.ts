@@ -23,5 +23,8 @@ export * from './events';
 // Response type definitions
 export * from './responses';
 
+// Http response and methods
+export * from './http';
+
 // Global types are automatically available via global.d.ts
 // No need to re-export them here

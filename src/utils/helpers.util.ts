@@ -1,4 +1,4 @@
-import type { LambdaResponse, ApiResponse, ErrorResponse } from '@/types';
+import type { LambdaResponse, ApiResponse, ErrorResponse, LambdaEvent, HttpEvent, HttpMethod } from '@/types';
 
 /**
  * Creates a standardized Lambda response
@@ -185,3 +185,20 @@ export function truncateString(str: string, maxLength: number): string {
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
+
+/**
+ * Type guard to check if event is HttpEvent
+ */
+export const isHttpEvent = (event: LambdaEvent): event is HttpEvent => {
+  return 'requestContext' in event && 'http' in (event as HttpEvent).requestContext;
+};
+
+/**
+ * Check if event is HttpEvent and get HTTP method
+ */
+export const getHttpEventMethod = (event: LambdaEvent): HttpMethod | null => {
+  if (isHttpEvent(event)) {
+    return event.requestContext.http.method;
+  }
+  return null;
+};
