@@ -24,4 +24,5 @@
 // Example: export * from './finance.handler';
 // Example: export * from './file-processing.handler';
 
-export * from './get-billing.handler';
+export * from './get-bill.handler';
+export * from './create-bill.handler';

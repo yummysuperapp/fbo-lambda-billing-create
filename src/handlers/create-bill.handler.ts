@@ -3,7 +3,7 @@ import { HttpStatus, HttpStatusMessage } from '@/constants';
 import { createResponse, safeJsonParse } from '@/utils';
 import { Bill } from '@/types';
 
-export function GetBillingHandler(payload: string | undefined): Promise<APIGatewayProxyResult> {
+export function CreateBillHandler(payload: string | undefined): Promise<APIGatewayProxyResult> {
 	if (!payload)
 		return Promise.resolve(createResponse(HttpStatus.BAD_REQUEST, HttpStatusMessage[HttpStatus.BAD_REQUEST]));
 
