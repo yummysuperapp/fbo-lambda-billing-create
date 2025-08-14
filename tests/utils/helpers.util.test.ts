@@ -1,9 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import * as helpers from '@/utils';
 import {
   createResponse,
-  createSuccessResponse,
-  createErrorResponse,
   safeJsonParse,
   delay,
   retryWithBackoff,
@@ -14,110 +11,51 @@ import {
   formatBytes,
   isValidUrl,
   truncateString,
-  generateId
+  generateId,
+  isHttpEvent,
+  getHttpEventMethod
 } from '@/utils';
 
 describe('Helpers', () => {
   describe('createResponse', () => {
-    it('should create a response with default headers', () => {
-      const response = createResponse(200, { success: true, data: 'test' });
+    it('should create a response with default headers and message only', () => {
+      const response = createResponse(200, 'OK');
       
       expect(response.statusCode).toBe(200);
-      expect(response.body).toBe('{"success":true,"data":"test"}');
+      expect(response.body).toBe('{"message":"OK"}');
       expect(response.headers).toEqual({
         'Content-Type': 'application/json',
         'X-Powered-By': 'Yummy-FBO-Lambda'
       });
     });
 
-    it('should create a response with custom headers', () => {
-      const customHeaders = { 'Custom-Header': 'value' };
-      const response = createResponse(201, { success: true }, customHeaders);
+    it('should create a response with message and merged body fields', () => {
+      const body = { success: true, data: 'test' } as const;
+      const response = createResponse(201, 'Created', body);
       
+      expect(response.statusCode).toBe(201);
+      expect(JSON.parse(response.body)).toEqual({ message: 'Created', ...body });
+      expect(response.headers).toEqual({
+        'Content-Type': 'application/json',
+        'X-Powered-By': 'Yummy-FBO-Lambda'
+      });
+    });
+
+    it('should create a response with custom headers and base64 flag', () => {
+      const customHeaders = { 'Custom-Header': 'value' } as const;
+      const response = createResponse(202, 'Accepted', { queued: true }, customHeaders, true);
+      
+      expect(response.isBase64Encoded).toBe(true);
       expect(response.headers).toEqual({
         'Content-Type': 'application/json',
         'X-Powered-By': 'Yummy-FBO-Lambda',
         'Custom-Header': 'value'
       });
+      expect(JSON.parse(response.body)).toEqual({ message: 'Accepted', queued: true });
     });
   });
 
-  describe('createSuccessResponse', () => {
-    it('should create a success response with default status code', () => {
-      const response = createSuccessResponse('test data');
-      
-      expect(response.statusCode).toBe(200);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(true);
-      expect(body.data).toBe('test data');
-    });
-
-    it('should create a success response with custom status code and message', () => {
-      const response = createSuccessResponse('test data', 'Custom message', 201);
-      
-      expect(response.statusCode).toBe(201);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(true);
-      expect(body.data).toBe('test data');
-      expect(body.message).toBe('Custom message');
-    });
-  });
-
-  describe('createErrorResponse', () => {
-    it('should create an error response with default status code', () => {
-      const response = createErrorResponse('Test error');
-      
-      expect(response.statusCode).toBe(500);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toBe('Test error');
-      expect(body.error.code).toBe('INTERNAL_ERROR');
-    });
-
-    it('should create an error response with code and details', () => {
-      const response = createErrorResponse('Test error', 400, 'VALIDATION_ERROR', { field: 'email' });
-      
-      expect(response.statusCode).toBe(400);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toBe('Test error');
-      expect(body.error.code).toBe('VALIDATION_ERROR');
-      expect(body.error.details).toEqual({ field: 'email' });
-    });
-
-    it('should create an error response without details when details is undefined', () => {
-      const response = createErrorResponse('Test error', 400, 'VALIDATION_ERROR', undefined);
-      
-      expect(response.statusCode).toBe(400);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toBe('Test error');
-      expect(body.error.code).toBe('VALIDATION_ERROR');
-      expect(body.error.details).toBeUndefined();
-    });
-
-    it('should create an error response with null details', () => {
-      const response = createErrorResponse('Test error', 400, 'VALIDATION_ERROR', null);
-      
-      expect(response.statusCode).toBe(400);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toBe('Test error');
-      expect(body.error.code).toBe('VALIDATION_ERROR');
-      expect(body.error.details).toEqual(null);
-    });
-
-    it('should create an error response with empty object details', () => {
-      const response = createErrorResponse('Test error', 400, 'VALIDATION_ERROR', {});
-      
-      expect(response.statusCode).toBe(400);
-      const body = JSON.parse(response.body);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toBe('Test error');
-      expect(body.error.code).toBe('VALIDATION_ERROR');
-      expect(body.error.details).toEqual({});
-    });
-  });
+  // Removed tests for createSuccessResponse and createErrorResponse as those helpers no longer exist in the implementation
 
   describe('safeJsonParse', () => {
     it('should parse valid JSON', () => {
@@ -360,6 +298,40 @@ describe('Helpers', () => {
     it('should generate IDs with expected format', () => {
       const id = generateId();
       expect(id).toMatch(/^\d+-[a-z0-9]+$/);
+    });
+  });
+
+  describe('isHttpEvent', () => {
+    it('should return true for APIGatewayProxyEvent-like objects', () => {
+      const eventLike = {
+        requestContext: {},
+        httpMethod: 'GET',
+        path: '/test'
+      } as unknown as any;
+
+      expect(isHttpEvent(eventLike as unknown as any)).toBe(true);
+    });
+
+    it('should return false for non-HTTP events', () => {
+      const nonHttpEvent = { foo: 'bar' } as unknown as any;
+      expect(isHttpEvent(nonHttpEvent as unknown as any)).toBe(false);
+    });
+  });
+
+  describe('getHttpEventMethod', () => {
+    it('should return the HTTP method for HTTP events', () => {
+      const getEvent = {
+        requestContext: {},
+        httpMethod: 'POST',
+        path: '/resource'
+      } as unknown as any;
+
+      expect(getHttpEventMethod(getEvent as unknown as any)).toBe('POST');
+    });
+
+    it('should return null for non-HTTP events', () => {
+      const nonHttpEvent = { foo: 'bar' } as unknown as any;
+      expect(getHttpEventMethod(nonHttpEvent as unknown as any)).toBeNull();
     });
   });
 });

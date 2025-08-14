@@ -28,12 +28,13 @@ export default defineConfig({
         'build/**',
         'src/@types/**',
         'src/interfaces/**',
+        'src/constants/**',
         'src/**/index.ts',
         'src/**/*.config.ts',
         '**/*.d.ts',
         'vitest.config.ts',
         'eslint.config.js',
-        'index.mjs'
+        'index.js'
       ],
       thresholds: {
         global: {
