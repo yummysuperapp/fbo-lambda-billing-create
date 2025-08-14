@@ -14,7 +14,7 @@ declare global {
    */
   namespace FBOLambda {
     // Application-wide constants
-    type Environment = 'development' | 'staging' | 'production' | 'test';
+    type Environment = 'development' | 'production' | 'testing';
     type LogLevel = 'debug' | 'info' | 'warn' | 'error';
     
     // Common utility types

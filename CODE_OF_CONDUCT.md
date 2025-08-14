@@ -1,4 +1,4 @@
-# Código de Conducta del Proyecto
+# Código de Conducta
 
 ## Nuestro Compromiso
 

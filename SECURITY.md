@@ -1,4 +1,4 @@
-# Política de Seguridad - FBO Lambda Template
+# Política de Seguridad
 
 ## 🔒 Versiones Soportadas
 

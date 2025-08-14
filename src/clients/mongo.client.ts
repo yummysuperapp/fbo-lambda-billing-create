@@ -37,7 +37,7 @@ export class MongoDbClient implements MongoClientInterface {
         minPoolSize: this.config.minPoolSize ?? 1,
         maxIdleTimeMS: this.config.maxIdleTimeMS ?? 30000,
         serverSelectionTimeoutMS: this.config.serverSelectionTimeoutMS ?? 30000,
-      };
+      } as MongoClientOptions;
       
       this.client = new MongoClient(this.config.uri, options);
 

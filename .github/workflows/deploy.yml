@@ -1,20 +1,19 @@
 name: Build & Deploy
 
 on:
-  # 🔄 Trigger after successful testing
+  # 🔄 Trigger only after successful testing workflow completes
   workflow_run:
     workflows: ["Testing Report"]
     types:
       - completed
-  push:
     branches:
-      - develop
       - master
+      - develop
       - testing
 
 # 🚫 Prevent concurrent runs
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 permissions:
@@ -24,7 +23,8 @@ jobs:
   deploy:
     name: 🚀 Deploy to Lambda
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/develop' && 'Dev' || github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'master' || github.event.workflow_run.head_branch == 'testing') && (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'release') }}
+    environment: ${{ github.event.workflow_run.head_branch == 'develop' && 'Dev' || github.event.workflow_run.head_branch == 'master' && 'Prod' || github.event.workflow_run.head_branch == 'testing' && 'Test' || 'Dev' }}
     timeout-minutes: 30
     defaults:
       run:
@@ -34,9 +34,9 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-      NODE_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || github.ref == 'refs/heads/testing' && 'testing' || 'development' }}
-      LOG_LEVEL: ${{ github.ref == 'refs/heads/master' && 'warn' || 'debug' }}
-      ENVIRONMENT: ${{ github.ref == 'refs/heads/master' && 'Prod' || github.ref == 'refs/heads/testing' && 'Test' || 'Dev' }}
+      NODE_ENV: ${{ github.event.workflow_run.head_branch == 'master' && 'production' || github.event.workflow_run.head_branch == 'testing' && 'testing' || 'development' }}
+      LOG_LEVEL: ${{ github.event.workflow_run.head_branch == 'master' && 'warn' || 'debug' }}
+      ENVIRONMENT: ${{ github.event.workflow_run.head_branch == 'master' && 'Prod' || github.event.workflow_run.head_branch == 'testing' && 'Test' || 'Dev' }}
       AWS_APP_NAME: ${{ secrets.AWS_APP_NAME }}
       BIGQUERY_PROJECT_ID: ${{ secrets.BIGQUERY_PROJECT_ID }}
       BIGQUERY_PRIVATE_KEY: ${{ secrets.BIGQUERY_PRIVATE_KEY }}
@@ -46,6 +46,8 @@ jobs:
     steps:
     - name: 📥 Checkout Source Code
       uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
 
     - name: 🟢 Initialize Node.js Environment
       uses: actions/setup-node@v4
@@ -53,11 +55,17 @@ jobs:
         node-version: 22.x
         cache: npm
 
-    - name: 📦 Install Dependencies
-      run: npm ci --silent
+    - name: 🔧 Install Global Tools
+      run: npm i -g rimraf --yes
+
+    - name: 📦 Install Project Dependencies
+      run: npm ci --include=dev
 
     - name: 🏗️ Build Project
       run: npm run build
+
+    - name: 🧹 Prune dev dependencies for packaging
+      run: npm prune --omit=dev
 
     - name: 🔐 Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -201,11 +209,11 @@ jobs:
         mkdir -p "/tmp"
         
         # Create zip package
-        zip -r "/tmp/${{ github.sha }}.zip" .
+        zip -r "/tmp/${{ github.event.workflow_run.head_sha }}.zip" .
         cd ..
         
         # Verify zip was created
-        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+        if [ ! -f "/tmp/${{ github.event.workflow_run.head_sha }}.zip" ]; then
           echo "❌ Error: Failed to create ZIP package"
           exit 1
         fi
@@ -218,21 +226,21 @@ jobs:
     - name: 📊 Validate package size
       id: package-and-validate
       run: |
-        if [ ! -f "/tmp/${{ github.sha }}.zip" ]; then
+        if [ ! -f "/tmp/${{ github.event.workflow_run.head_sha }}.zip" ]; then
           echo "Error: Package file not found"
           exit 1
         fi
         # Get file size using multiple methods for compatibility
-        if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
-          size_bytes=$(stat -c%s "/tmp/${{ github.sha }}.zip")
+        if command -v stat >/dev/null 2>&1 && stat -c%s "/tmp/${{ github.event.workflow_run.head_sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(stat -c%s "/tmp/${{ github.event.workflow_run.head_sha }}.zip")
         elif command -v wc >/dev/null 2>&1; then
-          size_bytes=$(wc -c < "/tmp/${{ github.sha }}.zip")
-        elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
-          size_bytes=$(du -b "/tmp/${{ github.sha }}.zip" | cut -f1)
+          size_bytes=$(wc -c < "/tmp/${{ github.event.workflow_run.head_sha }}.zip")
+        elif command -v du >/dev/null 2>&1 && du -b "/tmp/${{ github.event.workflow_run.head_sha }}.zip" >/dev/null 2>&1; then
+          size_bytes=$(du -b "/tmp/${{ github.event.workflow_run.head_sha }}.zip" | cut -f1)
         else
           # Fallback using ls -l with better error handling
-          if ls -l "/tmp/${{ github.sha }}.zip" >/dev/null 2>&1; then
-            size_bytes=$(ls -l "/tmp/${{ github.sha }}.zip" | awk '{print $5}')
+          if ls -l "/tmp/${{ github.event.workflow_run.head_sha }}.zip" >/dev/null 2>&1; then
+            size_bytes=$(ls -l "/tmp/${{ github.event.workflow_run.head_sha }}.zip" | awk '{print $5}')
           else
             echo "❌ Error: Cannot access package file for size calculation"
             exit 1
@@ -256,8 +264,8 @@ jobs:
     - name: 📤 Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: lambda-package-${{ github.sha }}
-        path: /tmp/${{ github.sha }}.zip
+        name: lambda-package-${{ github.event.workflow_run.head_sha }}
+        path: /tmp/${{ github.event.workflow_run.head_sha }}.zip
         retention-days: 7
 
     - name: 🚀 Deploy to AWS Lambda
@@ -274,7 +282,7 @@ jobs:
         # Deploy the code
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb:///tmp/${{ github.sha }}.zip \
+          --zip-file fileb:///tmp/${{ github.event.workflow_run.head_sha }}.zip \
           --no-cli-pager
         
         echo "✅ Code deployment completed"
@@ -314,14 +322,14 @@ jobs:
         echo "🧹 Cleaning up temporary files..."
         
         # Remove ZIP file if exists
-        if [ -f "/tmp/${{ github.sha }}.zip" ]; then
-          rm -f "/tmp/${{ github.sha }}.zip"
+        if [ -f "/tmp/${{ github.event.workflow_run.head_sha }}.zip" ]; then
+          rm -f "/tmp/${{ github.event.workflow_run.head_sha }}.zip"
           echo "✅ Removed ZIP file"
         fi
         
         # Remove package directory if exists
-        if [ -d "/tmp/lambda-package-${{ github.sha }}" ]; then
-          rm -rf "/tmp/lambda-package-${{ github.sha }}"
+        if [ -d "/tmp/lambda-package-${{ github.event.workflow_run.head_sha }}" ]; then
+          rm -rf "/tmp/lambda-package-${{ github.event.workflow_run.head_sha }}"
           echo "✅ Removed package directory"
         fi
         
@@ -335,8 +343,8 @@ jobs:
         echo "  • Function: ${{ env.LAMBDA_FUNCTION_NAME }}"
         echo "  • Region: ${{ env.AWS_REGION }}"
         echo "  • Environment: ${{ env.ENVIRONMENT }}"
-        echo "  • Commit: ${{ github.sha }}"
-        echo "  • Triggered by: ${{ github.event_name }}"
+        echo "  • Commit: ${{ github.event.workflow_run.head_sha }}"
+        echo "  • Triggered by: ${{ github.event.workflow_run.event }}"
         
         # Get function info
         echo "📊 Function details:"

@@ -4,7 +4,7 @@ import axios, {
   AxiosResponse,
   AxiosError 
 } from 'axios';
-import https from 'https';
+import { Agent } from 'https';
 import { createLogger, retryWithBackoff } from '@/utils';
 import type { HttpClientInterface, HttpRequestConfig, Logger } from '@/types';
 
@@ -34,7 +34,7 @@ export class HttpClient implements HttpClientInterface {
     this.retryDelay = config.retryDelay ?? 1000;
 
     // Create HTTPS agent for connection pooling and SSL optimization
-    const httpsAgent = new https.Agent({
+    const httpsAgent = new Agent({
       keepAlive: true,
       maxSockets: 50,
       maxFreeSockets: 10,
