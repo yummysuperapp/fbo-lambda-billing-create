@@ -279,6 +279,64 @@ describe('BigQueryClient', () => {
       expect(result).toEqual(mockResults);
     });
     
+    it('should use custom location from options in query', async () => {
+      const mockResults = [{ id: 1, name: 'test' }];
+      mockBigQueryInstance.query.mockResolvedValue([mockResults]);
+      
+      const options = {
+        location: 'EU',
+        dryRun: false,
+      };
+      
+      const result = await bigQueryClient.query('SELECT * FROM table', options);
+      
+      expect(mockBigQueryInstance.query).toHaveBeenCalledWith({
+        query: 'SELECT * FROM table',
+        location: 'EU',
+        dryRun: false,
+        useLegacySql: false,
+      });
+      expect(result).toEqual(mockResults);
+    });
+    
+    it('should use config location when no location in options', async () => {
+      // Mock config to have a specific location
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        location: 'ASIA',
+      };
+      
+      const clientWithConfig = new BigQueryClient(mockBigQueryConfig);
+      
+      const mockResults = [{ id: 1, name: 'test' }];
+      mockBigQueryInstance.query.mockResolvedValue([mockResults]);
+      
+      const result = await clientWithConfig.query('SELECT * FROM table');
+      
+      expect(mockBigQueryInstance.query).toHaveBeenCalledWith({
+        query: 'SELECT * FROM table',
+        location: 'ASIA',
+        dryRun: false,
+        useLegacySql: false,
+      });
+      expect(result).toEqual(mockResults);
+    });
+    
+    it('should call ensureConnection when client is not connected', async () => {
+      // Create a new client that is not connected
+      const newClient = new BigQueryClient();
+      
+      const mockResults = [{ id: 1, name: 'test' }];
+      mockBigQueryInstance.query.mockResolvedValue([mockResults]);
+      mockBigQueryInstance.getDatasets.mockResolvedValue([[]]);
+      
+      const result = await newClient.query('SELECT * FROM table');
+      
+      // Should have called connect (which calls getDatasets)
+      expect(mockBigQueryInstance.getDatasets).toHaveBeenCalled();
+      expect(result).toEqual(mockResults);
+    });
+    
     it('should throw BigQueryError when query fails', async () => {
       const error = new Error('Query failed');
       mockBigQueryInstance.query.mockRejectedValue(error);
@@ -453,6 +511,38 @@ describe('BigQueryClient', () => {
       await bigQueryClient.createDataset('new-dataset', options);
       
       expect(mockBigQueryInstance.createDataset).toHaveBeenCalledWith('new-dataset', { location: 'US', description: 'Test dataset' });
+    });
+    
+    it('should use custom location from options in createDataset', async () => {
+      const options = { location: 'EU', description: 'Test dataset' };
+      mockBigQueryInstance.createDataset.mockResolvedValue([mockDataset]);
+      
+      await bigQueryClient.createDataset('new-dataset', options);
+      
+      expect(mockBigQueryInstance.createDataset).toHaveBeenCalledWith('new-dataset', { location: 'EU', description: 'Test dataset' });
+      expect(mockLogger.info).toHaveBeenCalledWith('BigQuery dataset created successfully', {
+        datasetId: 'new-dataset',
+        location: 'EU'
+      });
+    });
+    
+    it('should use config location when no location in options for createDataset', async () => {
+      // Mock config to have a specific location
+      const mockBigQueryConfig = {
+        projectId: 'test-project',
+        location: 'ASIA',
+      };
+      
+      const clientWithConfig = new BigQueryClient(mockBigQueryConfig);
+      mockBigQueryInstance.createDataset.mockResolvedValue([mockDataset]);
+      
+      await clientWithConfig.createDataset('new-dataset');
+      
+      expect(mockBigQueryInstance.createDataset).toHaveBeenCalledWith('new-dataset', { location: 'ASIA', description: undefined });
+      expect(mockLogger.info).toHaveBeenCalledWith('BigQuery dataset created successfully', {
+        datasetId: 'new-dataset',
+        location: 'ASIA'
+      });
     });
     
     it('should throw BigQueryError when dataset creation fails', async () => {

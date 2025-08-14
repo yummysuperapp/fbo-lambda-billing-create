@@ -156,10 +156,17 @@ describe('Helpers', () => {
       expect(mockOperation).toHaveBeenCalledTimes(1);
     });
 
-    // Note: Line 105 in helpers.util.ts contains the unreachable fallback error:
-    // throw lastError || new Error('Unexpected error in retryWithBackoff');
-    // This line is a TypeScript exhaustiveness check that should never execute
-    // in normal conditions. It's designed to be unreachable by the current logic.
+    it('should throw fallback error when lastError is undefined', async () => {
+      // We need to manipulate the function to bypass the normal flow
+      // and reach the fallback error line. This requires mocking the internal state.
+      //const originalRetryWithBackoff = (await import('../../src/utils/helpers.util')).retryWithBackoff;
+      
+      // Create a spy that will force the fallback condition
+      const mockOperation = vi.fn().mockRejectedValue(undefined);
+      
+      // Test with negative maxRetries to potentially skip the loop
+      await expect(retryWithBackoff(mockOperation, -1, 100)).rejects.toThrow('Unexpected error in retryWithBackoff');
+    });
   });
 
   describe('assertExists', () => {
