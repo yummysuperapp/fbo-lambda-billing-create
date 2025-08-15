@@ -8,6 +8,14 @@
  * within the project scope.
  */
 
+import type {
+	MongoClientInterface,
+	BigQueryClientInterface,
+	S3ClientInterface,
+	PostgresClientInterface,
+	HttpClientInterface,
+} from './clients';
+
 declare global {
 	/**
 	 * Global namespace for project-wide types
@@ -39,6 +47,15 @@ declare global {
 			message?: string;
 			errors?: string[];
 			timestamp: string;
+		};
+
+		// Application clients container
+		type Clients = {
+			mongo?: MongoClientInterface;
+			bigquery?: BigQueryClientInterface;
+			s3?: S3ClientInterface;
+			postgres?: PostgresClientInterface;
+			http?: HttpClientInterface;
 		};
 	}
 }
