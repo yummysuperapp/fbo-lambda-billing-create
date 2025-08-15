@@ -32,7 +32,11 @@ const EnvSchema = z.object({
 	X_API_KEY: z.string().min(1, 'X_API_KEY is required').default('apikey'),
 
 	// Finance API Configuration
-	FINANCE_BASE_URL: z.string().url('FINANCE_BASE_URL must be a valid URL').default('https://api.finance.yummysuperapp.com').optional(),
+	FINANCE_BASE_URL: z
+		.string()
+		.url('FINANCE_BASE_URL must be a valid URL')
+		.default('https://api.finance.yummysuperapp.com')
+		.optional(),
 	FINANCE_API_KEY: z.string().min(1, 'FINANCE_API_KEY is required').default('123456').optional(),
 	FINANCE_DISPERSION_ENDPOINT: z.string().default('/api/v1/dispersion/receive').optional(),
 

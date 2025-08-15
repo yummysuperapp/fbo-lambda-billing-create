@@ -20,7 +20,7 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 
 	try {
 		const method = getHttpEventMethod(event);
-		const isAuth = isAuthorized(event.headers['x-api-key'], config);
+		const isAuth = isAuthorized(config, event.headers['Authorization'] || event.headers['authorization']);
 		if (isAuth === null) {
 			return createResponse(HttpStatus.UNAUTHORIZED, HttpStatusMessage[HttpStatus.UNAUTHORIZED]);
 		}
@@ -66,15 +66,12 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 			return response;
 		}
 
-		const response = createResponse(
-			HttpStatus.METHOD_NOT_ALLOWED,
-			HttpStatusMessage[HttpStatus.METHOD_NOT_ALLOWED]
-		);
+		const response = createResponse(HttpStatus.METHOD_NOT_ALLOWED, HttpStatusMessage[HttpStatus.METHOD_NOT_ALLOWED]);
 		logger.info('Lambda function completed successfully', {
 			requestId: context.awsRequestId,
 			result: response,
 			method,
-			});
+		});
 		return response;
 	} catch (error) {
 		const errorMessage = getErrorMessage(error);

@@ -1,7 +1,7 @@
-import { AppConfig } from "@/types";
+import { AppConfig } from '@/types';
 
-export function isAuthorized(apiKey?: string, config: AppConfig): boolean | null {
-  if (!apiKey) return null;
+export function isAuthorized(config: AppConfig, apiKey?: string): boolean | null {
+	if (!apiKey) return null;
 
 	return apiKey === config.finance.apiKey;
 }
