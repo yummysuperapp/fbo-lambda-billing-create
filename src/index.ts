@@ -2,7 +2,10 @@ import { APIGatewayProxyEventV2, Context, APIGatewayProxyResult } from 'aws-lamb
 import { GetBillHandler, CreateBillHandler } from '@/handlers';
 import { getHttpEventMethod, createResponse, createLogger, getErrorMessage } from '@/utils';
 import { config, NODE_ENV } from '@/config';
-import { HttpStatus, HttpStatusMessage } from '@/constants';
+import { HttpMethod, HttpStatus, HttpStatusMessage } from '@/constants';
+import { isAuthorized } from '@/autorization';
+import { createMongoClient, createBigQueryClient } from '@/clients';
+import { HttpStatusCode } from 'axios';
 
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResult> => {
 	const logger = createLogger('LambdaHandler', context.awsRequestId);
@@ -18,36 +21,62 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 
 	try {
 		const method = getHttpEventMethod(event);
-
-		switch (method) {
-			case 'GET': {
-				const getResponse = await GetBillHandler(event.body);
-				logger.info('Lambda function completed successfully', {
-					requestId: context.awsRequestId,
-					result: getResponse,
-				});
-				return getResponse;
-			}
-			case 'POST': {
-				const postResponse = CreateBillHandler(event.body);
-				logger.info('Lambda function completed successfully', {
-					requestId: context.awsRequestId,
-					result: postResponse,
-				});
-				return postResponse;
-			}
-			default: {
-				const defaultResponse = createResponse(
-					HttpStatus.METHOD_NOT_ALLOWED,
-					HttpStatusMessage[HttpStatus.METHOD_NOT_ALLOWED]
-				);
-				logger.info('Lambda function completed successfully', {
-					requestId: context.awsRequestId,
-					result: defaultResponse,
-				});
-				return defaultResponse;
-			}
+		const isAuth = isAuthorized(event.headers['x-api-key'], config);
+		if (isAuth === null) {
+			return createResponse(HttpStatus.UNAUTHORIZED, HttpStatusMessage[HttpStatus.UNAUTHORIZED]);
 		}
+		if (isAuth == false) {
+			return createResponse(HttpStatus.FORBIDDEN, HttpStatusMessage[HttpStatus.FORBIDDEN]);
+		}
+
+		const clients = {
+			mongo: createMongoClient(config.mongo, logger),
+			bigquery: createBigQueryClient(config.bigquery, logger),
+		};
+
+		if (method === HttpMethod.GET) {
+			const response = await clients.bigquery.datasetExists(config.bigquery.datasetId);
+			logger.info('Lambda function completed successfully', {
+				requestId: context.awsRequestId,
+				result: response,
+				method,
+			});
+
+			return createResponse(HttpStatus.OK, HttpStatusMessage[HttpStatus.OK], {
+				bill: response,
+			});
+		}
+
+		if (method === HttpMethod.PATCH) {
+			const response = await GetBillHandler(event.body);
+			logger.info('Lambda function completed successfully', {
+				requestId: context.awsRequestId,
+				result: response,
+				method,
+			});
+			return response;
+		}
+
+		if (method === HttpMethod.POST) {
+			const response = CreateBillHandler(event.body);
+			logger.info('Lambda function completed successfully', {
+				requestId: context.awsRequestId,
+				result: response,
+				method,
+			});
+			return response;
+		}
+
+		const response = createResponse(
+			HttpStatus.METHOD_NOT_ALLOWED,
+			HttpStatusMessage[HttpStatus.METHOD_NOT_ALLOWED]
+		);
+		logger.info('Lambda function completed successfully', {
+			requestId: context.awsRequestId,
+			result: response,
+			method,
+			});
+		return response;
 	} catch (error) {
 		const errorMessage = getErrorMessage(error);
 

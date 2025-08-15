@@ -38,6 +38,7 @@
 			"@/types": ["./src/@types/index.d.ts"],
 			"@/interfaces/*": ["./src/interfaces/*"],
 			"@/constants/*": ["./src/constants/*"],
+			"@/autorization/*": ["./src/autorization/*"],
 			"@/clients/*": ["./src/clients/*"],
 			"@/config/*": ["./src/config/*"],
 			"@/handlers/*": ["./src/handlers/*"],
