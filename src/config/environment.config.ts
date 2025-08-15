@@ -29,22 +29,19 @@ dotenv.config();
 const EnvSchema = z.object({
 	// Application Environment
 	NODE_ENV: z.enum(['development', 'production', 'local', 'dev', 'prod', 'test']).default('development'),
-	VERTICAL: z.string().min(1, 'VERTICAL is required'),
+	X_API_KEY: z.string().min(1, 'X_API_KEY is required').default('apikey'),
 
 	// Finance API Configuration
-	FINANCE_BASE_URL: z.string().url('FINANCE_BASE_URL must be a valid URL'),
-	FINANCE_API_KEY: z.string().min(1, 'FINANCE_API_KEY is required'),
-	FINANCE_DISPERSION_ENDPOINT: z.string().default('/api/v1/dispersion/receive'),
+	FINANCE_BASE_URL: z.string().url('FINANCE_BASE_URL must be a valid URL').optional(),
+	FINANCE_API_KEY: z.string().min(1, 'FINANCE_API_KEY is required').optional(),
+	FINANCE_DISPERSION_ENDPOINT: z.string().default('/api/v1/dispersion/receive').optional(),
 
 	// AWS Configuration
-	AWS_ACCESS_KEY_ID: z.string().optional(),
-	AWS_SECRET_ACCESS_KEY: z.string().optional(),
-	AWS_REGION: z.string().min(1, 'AWS_REGION is required'),
-	S3_BUCKET_NAME: z.string().min(1, 'S3_BUCKET_NAME is required'),
-	ALLOWED_S3_BUCKETS: z.string().min(1, 'ALLOWED_S3_BUCKETS is required'),
+	S3_BUCKET_NAME: z.string().min(1, 'S3_BUCKET_NAME is required').optional(),
+	ALLOWED_S3_BUCKETS: z.string().min(1, 'ALLOWED_S3_BUCKETS is required').optional(),
 
 	// Application Configuration
-	AWS_APP_NAME: z.string().min(1, 'AWS_APP_NAME is required'),
+	LAMBDA_FUNCTION_NAME: z.string().min(1, 'LAMBDA_FUNCTION_NAME is required'),
 	EXPIRATION_HOURS: z
 		.string()
 		.transform((val) => parseInt(val, 10))
@@ -52,20 +49,7 @@ const EnvSchema = z.object({
 		.default('12'),
 
 	// PostgreSQL Configuration
-	PG_HOST: z.string().min(1, 'PG_HOST is required'),
-	PG_PORT: z
-		.string()
-		.transform((val) => parseInt(val, 10))
-		.pipe(z.number().min(1).max(65535))
-		.default('5432'),
-	PG_DATABASE: z.string().min(1, 'PG_DATABASE is required'),
-	PG_USER: z.string().min(1, 'PG_USER is required'),
-	PG_PASSWORD: z.string().min(1, 'PG_PASSWORD is required'),
-	PG_SSL: z
-		.string()
-		.transform((val) => val === 'true')
-		.pipe(z.boolean())
-		.default('false'),
+	PG_URI: z.string().min(1, 'PG_DATABASE_URL is required'),
 	PG_MAX_CONNECTIONS: z
 		.string()
 		.transform((val) => parseInt(val, 10))
@@ -84,7 +68,6 @@ const EnvSchema = z.object({
 
 	// MongoDB Configuration
 	MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
-	MONGO_DATABASE: z.string().min(1, 'MONGO_DATABASE is required'),
 	MONGO_MAX_POOL_SIZE: z
 		.string()
 		.transform((val) => parseInt(val, 10))
@@ -105,10 +88,6 @@ const EnvSchema = z.object({
 		.transform((val) => parseInt(val, 10))
 		.pipe(z.number().min(1000))
 		.default('30000'),
-
-	// N8N Configuration
-	N8N_HOST: z.string().url('N8N_HOST must be a valid URL'),
-	N8N_API_KEY: z.string().min(1, 'N8N_API_KEY is required'),
 
 	// BigQuery Configuration
 	BIGQUERY_PROJECT_ID: z.string().min(1, 'BIGQUERY_PROJECT_ID is required'),

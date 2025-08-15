@@ -19,12 +19,7 @@ export interface AwsConfig {
 
 // PostgreSQL Configuration
 export interface PostgresConfig {
-	host: string;
-	port: number;
-	database: string;
-	user: string;
-	password: string;
-	ssl: boolean;
+	uri: string;
 	maxConnections: number;
 	connectionTimeoutMillis: number;
 	idleTimeoutMillis: number;
@@ -33,17 +28,10 @@ export interface PostgresConfig {
 // MongoDB Configuration
 export interface MongoConfig {
 	uri: string;
-	database: string;
 	maxPoolSize: number;
 	minPoolSize: number;
 	maxIdleTimeMS: number;
 	serverSelectionTimeoutMS: number;
-}
-
-// N8N Configuration
-export interface N8nConfig {
-	host: string;
-	apiKey: string;
 }
 
 // BigQuery Configuration
@@ -64,12 +52,10 @@ export interface BigQueryConfig {
 // Application Configuration
 export interface AppConfig {
 	appName: string;
-	vertical: string;
 	expirationHours: number;
 	finance: FinanceConfig;
 	aws: AwsConfig;
 	postgres: PostgresConfig;
 	mongo: MongoConfig;
-	n8n: N8nConfig;
 	bigquery: BigQueryConfig;
 }
