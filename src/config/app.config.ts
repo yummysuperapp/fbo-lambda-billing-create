@@ -21,7 +21,7 @@
 
 import type { AppConfig } from '@/types';
 import { env, type EnvVars } from './environment.config';
-import { createLogger } from '@/utils';
+import { createLogger } from '@/utils/logger.util';
 
 /**
  * Creates the application configuration from validated environment variables
@@ -48,6 +48,7 @@ function createConfig(envVars: EnvVars): AppConfig {
 		},
 		mongo: {
 			uri: envVars.MONGO_URI,
+			database: envVars.MONGO_DATABASE,
 			maxPoolSize: envVars.MONGO_MAX_POOL_SIZE,
 			minPoolSize: envVars.MONGO_MIN_POOL_SIZE,
 			maxIdleTimeMS: envVars.MONGO_MAX_IDLE_TIME,

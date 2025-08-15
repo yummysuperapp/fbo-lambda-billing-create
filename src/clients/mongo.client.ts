@@ -46,7 +46,7 @@ export class MongoDbClient implements MongoClientInterface {
 			this.client = new MongoClient(this.config.uri, options);
 
 			await this.client.connect();
-			this.db = this.client.db('');
+			this.db = this.client.db(this.config.database);
 
 			// Test connection
 			await this.db.admin().ping();

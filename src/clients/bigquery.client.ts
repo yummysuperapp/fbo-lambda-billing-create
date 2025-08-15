@@ -8,7 +8,7 @@ import type {
 	Logger,
 } from '@/types';
 import { BigQueryError } from '@/interfaces/exceptions';
-import { createLogger } from '@/utils/logger.util';
+import { createLogger } from '@/utils';
 import { config } from '@/config';
 
 /**

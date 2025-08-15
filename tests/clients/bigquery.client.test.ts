@@ -1,14 +1,32 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BigQuery } from '@google-cloud/bigquery';
-import { BigQueryClient, createBigQueryClient, getBigQueryClient } from '@/clients/bigquery.client';
+import { BigQueryClient, createBigQueryClient, getBigQueryClient } from '@/clients';
 import { BigQueryError } from '@/interfaces/exceptions';
-import { config } from '@/config/app.config';
-import { logger, createLogger } from '@/utils/logger.util';
+import { config } from '@/config';
+import { logger, createLogger } from '@/utils';
 
 // Mock dependencies
 vi.mock('@google-cloud/bigquery');
-vi.mock('@/config/app.config');
-vi.mock('@/utils/logger.util');
+vi.mock('@/config', () => ({
+	config: {
+		appName: 'test-app',
+		aws: { region: 'us-east-1' },
+	},
+}));
+vi.mock('@/utils', () => ({
+	logger: {
+		info: vi.fn(),
+		error: vi.fn(),
+		warn: vi.fn(),
+		debug: vi.fn(),
+	},
+	createLogger: vi.fn(() => ({
+		info: vi.fn(),
+		error: vi.fn(),
+		warn: vi.fn(),
+		debug: vi.fn(),
+	})),
+}));
 
 const mockBigQuery = vi.mocked(BigQuery);
 const mockConfig = vi.mocked(config);

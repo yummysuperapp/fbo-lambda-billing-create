@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createMongoClient, MongoClient } from '@/clients/mongo.client';
+import { createMongoClient, MongoClient } from '@/clients';
 import { MongoError } from '@/interfaces/exceptions';
 import { MongoClient as MongoDBClient } from 'mongodb';
 
@@ -472,7 +472,7 @@ describe('MongoClient', () => {
 				'MongoDB connection failed',
 				expect.any(MongoError),
 				expect.objectContaining({
-					database: mockConfig.database,
+					hasUri: true,
 				})
 			);
 		});

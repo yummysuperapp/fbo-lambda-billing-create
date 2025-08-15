@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createPostgresClient, PostgresClient } from '@/clients/postgres.client';
+import { createPostgresClient, PostgresClient } from '@/clients';
 import { PostgresError } from '@/interfaces/exceptions';
 import { Pool } from 'pg';
 
@@ -18,11 +18,8 @@ describe('PostgresClient', () => {
 	let mockLogger: any;
 
 	const mockConfig = {
-		host: 'localhost',
-		port: 5432,
+		uri: 'postgres://test_user:test_password@localhost:5432/test_db',
 		database: 'test_db',
-		user: 'test_user',
-		password: 'test_password',
 		ssl: false,
 		maxConnections: 10,
 		connectionTimeoutMillis: 30000,
@@ -86,8 +83,8 @@ describe('PostgresClient', () => {
 				'PostgreSQL connection failed',
 				expect.any(PostgresError),
 				expect.objectContaining({
-					host: mockConfig.host,
-					database: mockConfig.database,
+					hasUri: true,
+					maxConnections: 10,
 				})
 			);
 		});
@@ -345,8 +342,8 @@ describe('PostgresClient', () => {
 				'PostgreSQL connection failed',
 				expect.any(PostgresError),
 				expect.objectContaining({
-					host: mockConfig.host,
-					database: mockConfig.database,
+					hasUri: true,
+					maxConnections: 10,
 				})
 			);
 
@@ -536,12 +533,8 @@ describe('PostgresClient', () => {
 			await customClient.connect();
 
 			expect(Pool).toHaveBeenCalledWith({
-				host: customConfig.host,
-				port: customConfig.port,
-				database: customConfig.database,
-				user: customConfig.user,
-				password: customConfig.password,
-				ssl: customConfig.ssl,
+				connectionString: customConfig.uri,
+				ssl: false,
 				max: customConfig.maxConnections,
 				connectionTimeoutMillis: customConfig.connectionTimeoutMillis,
 				idleTimeoutMillis: customConfig.idleTimeoutMillis,
@@ -550,11 +543,8 @@ describe('PostgresClient', () => {
 
 		it('should use default values when config properties are undefined', async () => {
 			const minimalConfig = {
-				host: 'localhost',
-				port: 5432,
+				uri: 'postgres://test_user:test_password@localhost:5432/test_db',
 				database: 'test_db',
-				user: 'test_user',
-				password: 'test_password',
 				// ssl, maxConnections, connectionTimeoutMillis, idleTimeoutMillis are undefined
 			};
 
@@ -569,11 +559,7 @@ describe('PostgresClient', () => {
 			await minimalClient.connect();
 
 			expect(Pool).toHaveBeenCalledWith({
-				host: minimalConfig.host,
-				port: minimalConfig.port,
-				database: minimalConfig.database,
-				user: minimalConfig.user,
-				password: minimalConfig.password,
+				connectionString: minimalConfig.uri,
 				ssl: false, // default value
 				max: 10, // default value
 				connectionTimeoutMillis: 30000, // default value

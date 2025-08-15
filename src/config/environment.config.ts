@@ -68,6 +68,7 @@ const EnvSchema = z.object({
 
 	// MongoDB Configuration
 	MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
+	MONGO_DATABASE: z.string().min(1, 'MONGO_DATABASE is required').default('payments'),
 	MONGO_MAX_POOL_SIZE: z
 		.string()
 		.transform((val) => parseInt(val, 10))

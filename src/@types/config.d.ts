@@ -28,6 +28,7 @@ export interface PostgresConfig {
 // MongoDB Configuration
 export interface MongoConfig {
 	uri: string;
+	database: string;
 	maxPoolSize: number;
 	minPoolSize: number;
 	maxIdleTimeMS: number;
