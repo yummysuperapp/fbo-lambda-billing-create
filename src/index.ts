@@ -5,7 +5,6 @@ import { config, NODE_ENV } from '@/config';
 import { HttpMethod, HttpStatus, HttpStatusMessage } from '@/constants';
 import { isAuthorized } from '@/autorization';
 import { createMongoClient, createBigQueryClient } from '@/clients';
-import { HttpStatusCode } from 'axios';
 
 export const handler = async (event: APIGatewayProxyEventV2, context: Context): Promise<APIGatewayProxyResult> => {
 	const logger = createLogger('LambdaHandler', context.awsRequestId);
