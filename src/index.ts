@@ -43,7 +43,8 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 		};
 
 		if (method === HttpMethod.GET) {
-			const response = await clients.bigquery?.query('SELECT * FROM `backoffice_raw.bills`');
+			const datasetId = config.bigquery?.datasetId;
+			const response = await clients.bigquery?.datasetExists(datasetId);
 			logger.info('Get dataset exists', {
 				requestId: context.awsRequestId,
 				result: response,
