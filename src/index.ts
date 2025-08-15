@@ -34,8 +34,9 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 		};
 
 		if (method === HttpMethod.GET) {
-			const response = await clients.bigquery.datasetExists(config.bigquery.datasetId);
-			logger.info('Lambda function completed successfully', {
+			const datasetId = event.queryStringParameters?.datasetId || 'raw-superapp.backoffice_raw';
+			const response = await clients.bigquery.datasetExists(datasetId);
+			logger.info('Get dataset exists', {
 				requestId: context.awsRequestId,
 				result: response,
 				method,
