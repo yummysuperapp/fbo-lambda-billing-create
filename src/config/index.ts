@@ -18,5 +18,5 @@
  */
 
 // Re-export configuration objects and utilities
-export { config, NODE_ENV, IS_LOCAL, IS_DEVELOPMENT, IS_PRODUCTION, ALLOWED_S3_BUCKETS } from './app.config';
+export { config, NODE_ENV, IS_LOCAL, IS_DEVELOPMENT, IS_PRODUCTION } from './app.config';
 export { env, validateEnvironment, type EnvVars } from './environment.config';

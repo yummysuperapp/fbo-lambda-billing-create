@@ -46,19 +46,19 @@ export class MongoDbClient implements MongoClientInterface {
 			this.client = new MongoClient(this.config.uri, options);
 
 			await this.client.connect();
-			this.db = this.client.db(this.config.database);
+			this.db = this.client.db('');
 
 			// Test connection
 			await this.db.admin().ping();
 
 			this.logger.info('MongoDB connection established', {
-				database: this.config.database,
+				hasUri: !!this.config.uri,
 				maxPoolSize: this.config.maxPoolSize ?? 10,
 			});
 		} catch (error) {
 			const mongoError = new MongoError('Failed to connect to MongoDB', { error });
 			this.logger.error('MongoDB connection failed', mongoError, {
-				database: this.config.database,
+				hasUri: !!this.config.uri,
 			});
 			throw mongoError;
 		}

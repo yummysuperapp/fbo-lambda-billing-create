@@ -27,12 +27,8 @@ export class PostgresClient implements PostgresClientInterface {
 			}
 
 			this.pool = new Pool({
-				host: this.config.host,
-				port: this.config.port,
-				database: this.config.database,
-				user: this.config.user,
-				password: this.config.password,
-				ssl: this.config.ssl ?? false,
+				connectionString: this.config.uri,
+				ssl: false,
 				max: this.config.maxConnections ?? 10,
 				connectionTimeoutMillis: this.config.connectionTimeoutMillis ?? 30000,
 				idleTimeoutMillis: this.config.idleTimeoutMillis ?? 30000,
@@ -49,15 +45,14 @@ export class PostgresClient implements PostgresClientInterface {
 			client.release();
 
 			this.logger.info('PostgreSQL connection pool established', {
-				host: this.config.host,
-				database: this.config.database,
+				hasUri: !!this.config.uri,
 				maxConnections: this.config.maxConnections ?? 10,
 			});
 		} catch (error) {
 			const pgError = new PostgresError('Failed to connect to PostgreSQL', { error });
 			this.logger.error('PostgreSQL connection failed', pgError, {
-				host: this.config.host,
-				database: this.config.database,
+				hasUri: !!this.config.uri,
+				maxConnections: this.config.maxConnections ?? 10,
 			});
 			throw pgError;
 		}

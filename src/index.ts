@@ -13,7 +13,7 @@ export const handler = async (event: APIGatewayProxyEventV2, context: Context): 
 		functionName: context.functionName,
 		functionVersion: context.functionVersion,
 		remainingTimeInMillis: context.getRemainingTimeInMillis(),
-    config,
+		config,
 	});
 
 	try {
